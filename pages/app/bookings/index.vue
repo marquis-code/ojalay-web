@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, Plus, Repeat2, Settings2, UserRound, Users, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, MessageCircle, Plus, Repeat2, Settings2, UserRound, Users, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
+import { whatsappLink } from '~/utils/phone';
 import type { Booking } from '~/types';
 definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'Appointments' });
@@ -85,6 +86,10 @@ async function cancelBooking(id: string) {
   catch (error) { toast.error((error as Error).message); }
   finally { busy.value = false; }
 }
+function waCustomer(booking: Booking) {
+  const when = new Date(booking.startAt).toLocaleString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  return whatsappLink(booking.customerPhone, `Hi ${booking.customerName.split(' ')[0]}! This is a reminder about your ${booking.serviceName} with ${booking.providerName} on ${when}. Reference: ${booking.bookingNumber}.`);
+}
 function time(value: string) { return new Date(value).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }); }
 function dateLabel(value: string) { return new Date(`${value}T12:00:00`).toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long' }); }
 watch(() => [filters.status, filters.providerId, filters.date], () => load());
@@ -159,6 +164,7 @@ onMounted(async () => {
         <p v-if="selected.notes" class="rounded-2xl border border-line p-3 text-xs text-muted">{{ selected.notes }}</p>
         <div v-if="selected.paymentStatus === 'unpaid' && selected.depositKobo" class="rounded-2xl bg-warning/10 p-3 text-xs text-warning">Deposit of {{ formatNaira(selected.depositKobo) }} is still unpaid.</div>
         <div class="flex flex-wrap gap-2">
+          <a :href="waCustomer(selected)" target="_blank" rel="noopener" class="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><MessageCircle class="h-3.5 w-3.5" /> WhatsApp</a>
           <BaseButton v-if="selected.capacity > 1" size="sm" variant="outline" @click="openRoster(selected)"><Users class="h-4 w-4" /> Roster ({{ selected.capacity }})</BaseButton>
           <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="outline" :loading="busy" @click="openReschedule(selected)"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
           <BaseButton v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'" size="sm" variant="outline" :loading="busy" @click="refundOpen = true">Refund payment</BaseButton>

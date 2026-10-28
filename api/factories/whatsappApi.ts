@@ -4,7 +4,7 @@ import type { OrderPayload } from '~/api/types';
 class WhatsappApi extends BaseApi {
   constructor() { super('/whatsapp'); }
   status(): Promise<{
-    configured: boolean; readiness: Record<string, boolean>; missing: string[]; platformNumber?: string | null; webhookUrl: string;
+    configured: boolean; sms: { configured: boolean; provider: string }; readiness: Record<string, boolean>; missing: string[]; platformNumber?: string | null; webhookUrl: string;
     contacts: { id: string; phone: string; verifiedAt?: string; lastInboundAt?: string; displayName?: string; alertsOptOut: boolean }[];
     templates: { name: string; params: number; description: string }[];
   }> { return this.request('get', '/status'); }

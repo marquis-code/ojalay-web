@@ -5,7 +5,10 @@ import { CalendarDays, Check, Clock3, MapPin, MessageCircle, ShieldCheck, X } fr
 import { formatNaira } from '~/utils/money';
 const route = useRoute();
 const token = computed(() => String(route.params.token));
-const { data, refresh } = await usePublicBooking(token);
+const { data, error: bookingError, refresh } = await usePublicBooking(token);
+if (bookingError.value || !data.value?.booking) {
+  throw createError({ statusCode: 404, statusMessage: 'Booking not found', fatal: true });
+}
 const { busy, error: actionError, cancel, reschedule, pay, availability } = usePublicBookingActions(token);
 const showCancel = ref(false);
 const showReschedule = ref(false);

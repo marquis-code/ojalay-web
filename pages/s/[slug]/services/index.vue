@@ -4,7 +4,10 @@ import { ArrowRight, Clock3, Scissors } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 const route = useRoute();
 const slug = computed(() => String(route.params.slug));
-const { data } = await useStorefrontServices(slug);
+const { data, error } = await useStorefrontServices(slug);
+if (error.value || !data.value || !data.value.items?.length) {
+  throw createError({ statusCode: 404, statusMessage: 'Service menu not found', fatal: true });
+}
 useSeoMeta({
   title: computed(() => data.value ? `Services — ${data.value.business.name}` : 'Services'),
   description: computed(() => data.value?.business.seoDescription || data.value?.business.description || 'Book an appointment.'),

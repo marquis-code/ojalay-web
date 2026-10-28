@@ -5,7 +5,10 @@ import { formatNaira } from '~/utils/money';
 const route = useRoute();
 const slug = computed(() => String(route.params.slug));
 const id = computed(() => String(route.params.id));
-const { data } = await useStorefrontService(slug, id);
+const { data, error } = await useStorefrontService(slug, id);
+if (error.value || !data.value?.service) {
+  throw createError({ statusCode: 404, statusMessage: 'Service not found', fatal: true });
+}
 useSeoMeta({
   title: computed(() => data.value ? `${data.value.service.name} — ${data.value.business.name}` : 'Book a service'),
   description: computed(() => data.value?.service.description || data.value?.business.description || 'Book an appointment.'),

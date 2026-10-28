@@ -324,6 +324,9 @@ export interface Booking {
   amountPaidKobo: number;
   paymentStatus: BookingPaymentStatus;
   paymentReference?: string | null;
+  seriesId?: string | null;
+  seriesIndex: number;
+  seriesTotal: number;
   saleId?: string | null;
   cancellationReason?: string | null;
   cancelledAt?: string | null;

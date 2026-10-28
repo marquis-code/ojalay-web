@@ -11,6 +11,7 @@ class BookingsApi extends BaseApi {
   }
   booking(id: string): Promise<Booking> { return this.request('get', `/${id}`); }
   createBooking(payload: Record<string, unknown>): Promise<Booking> { return this.request('post', '', payload); }
+  createRecurring(payload: Record<string, unknown>): Promise<{ seriesId: string; bookings: Booking[] }> { return this.request('post', '/recurring', payload); }
   setStatus(id: string, status: string, reason?: string): Promise<Booking> { return this.request('patch', `/${id}/status`, { status, reason }); }
   cancel(id: string, reason?: string): Promise<Booking> { return this.request('post', `/${id}/cancel`, { reason }); }
   reschedule(id: string, startAt: string, providerId?: string): Promise<Booking> { return this.request('post', `/${id}/reschedule`, { startAt, providerId }); }

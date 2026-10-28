@@ -23,11 +23,13 @@ export function usePublicBooking(token: MaybeRefOrGetter<string>) {
 }
 
 export function usePublicBookingActions(token: MaybeRefOrGetter<string>) {
+  const config = useRuntimeConfig();
   const busy = ref(false);
   const error = ref<string | null>(null);
   async function cancel(reason?: string) { busy.value = true; error.value = null; try { return await publicApi.cancelBooking(toValue(token), reason); } catch (err) { error.value = (err as Error).message; throw err; } finally { busy.value = false; } }
   async function reschedule(startAt: string, providerId?: string) { busy.value = true; error.value = null; try { return await publicApi.rescheduleBooking(toValue(token), startAt, providerId); } catch (err) { error.value = (err as Error).message; throw err; } finally { busy.value = false; } }
   async function availability(slug: string, serviceId: string, date: string) { return publicApi.availability(slug, { serviceId, date }); }
+  function calendarUrl() { return `${String(config.public.apiBase).replace(/\/$/, '')}/public/bookings/${toValue(token)}/calendar.ics`; }
   async function pay(email?: string) { busy.value = true; error.value = null; try { return await publicApi.payBooking(toValue(token), email); } catch (err) { error.value = (err as Error).message; throw err; } finally { busy.value = false; } }
-  return { busy, error, cancel, reschedule, pay, availability };
+  return { busy, error, cancel, reschedule, pay, availability, calendarUrl };
 }

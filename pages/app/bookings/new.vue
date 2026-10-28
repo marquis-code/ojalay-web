@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, CalendarDays, Check, Clock3, UserRound } from 'lucide-vue-next';
+import { ArrowLeft, CalendarDays, Check, Clock3, Repeat2, UserRound } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'New appointment' });
@@ -8,12 +8,19 @@ const toast = useToast();
 const router = useRouter();
 const { items: services, load: loadServices } = useServices();
 const { items: providers, load: loadProviders } = useProviders();
-const { slots, slotsLoading, loadSlots, create } = useBookings();
+const { slots, slotsLoading, loadSlots, create, createRecurring } = useBookings();
 const saving = ref(false);
 const form = reactive({
   serviceId: '', providerId: '', date: '', startAt: '',
   customerName: '', customerPhone: '', customerEmail: '', notes: '', addOnNames: [] as string[],
+  repeat: 'none', occurrences: '4',
 });
+const repeatOptions = [
+  { value: 'none', label: 'One appointment' },
+  { value: 'weekly', label: 'Every week' },
+  { value: 'biweekly', label: 'Every 2 weeks' },
+  { value: 'monthly', label: 'Every month' },
+];
 const serviceOptions = computed(() => services.value.filter((s) => s.isActive).map((s) => ({ value: s.id, label: `${s.name} · ${formatNaira(s.priceKobo)} · ${s.durationMinutes}m` })));
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...providers.value.filter((p) => p.isActive && p.isBookable).map((p) => ({ value: p.id, label: p.name }))]);
 const selectedService = computed(() => services.value.find((s) => s.id === form.serviceId) || null);
@@ -42,8 +49,18 @@ async function submit() {
   if (form.customerPhone.trim().length < 7) return toast.error('Add a valid customer phone number.');
   saving.value = true;
   try {
-    await create({ ...form, providerId: form.providerId || undefined, customerEmail: form.customerEmail || undefined, addOnNames: form.addOnNames });
-    toast.success('Appointment booked. The client can now pay a deposit or manage the booking.');
+    const payload = {
+      serviceId: form.serviceId, providerId: form.providerId || undefined, startAt: form.startAt,
+      customerName: form.customerName, customerPhone: form.customerPhone,
+      customerEmail: form.customerEmail || undefined, notes: form.notes, addOnNames: form.addOnNames,
+    };
+    if (form.repeat !== 'none') {
+      const result = await createRecurring({ ...payload, frequency: form.repeat, occurrences: Number(form.occurrences) || 2 });
+      toast.success(`${result.bookings.length} appointments booked as a repeating series.`);
+    } else {
+      await create(payload);
+      toast.success('Appointment booked. The client can now pay a deposit or manage the booking.');
+    }
     await router.push('/app/bookings');
   } catch (error) { toast.error((error as Error).message); }
   finally { saving.value = false; }
@@ -72,6 +89,13 @@ onMounted(async () => { form.date = tomorrow(); await Promise.all([loadServices(
         <div class="card space-y-4 p-5">
           <h2 class="font-display text-lg font-bold">When?</h2>
           <BaseDatePicker v-model="form.date" label="Date" :min="new Date().toISOString().slice(0,10)" />
+          <div class="rounded-2xl border border-line bg-raised/30 p-3">
+            <BaseSelect v-model="form.repeat" :options="repeatOptions" label="Repeat" />
+            <div v-if="form.repeat !== 'none'" class="mt-2 flex items-end gap-2">
+              <BaseInput v-model="form.occurrences" label="Number of appointments" type="number" min="2" max="12" class="max-w-[170px]" />
+              <p class="pb-3 text-[10px] leading-relaxed text-muted">Each session is checked against live availability before anything is saved.</p>
+            </div>
+          </div>
           <div v-if="slotsLoading" class="grid grid-cols-3 gap-2"><div v-for="i in 6" :key="i" class="skeleton h-10 rounded-xl" /></div>
           <div v-else-if="slots?.slots.length" class="grid grid-cols-3 gap-2 sm:grid-cols-4">
             <button v-for="slot in slots.slots" :key="slot.startAt" type="button" class="rounded-xl border px-2 py-2.5 text-xs font-bold" :class="form.startAt === slot.startAt ? 'border-brand-500 bg-brand-500 text-white' : 'border-line bg-surface hover:border-ink'" @click="pickSlot(slot.startAt, slot.providers)">{{ slot.time }}</button>
@@ -96,7 +120,8 @@ onMounted(async () => { form.date = tomorrow(); await Promise.all([loadServices(
           <div v-for="addon in selectedAddons" :key="addon.name" class="mt-1 flex items-center justify-between text-xs text-muted"><span>+ {{ addon.name }}</span><span>{{ formatNaira(addon.priceKobo) }}</span></div>
           <div class="mt-3 flex items-center justify-between border-t border-line pt-3 font-display text-xl font-bold"><span>Total</span><span>{{ formatNaira(totalKobo) }}</span></div>
           <div v-if="selectedService?.requiresDeposit" class="mt-2 flex items-center justify-between text-xs text-warning"><span>Deposit required</span><span>{{ formatNaira(selectedService.depositKobo) }}</span></div>
-          <BaseButton type="submit" block size="lg" class="mt-5" :loading="saving"><CalendarDays class="h-4 w-4" /> Book appointment</BaseButton>
+          <div v-if="form.repeat !== 'none'" class="mt-2 flex items-center justify-between rounded-xl bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-700"><span class="inline-flex items-center gap-1"><Repeat2 class="h-3.5 w-3.5" /> Repeating</span><span>{{ form.occurrences }} sessions · {{ repeatOptions.find((o) => o.value === form.repeat)?.label }}</span></div>
+          <BaseButton type="submit" block size="lg" class="mt-5" :loading="saving"><CalendarDays class="h-4 w-4" /> {{ form.repeat === 'none' ? 'Book appointment' : `Book ${form.occurrences} appointments` }}</BaseButton>
           <p class="mt-2 text-center text-[10px] text-muted">The client receives a booking page, receipt and reminders.</p>
         </div>
         <div v-if="eligibleProviders.length" class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Available team</p><div class="mt-2 flex flex-wrap gap-2"><span v-for="p in eligibleProviders" :key="p.id" class="inline-flex items-center gap-1.5 rounded-full bg-raised px-2.5 py-1.5 text-[10px] font-semibold"><span class="h-2 w-2 rounded-full" :style="{ background: p.color }" /> {{ p.name }}</span></div></div>

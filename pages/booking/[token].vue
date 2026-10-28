@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: false });
 import { ref, computed } from 'vue';
-import { CalendarDays, Check, Clock3, MapPin, MessageCircle, ShieldCheck, X } from 'lucide-vue-next';
+import { CalendarDays, CalendarPlus, MapPin, MessageCircle, ShieldCheck, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 const route = useRoute();
 const token = computed(() => String(route.params.token));
@@ -9,7 +9,7 @@ const { data, error: bookingError, refresh } = await usePublicBooking(token);
 if (bookingError.value || !data.value?.booking) {
   throw createError({ statusCode: 404, statusMessage: 'Booking not found', fatal: true });
 }
-const { busy, error: actionError, cancel, reschedule, pay, availability } = usePublicBookingActions(token);
+const { busy, error: actionError, cancel, reschedule, pay, availability, calendarUrl } = usePublicBookingActions(token);
 const showCancel = ref(false);
 const showReschedule = ref(false);
 const newDate = ref('');
@@ -69,6 +69,7 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
           </div>
           <div class="flex flex-wrap gap-2 border-t border-line pt-4">
             <BaseButton v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" size="sm" variant="outline" @click="showReschedule = true"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
+            <a :href="calendarUrl()" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><CalendarPlus class="h-4 w-4" /> Add to calendar</a>
             <a v-if="business?.whatsappNumber || business?.publicPhone" :href="`https://wa.me/${String(business?.whatsappNumber || business?.publicPhone).replace(/\\D/g, '')}`" target="_blank" rel="noopener" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><MessageCircle class="h-4 w-4" /> Message business</a>
             <button v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" type="button" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-danger hover:bg-danger/5" @click="showCancel = true"><X class="h-4 w-4" /> Cancel</button>
           </div>

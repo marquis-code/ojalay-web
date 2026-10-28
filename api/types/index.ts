@@ -15,6 +15,7 @@ export interface RegisterPayload {
   phone?: string;
   referral?: string;
   campus?: string;
+  ambassador?: string;
 }
 
 export interface LoginPayload { email: string; password: string; }

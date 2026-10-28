@@ -12,7 +12,7 @@ declare const process: { env: Record<string, string | undefined> };
 const RESERVED = [
   '/_nuxt', '/api', '/embed', '/s/', '/receipt', '/invoice', '/pay', '/payment',
   '/order', '/login', '/register', '/forgot-password', '/reset-password',
-  '/verify-email', '/booking', '/review', '/package', '/app', '/offline', '/favicon', '/pwa-', '/robots', '/sitemap',
+  '/verify-email', '/booking', '/review', '/package', '/campus', '/app', '/offline', '/favicon', '/pwa-', '/robots', '/sitemap',
   '/assets', '/sw.js', '/workbox', '/manifest', '/apple-touch', '/_ipx', '/__nuxt', '/_payload',
 ];
 
@@ -64,5 +64,5 @@ export default async function middleware(request: Request) {
 
 export const config = {
   runtime: 'nodejs',
-  matcher: ['/((?!_nuxt|_ipx|__nuxt|_payload|assets|api|embed|s/|receipt|invoice|pay|payment|order|login|register|forgot-password|reset-password|verify-email|booking|review|package|app|offline|favicon|pwa-|robots|sitemap|manifest|apple-touch|sw\\.js|workbox).*)'],
+  matcher: ['/((?!_nuxt|_ipx|__nuxt|_payload|assets|api|embed|s/|receipt|invoice|pay|payment|order|login|register|forgot-password|reset-password|verify-email|booking|review|package|campus|app|offline|favicon|pwa-|robots|sitemap|manifest|apple-touch|sw\\.js|workbox).*)'],
 };

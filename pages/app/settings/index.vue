@@ -22,7 +22,7 @@ const summaries = useSummaries();
 const billing = useBilling();
 const domainApi = useDomain();
 const { data: categoryOptions } = await useBusinessCategories();
-const whatsappReadyLabels: Record<string, string> = { accessToken: 'Access token', phoneNumberId: 'Phone number ID', appSecret: 'App secret', verifyToken: 'Verify token', platformNumber: 'Platform number' };
+const whatsappReadyLabels: Record<string, string> = { accessToken: 'Access token', phoneNumberId: 'Phone number ID', apiKey: '360dialog API key', appSecret: 'App secret', verifyToken: 'Verify token', platformNumber: 'Platform number' };
 const validTabs = ['profile', 'business', 'alerts', 'summaries', 'whatsapp', 'staff', 'billing', 'domain'];
 const activeTab = ref(validTabs.includes(String(route.query.tab)) ? String(route.query.tab) : 'business');
 const tabs = [
@@ -246,7 +246,7 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
 
     <div v-else-if="activeTab === 'whatsapp'" class="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
       <BaseCard data-tour="whatsapp-link">
-        <div class="flex items-center gap-2"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#25D366]/15 text-[#128C4A]"><MessageCircle class="h-5 w-5" /></div><div><h2 class="font-display text-xl font-bold">WhatsApp bot</h2><p class="text-[11px] text-muted">{{ whatsapp.status.value?.configured ? 'Cloud API connected' : 'Optional — WhatsApp links still work without Cloud API' }}</p></div><BaseBadge class="ml-auto" :variant="whatsapp.status.value?.configured ? 'success' : 'warning'" dot>{{ whatsapp.status.value?.configured ? 'Connected' : 'Setup needed' }}</BaseBadge></div>
+        <div class="flex items-center gap-2"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#25D366]/15 text-[#128C4A]"><MessageCircle class="h-5 w-5" /></div><div><h2 class="font-display text-xl font-bold">WhatsApp bot</h2><p class="text-[11px] text-muted">{{ whatsapp.status.value?.configured ? `${whatsapp.status.value?.provider || 'Cloud API'} connected` : 'Optional — WhatsApp links still work without Cloud API' }}</p></div><BaseBadge class="ml-auto" :variant="whatsapp.status.value?.configured ? 'success' : 'warning'" dot>{{ whatsapp.status.value?.configured ? 'Connected' : 'Setup needed' }}</BaseBadge></div>
         <div class="mt-4"><p class="label-base">Platform number</p><p class="rounded-xl bg-raised p-3 text-sm font-semibold">{{ whatsapp.status.value?.platformNumber || 'Add WHATSAPP_PLATFORM_NUMBER to your env' }}</p></div>
         <div class="mt-4 rounded-xl border border-line p-3">
           <p class="text-[10px] font-bold uppercase tracking-wider text-muted">Connection checklist</p>

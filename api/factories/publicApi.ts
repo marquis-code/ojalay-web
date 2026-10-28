@@ -1,5 +1,5 @@
 import { BaseApi } from '~/api/base/BaseApi';
-import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, Receipt, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate, WaitlistEntry } from '~/types';
+import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, PublicReview, Receipt, Review, ReviewContext, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate, WaitlistEntry } from '~/types';
 
 class PublicApi extends BaseApi {
   constructor() { super('/'); }
@@ -20,7 +20,7 @@ class PublicApi extends BaseApi {
   services(slug: string): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; items: Service[]; providers: PublicProvider[]; categories: string[] }> {
     return this.request('get', `storefront/${slug}/services`);
   }
-  service(slug: string, id: string): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; service: Service; providers: PublicProvider[] }> {
+  service(slug: string, id: string): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; service: Service; providers: PublicProvider[]; reviews: { items: PublicReview[]; average: number; count: number } }> {
     return this.request('get', `storefront/${slug}/services/${id}`);
   }
   availability(slug: string, params: { serviceId: string; date: string; providerId?: string; durationMinutes?: number }): Promise<AvailabilityResponse> {
@@ -29,6 +29,8 @@ class PublicApi extends BaseApi {
   book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; addOnNames?: string[] }): Promise<{ booking: Booking; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
     return this.request('post', `storefront/${slug}/bookings`, payload);
   }
+  reviewContext(token: string): Promise<ReviewContext> { return this.request('get', `public/reviews/${token}`); }
+  submitReview(token: string, payload: { rating: number; comment?: string }): Promise<Review> { return this.request('post', `public/reviews/${token}`, payload); }
   joinWaitlist(slug: string, payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; notes?: string }): Promise<{ entry: WaitlistEntry & { already?: boolean }; business: StorefrontHome['business'] }> {
     return this.request('post', `storefront/${slug}/waitlist`, payload);
   }

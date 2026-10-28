@@ -33,3 +33,22 @@ export function usePublicBookingActions(token: MaybeRefOrGetter<string>) {
   async function pay(email?: string) { busy.value = true; error.value = null; try { return await publicApi.payBooking(toValue(token), email); } catch (err) { error.value = (err as Error).message; throw err; } finally { busy.value = false; } }
   return { busy, error, cancel, reschedule, pay, availability, calendarUrl };
 }
+
+export function usePublicReview(token: MaybeRefOrGetter<string>) {
+  return useAsyncData(
+    () => `public-review-${toValue(token)}`,
+    () => publicApi.reviewContext(toValue(token)),
+    { watch: [() => toValue(token)] },
+  );
+}
+export function useReviewActions(token: MaybeRefOrGetter<string>) {
+  const busy = ref(false);
+  const error = ref<string | null>(null);
+  async function submit(rating: number, comment: string) {
+    busy.value = true; error.value = null;
+    try { return await publicApi.submitReview(toValue(token), { rating, comment }); }
+    catch (err) { error.value = (err as Error).message; throw err; }
+    finally { busy.value = false; }
+  }
+  return { busy, error, submit };
+}

@@ -7,11 +7,12 @@ useSeoMeta({ title: 'Appointments' });
 
 const toast = useToast();
 const route = useRoute();
-const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, reschedule } = useBookings();
+const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, refund, reschedule } = useBookings();
 const { items: providers, load: loadProviders } = useProviders();
 const selected = ref<Booking | null>(null);
 const detailOpen = ref(false);
 const busy = ref(false);
+const refundOpen = ref(false);
 const rescheduleOpen = ref(false);
 const newDate = ref('');
 const newStart = ref('');
@@ -57,6 +58,16 @@ async function update(id: string, status: string) {
   busy.value = true;
   try { await setStatus(id, status); toast.success(`Booking ${status.replace('_', ' ')}.`); selected.value = items.value.find((b) => b.id === id) || null; }
   catch (error) { toast.error((error as Error).message); }
+  finally { busy.value = false; }
+}
+async function confirmRefund() {
+  if (!selected.value) return;
+  busy.value = true;
+  try {
+    const result = await refund(selected.value.id);
+    toast.success(`${formatNaira(result.amountKobo)} refunded via Paystack.`);
+    refundOpen.value = false; selected.value = null; detailOpen.value = false;
+  } catch (error) { toast.error((error as Error).message); }
   finally { busy.value = false; }
 }
 async function cancelBooking(id: string) {
@@ -140,6 +151,7 @@ onMounted(async () => {
         <div v-if="selected.paymentStatus === 'unpaid' && selected.depositKobo" class="rounded-2xl bg-warning/10 p-3 text-xs text-warning">Deposit of {{ formatNaira(selected.depositKobo) }} is still unpaid.</div>
         <div class="flex flex-wrap gap-2">
           <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="outline" :loading="busy" @click="openReschedule(selected)"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
+          <BaseButton v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'" size="sm" variant="outline" :loading="busy" @click="refundOpen = true">Refund payment</BaseButton>
           <BaseButton v-if="selected.status === 'pending'" size="sm" :loading="busy" @click="update(selected.id, 'confirmed')"><Check class="h-4 w-4" /> Confirm</BaseButton>
           <BaseButton v-if="selected.status === 'confirmed'" size="sm" :loading="busy" @click="update(selected.id, 'completed')"><Check class="h-4 w-4" /> Complete & record sale</BaseButton>
           <BaseButton v-if="selected.status === 'confirmed'" size="sm" variant="outline" :loading="busy" @click="update(selected.id, 'no_show')">No-show</BaseButton>
@@ -148,6 +160,8 @@ onMounted(async () => {
         <div class="border-t border-line pt-3 text-xs text-muted"><p>Client can manage this booking here:</p><NuxtLink :to="`/booking/${selected.publicToken}`" target="_blank" class="mt-1 block break-all font-semibold text-brand-600">/booking/{{ selected.publicToken }}</NuxtLink></div>
       </div>
     </BaseModal>
+
+    <ConfirmDialog v-model:open="refundOpen" danger title="Refund this payment?" message="This sends the refundable balance back through Paystack. It cannot be undone." confirm-label="Refund via Paystack" :loading="busy" @confirm="confirmRefund" />
 
     <BaseModal v-model:open="rescheduleOpen" title="Move appointment" description="This checks live availability before saving." size="md">
       <div class="space-y-4">

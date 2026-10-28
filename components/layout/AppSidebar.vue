@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 import {
   ArrowUpRight, BarChart3, Boxes, Building2, CalendarDays, CircleDollarSign, CircleHelp, Gift, Globe2, LayoutDashboard,
-  Package, Scissors, Settings, ShoppingBag, Users, UserRoundCog, WalletCards, X, ReceiptText,
+  Package, Scissors, Settings, ShoppingBag, Star, Users, UserRoundCog, WalletCards, X, ReceiptText,
 } from 'lucide-vue-next';
 
 defineProps<{ open: boolean }>();
@@ -34,6 +34,7 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
       { to: '/app/debts', label: 'Debts', icon: WalletCards },
       { to: '/app/expenses', label: 'Expenses', icon: ReceiptText },
       { to: '/app/reports', label: 'Reports', icon: BarChart3 },
+      { to: '/app/reviews', label: 'Reviews', icon: Star, modes: ['services', 'hybrid'] },
     ],
   },
   {

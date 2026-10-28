@@ -29,9 +29,11 @@ export function useBookings() {
     finally { slotsLoading.value = false; }
   }
   async function create(payload: Record<string, unknown>) { const b = await bookingsApi.createBooking(payload); await load(); return b; }
+  async function calendarFeed() { return bookingsApi.calendarFeed(); }
   async function createRecurring(payload: Record<string, unknown>) { const result = await bookingsApi.createRecurring(payload); await load(); return result; }
   async function setStatus(id: string, status: string, reason?: string) { const b = await bookingsApi.setStatus(id, status, reason); await load(); return b; }
   async function cancel(id: string, reason?: string) { const b = await bookingsApi.cancel(id, reason); await load(); return b; }
+  async function refund(id: string, amountKobo?: number) { const result = await bookingsApi.refund(id, amountKobo); await load(); return result; }
   async function reschedule(id: string, startAt: string, providerId?: string) { const b = await bookingsApi.reschedule(id, startAt, providerId); await load(); return b; }
-  return { items, loading, error, summary, filters, slots, slotsLoading, load, loadSlots, create, createRecurring, setStatus, cancel, reschedule };
+  return { items, loading, error, summary, filters, slots, slotsLoading, load, loadSlots, create, createRecurring, calendarFeed, setStatus, cancel, refund, reschedule };
 }

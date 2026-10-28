@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, CalendarDays, Save } from 'lucide-vue-next';
+import { ArrowLeft, CalendarDays, Copy, Save } from 'lucide-vue-next';
 import { useBusinessStore } from '~/stores/business';
 import type { BookingSettings } from '~/types';
 definePageMeta({ layout: 'app' });
@@ -7,6 +7,8 @@ useSeoMeta({ title: 'Booking settings' });
 
 const toast = useToast();
 const businessStore = useBusinessStore();
+const { calendarFeed } = useBookings();
+const feedUrl = ref('');
 const saving = ref(false);
 const business = computed(() => businessStore.business);
 const mode = ref<'products' | 'services' | 'hybrid'>('products');
@@ -42,7 +44,15 @@ async function save() {
   } catch (error) { toast.error((error as Error).message); }
   finally { saving.value = false; }
 }
-onMounted(async () => { if (!businessStore.context) await businessStore.load(); });
+async function copyFeed() {
+  if (!feedUrl.value) return;
+  try { await navigator.clipboard.writeText(feedUrl.value); toast.success('Calendar feed copied.'); }
+  catch { toast.error('Could not copy. Select the link manually.'); }
+}
+onMounted(async () => {
+  if (!businessStore.context) await businessStore.load();
+  try { feedUrl.value = (await calendarFeed()).url; } catch { /* optional */ }
+});
 </script>
 
 <template>
@@ -87,6 +97,11 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
         </div>
       </div>
       <div class="mt-4"><BaseInput v-model="closedDatesInput" label="Closed dates" placeholder="2026-12-25, 2026-12-26" hint="Comma-separated YYYY-MM-DD dates." /></div>
+    </div>
+
+    <div class="card space-y-3 p-5">
+      <div class="flex items-start gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><CalendarDays class="h-5 w-5" /></div><div><h2 class="font-display text-lg font-bold">Calendar subscription</h2><p class="text-xs leading-relaxed text-muted">Subscribe once in Google Calendar, Apple Calendar or Outlook and new appointments appear automatically. This is a read-only feed for now.</p></div></div>
+      <div class="flex gap-2"><input :value="feedUrl" readonly class="input-base min-w-0 flex-1 !text-[11px]" aria-label="Calendar subscription URL"><BaseButton variant="outline" :disabled="!feedUrl" @click="copyFeed"><Copy class="h-4 w-4" /> Copy</BaseButton></div>
     </div>
 
     <div class="card space-y-3 p-5">

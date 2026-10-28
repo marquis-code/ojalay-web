@@ -322,11 +322,14 @@ export interface Booking {
   priceKobo: number;
   depositKobo: number;
   amountPaidKobo: number;
+  refundedKobo: number;
   paymentStatus: BookingPaymentStatus;
   paymentReference?: string | null;
   seriesId?: string | null;
   seriesIndex: number;
   seriesTotal: number;
+  reviewToken?: string | null;
+  reviewedAt?: string | null;
   saleId?: string | null;
   cancellationReason?: string | null;
   cancelledAt?: string | null;
@@ -368,4 +371,34 @@ export interface WaitlistEntry {
   status: 'waiting' | 'notified' | 'booked' | 'cancelled';
   notifiedAt?: string | null;
   createdAt: string;
+}
+
+export interface Review {
+  id: string;
+  bookingId: string;
+  serviceId: string;
+  serviceName: string;
+  providerId?: string | null;
+  providerName?: string | null;
+  customerId?: string | null;
+  customerName: string;
+  rating: number;
+  comment: string;
+  publicToken: string;
+  status: 'published' | 'pending' | 'hidden';
+  createdAt: string;
+}
+export interface PublicReview {
+  id: string; rating: number; comment: string; customerName: string;
+  serviceName: string; providerName?: string | null; createdAt: string;
+}
+export interface ReviewSummary {
+  total: number; average: number; fiveStar: number; needsAttention: number;
+}
+export interface ReviewListResponse { items: Review[]; summary: ReviewSummary; }
+export interface ReviewContext {
+  booking: { id: string; bookingNumber: string; serviceId: string; serviceName: string; providerName: string; customerName: string; startAt: string; status: string };
+  business: { id: string; name: string; slug: string; logoUrl?: string | null; brandColor: string } | null;
+  review: Review | null;
+  canReview: boolean;
 }

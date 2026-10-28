@@ -67,6 +67,7 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
             <p class="mt-1 text-xs text-muted">{{ formatNaira(booking.amountPaidKobo) }} paid of {{ formatNaira(booking.priceKobo) }}</p>
             <BaseButton class="mt-3" size="sm" :loading="busy" @click="doPay">Pay securely</BaseButton>
           </div>
+          <div v-if="booking.status === 'completed' && booking.reviewToken && !booking.reviewedAt" class="rounded-2xl bg-brand-50 p-4"><p class="text-xs font-bold text-brand-700">How did it go?</p><p class="mt-1 text-xs text-brand-700/80">Leave a quick review for {{ business?.name }}.</p><BaseButton :to="`/review/${booking.reviewToken}`" size="sm" class="mt-3">Leave a review</BaseButton></div>
           <div class="flex flex-wrap gap-2 border-t border-line pt-4">
             <BaseButton v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" size="sm" variant="outline" @click="showReschedule = true"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
             <a :href="calendarUrl()" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><CalendarPlus class="h-4 w-4" /> Add to calendar</a>

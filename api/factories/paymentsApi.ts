@@ -10,6 +10,7 @@ class PaymentsApi extends BaseApi {
   linkOrder(orderId: string, email?: string): Promise<PaymentLinkResult> { return this.request('post', `/links/order/${orderId}`, { email }); }
   linkDebt(debtId: string, email?: string): Promise<PaymentLinkResult> { return this.request('post', `/links/debt/${debtId}`, { email }); }
   linkInvoice(invoiceId: string, email?: string): Promise<PaymentLinkResult> { return this.request('post', `/links/invoice/${invoiceId}`, { email }); }
+  linkBooking(bookingId: string, email?: string): Promise<PaymentLinkResult> { return this.request('post', `/links/booking/${bookingId}`, { email }); }
   checkoutSubscription(payload: { planKey: string; interval?: 'monthly' | 'yearly'; couponCode?: string }): Promise<PaymentLinkResult & { discountKobo?: number }> {
     return this.request('post', '/checkout/subscription', payload);
   }

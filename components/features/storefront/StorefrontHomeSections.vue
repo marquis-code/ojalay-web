@@ -4,7 +4,8 @@ import type { StorefrontHome } from '~/types';
 import { whatsappLink } from '~/utils/phone';
 import { optimizedImage } from '~/utils/cloudinary';
 const props = defineProps<{ home: StorefrontHome }>();
-const { business, template, products, categories, productCount } = toRefs(props.home);
+const { business, template, products, categories, productCount, services, providers, businessMode } = toRefs(props.home);
+const mode = computed(() => businessMode.value || 'products');
 const wa = computed(() => whatsappLink(business.value.whatsappNumber || business.value.publicPhone, `Hi ${business.value.name}! I'd like to order.`));
 const reveal = ref(false);
 onMounted(() => { reveal.value = true; });
@@ -12,6 +13,8 @@ onMounted(() => { reveal.value = true; });
 
 <template>
   <div>
+    <StorefrontServiceMenu v-if="mode === 'services' || mode === 'hybrid'" :business="business" :template="template" :services="services || []" :providers="providers || []" />
+    <template v-if="mode !== 'services'">
     <template v-for="section in business.sections" :key="section">
       <StorefrontHero v-if="section === 'hero'" :business="business" :template="template" :products="products" :product-count="productCount" />
       <section v-else-if="section === 'featured'" class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
@@ -87,6 +90,7 @@ onMounted(() => { reveal.value = true; });
           <div class="mt-6 flex flex-wrap gap-x-6 gap-y-1 border-t pt-4 text-[11px] opacity-60" :style="{ borderColor: `color-mix(in srgb, ${template.colors.background} 15%, transparent)` }"><span v-if="business.address">{{ business.address }}</span><span v-if="business.publicPhone">{{ business.publicPhone }}</span><span v-if="business.email">{{ business.email }}</span></div>
         </div>
       </section>
+    </template>
     </template>
   </div>
 </template>

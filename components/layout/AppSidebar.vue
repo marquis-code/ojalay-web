@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 import {
-  ArrowUpRight, BarChart3, Boxes, Building2, CircleDollarSign, CircleHelp, Gift, Globe2, LayoutDashboard,
-  Package, Settings, ShoppingBag, Users, WalletCards, X, ReceiptText,
+  ArrowUpRight, BarChart3, Boxes, Building2, CalendarDays, CircleDollarSign, CircleHelp, Gift, Globe2, LayoutDashboard,
+  Package, Scissors, Settings, ShoppingBag, Users, UserRoundCog, WalletCards, X, ReceiptText,
 } from 'lucide-vue-next';
 
 defineProps<{ open: boolean }>();
@@ -11,22 +11,26 @@ const route = useRoute();
 const businessStore = useBusinessStore();
 const auth = useAuthStore();
 
-interface NavLink { to: string; label: string; icon: Component; exact?: boolean; ownerOnly?: boolean }
+type Mode = 'products' | 'services' | 'hybrid';
+interface NavLink { to: string; label: string; icon: Component; exact?: boolean; ownerOnly?: boolean; modes?: Mode[] }
 const groups: Array<{ label: string; links: NavLink[] }> = [
   {
     label: 'Run it',
     links: [
       { to: '/app', label: 'Overview', icon: LayoutDashboard, exact: true },
-      { to: '/app/orders', label: 'Orders', icon: ShoppingBag },
+      { to: '/app/bookings', label: 'Appointments', icon: CalendarDays, modes: ['services', 'hybrid'] },
+      { to: '/app/orders', label: 'Orders', icon: ShoppingBag, modes: ['products', 'hybrid'] },
       { to: '/app/sales', label: 'Sales', icon: CircleDollarSign },
-      { to: '/app/products', label: 'Products', icon: Package },
-      { to: '/app/stock', label: 'Stock', icon: Boxes },
+      { to: '/app/services', label: 'Services', icon: Scissors, modes: ['services', 'hybrid'] },
+      { to: '/app/products', label: 'Products', icon: Package, modes: ['products', 'hybrid'] },
+      { to: '/app/stock', label: 'Stock', icon: Boxes, modes: ['products', 'hybrid'] },
     ],
   },
   {
     label: 'Money & people',
     links: [
       { to: '/app/customers', label: 'Customers', icon: Users },
+      { to: '/app/team', label: 'Team & schedules', icon: UserRoundCog, modes: ['services', 'hybrid'] },
       { to: '/app/debts', label: 'Debts', icon: WalletCards },
       { to: '/app/expenses', label: 'Expenses', icon: ReceiptText },
       { to: '/app/reports', label: 'Reports', icon: BarChart3 },
@@ -42,6 +46,8 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
     ],
   },
 ];
+const mode = computed<Mode>(() => businessStore.business?.businessMode || 'products');
+const isVisible = (link: NavLink) => !link.modes || link.modes.includes(mode.value);
 const isActive = (to: string, exact = false) => exact ? route.path === to : route.path === to || route.path.startsWith(`${to}/`);
 const trialDays = computed(() => businessStore.trialDaysLeft);
 </script>
@@ -70,7 +76,7 @@ const trialDays = computed(() => businessStore.trialDaysLeft);
         <p class="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-muted/70">{{ group.label }}</p>
         <NuxtLink
           v-for="link in group.links"
-          v-show="!link.ownerOnly || auth.isOwner"
+          v-show="(!link.ownerOnly || auth.isOwner) && isVisible(link)"
           :key="link.to"
           :to="link.to"
           class="group flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-[13px] font-semibold transition"

@@ -32,7 +32,7 @@ export interface Business {
   email?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
   seoTitle: string; seoDescription: string; customDomain?: string | null; customDomainVerified: boolean;
   summarySettings: { dailyEnabled: boolean; weeklyEnabled: boolean; sendTime: string; weeklyDay: number; channels: { whatsapp: boolean; email: boolean } };
-  alertSettings: Record<string, unknown>; isSuspended?: boolean; createdAt?: string;
+  alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; isSuspended?: boolean; createdAt?: string;
 }
 export interface BusinessContext {
   business: Business; plan: Plan; subscription: Subscription | null; entitlements: Entitlements;
@@ -124,6 +124,7 @@ export interface StorefrontBusiness {
   bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; brandColor: string; templateKey: string; sections: string[];
   socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
   email?: string | null; address: string; about: string; seoTitle: string; seoDescription: string; currency: string;
+  businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null;
 }
 export interface StorefrontProductVariant { id: string; name: string; attributes: Record<string, string>; priceKobo: number; imageUrl?: string | null; inStock: boolean; lowStock: boolean; }
 export interface StorefrontProduct {
@@ -132,7 +133,8 @@ export interface StorefrontProduct {
 }
 export interface StorefrontHome {
   business: StorefrontBusiness; template: StorefrontTemplate; products: StorefrontProduct[];
-  categories: string[]; productCount: number;
+  categories: string[]; productCount: number; services?: Service[]; serviceCount?: number;
+  providers?: PublicProvider[]; businessMode?: 'products' | 'services' | 'hybrid';
 }
 export interface BuilderData {
   business: Business; template: StorefrontTemplate; templates: StorefrontTemplate[];
@@ -208,4 +210,142 @@ export interface AffiliateOverview {
   payoutDetails: { bankName: string | null; accountName: string | null; accountNumber: string | null };
   referrals: AffiliateReferral[];
   payouts: AffiliatePayout[];
+}
+
+export interface WeeklyHours {
+  day: number;
+  isOpen: boolean;
+  start: string;
+  end: string;
+}
+
+export interface BookingSettings {
+  enabled: boolean;
+  autoConfirm: boolean;
+  leadTimeMinutes: number;
+  windowDays: number;
+  slotIntervalMinutes: number;
+  cancellationWindowHours: number;
+  depositPercent: number;
+  reminderHoursBefore: number;
+  weeklyHours: WeeklyHours[];
+  closedDates: string[];
+  policy: string;
+}
+
+export interface ServiceAddon {
+  name: string;
+  priceKobo: number;
+  durationMinutes: number;
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  imageUrl?: string | null;
+  color: string;
+  durationMinutes: number;
+  bufferBeforeMinutes: number;
+  bufferAfterMinutes: number;
+  priceKobo: number;
+  depositKobo: number;
+  requiresDeposit: boolean;
+  maxBookingsPerSlot: number;
+  providerIds: string[];
+  addOns: ServiceAddon[];
+  isActive: boolean;
+  isPublic: boolean;
+  sortOrder: number;
+}
+
+export interface ProviderScheduleBreak { start: string; end: string; }
+export interface ProviderDay {
+  day: number;
+  isWorking: boolean;
+  start: string;
+  end: string;
+  breaks: ProviderScheduleBreak[];
+}
+export interface ProviderTimeOff {
+  startAt: string;
+  endAt: string;
+  reason: string;
+}
+export interface Provider {
+  id: string;
+  name: string;
+  title: string;
+  bio: string;
+  email?: string | null;
+  phone?: string | null;
+  avatarUrl?: string | null;
+  color: string;
+  weeklySchedule: ProviderDay[];
+  timeOff: ProviderTimeOff[];
+  isBookable: boolean;
+  isActive: boolean;
+  sortOrder: number;
+  upcomingBookings?: number;
+}
+export interface PublicProvider {
+  id: string; name: string; title: string; bio: string; avatarUrl?: string | null; color: string;
+}
+export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+export type BookingPaymentStatus = 'unpaid' | 'deposit_paid' | 'paid' | 'refunded';
+export interface BookingAddon { name: string; priceKobo: number; durationMinutes: number; }
+export interface Booking {
+  id: string;
+  bookingNumber: string;
+  publicToken: string;
+  serviceId: string;
+  serviceName: string;
+  serviceCategory: string;
+  serviceImageUrl?: string | null;
+  providerId: string;
+  providerName: string;
+  providerAvatarUrl?: string | null;
+  providerColor?: string | null;
+  customerId?: string | null;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  startAt: string;
+  endAt: string;
+  durationMinutes: number;
+  timezone: string;
+  addOns: BookingAddon[];
+  status: BookingStatus;
+  source: string;
+  notes: string;
+  priceKobo: number;
+  depositKobo: number;
+  amountPaidKobo: number;
+  paymentStatus: BookingPaymentStatus;
+  paymentReference?: string | null;
+  saleId?: string | null;
+  cancellationReason?: string | null;
+  cancelledAt?: string | null;
+  completedAt?: string | null;
+  history: { status: string; at: string; by?: string | null; note?: string }[];
+  createdAt: string;
+}
+export interface AvailabilitySlot {
+  startAt: string;
+  endAt: string;
+  time: string;
+  providers: { id: string; name: string; avatarUrl?: string | null; color: string }[];
+}
+export interface AvailabilityResponse {
+  date: string;
+  timezone: string;
+  closed: boolean;
+  service: Pick<Service, 'id' | 'name' | 'durationMinutes' | 'priceKobo'>;
+  slots: AvailabilitySlot[];
+}
+export interface BookingListResponse {
+  items: Booking[];
+  meta: { total: number; page: number; limit: number; pages: number };
+  summary: { today: number; upcoming: number; pending: number };
 }

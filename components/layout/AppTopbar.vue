@@ -2,6 +2,8 @@
 import { Bell, ChevronDown, CircleHelp, LogOut, Menu, Plus, Settings, Store, UserRound, WifiOff } from 'lucide-vue-next';
 const emit = defineEmits<{ toggleMenu: [] }>();
 const auth = useAuthStore();
+const mode = computed(() => businessStore.business?.businessMode || 'products');
+const primaryAction = computed(() => mode.value === 'services' ? { to: '/app/bookings/new', label: 'New booking' } : { to: '/app/sales/new', label: 'Record sale' });
 const businessStore = useBusinessStore();
 const router = useRouter();
 const offline = useOfflineStore();
@@ -67,8 +69,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
         <span v-if="!offline.online || offline.pendingCount" class="hidden items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[10px] font-bold sm:inline-flex" :class="offline.online ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'">
           <WifiOff class="h-3 w-3" /> {{ offline.online ? `${offline.pendingCount} queued` : 'Offline' }}
         </span>
-        <NuxtLink to="/app/sales/new" data-tour="record-sale" class="hidden min-h-[40px] items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 text-xs font-bold text-white shadow-[0_2px_0_0_#8F290B] sm:inline-flex">
-          <Plus class="h-4 w-4" /> Record sale
+        <NuxtLink :to="primaryAction.to" data-tour="record-sale" class="hidden min-h-[40px] items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 text-xs font-bold text-white shadow-[0_2px_0_0_#8F290B] sm:inline-flex">
+          <Plus class="h-4 w-4" /> {{ primaryAction.label }}
         </NuxtLink>
         <NuxtLink to="/app/help" class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface hover:bg-raised" aria-label="Help center"><CircleHelp class="h-[18px] w-[18px]" /></NuxtLink>
         <NuxtLink to="/app/notifications" class="relative flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface hover:bg-raised" aria-label="Notifications">

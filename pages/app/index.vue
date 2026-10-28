@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, ArrowUpRight, Boxes, CalendarRange, Download, FileSpreadsheet, PackageOpen, Plus, ShoppingBag, TrendingUp, Users, Wallet } from 'lucide-vue-next';
+import { ArrowRight, ArrowUpRight, Boxes, CalendarDays, CalendarRange, Download, FileSpreadsheet, PackageOpen, Plus, ShoppingBag, TrendingUp, Users, Wallet } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { formatDate, greeting } from '~/utils/date';
 import { titleCase } from '~/utils/entities';
@@ -10,6 +10,9 @@ const auth = useAuthStore();
 const businessStore = useBusinessStore();
 const toast = useToast();
 const dashboard = useDashboard();
+const appointments = useBookings();
+const isServiceMode = computed(() => businessStore.business?.businessMode === 'services');
+const primaryAction = computed(() => isServiceMode.value ? { to: '/app/bookings/new', label: 'New booking' } : { to: '/app/sales/new', label: 'Record sale' });
 const { onboarding, markProfitSeen } = useOnboarding();
 const products = useProducts();
 const customOpen = ref(false);
@@ -29,6 +32,7 @@ async function loadAll() {
   await dashboard.load(dashboard.range.value);
   if (dashboard.data.value?.summary.salesCount) await markProfitSeen();
   await products.loadExtras();
+  if (isServiceMode.value) await appointments.load();
 }
 async function chooseRange(key: string) {
   if (key === 'custom') { customOpen.value = true; return; }
@@ -68,7 +72,7 @@ onMounted(loadAll);
             <button class="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-semibold hover:bg-raised" @click="exportFile('pdf')"><Download class="h-4 w-4 text-brand-500" /> PDF report</button>
           </div>
         </div>
-        <BaseButton to="/app/sales/new" size="md"><Plus class="h-4 w-4" /> Record sale</BaseButton>
+        <BaseButton :to="primaryAction.to" size="md"><Plus class="h-4 w-4" /> {{ primaryAction.label }}</BaseButton>
       </div>
     </div>
 
@@ -95,7 +99,10 @@ onMounted(loadAll);
         <StatCard label="Money owed to you" :value="dashboard.data.value?.debts.outstandingKobo" format="money" tone="dark" :hint="`${dashboard.data.value?.debts.count || 0} customer${dashboard.data.value?.debts.count === 1 ? '' : 's'} · ${formatNaira(dashboard.data.value?.debts.overdueKobo)} overdue`">
           <NuxtLink to="/app/debts" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-accent">Chase it <ArrowUpRight class="h-3 w-3" /></NuxtLink>
         </StatCard>
-        <StatCard label="Stock value" :value="dashboard.data.value?.stock.costValueKobo" tone="accent" :hint="`${dashboard.data.value?.stock.units || 0} units · ${dashboard.data.value?.stock.lowStock || 0} low`">
+        <StatCard v-if="isServiceMode" label="Appointments today" :value="appointments.summary.today" format="number" tone="accent" :hint="`${appointments.summary.upcoming} upcoming · ${appointments.summary.pending} to confirm`">
+          <NuxtLink to="/app/bookings" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-forest-900">Open calendar <ArrowUpRight class="h-3 w-3" /></NuxtLink>
+        </StatCard>
+        <StatCard v-else label="Stock value" :value="dashboard.data.value?.stock.costValueKobo" tone="accent" :hint="`${dashboard.data.value?.stock.units || 0} units · ${dashboard.data.value?.stock.lowStock || 0} low`">
           <NuxtLink to="/app/stock" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-forest-900">Manage stock <ArrowUpRight class="h-3 w-3" /></NuxtLink>
         </StatCard>
       </div>
@@ -112,7 +119,19 @@ onMounted(loadAll);
         </BaseCard>
 
         <div class="space-y-4">
-          <BaseCard>
+          <BaseCard v-if="isServiceMode">
+            <div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Today’s appointments</h2><NuxtLink to="/app/bookings" class="text-[10px] font-bold text-brand-600">See all</NuxtLink></div>
+            <div v-if="appointments.items.value.length" class="mt-3 space-y-2">
+              <NuxtLink v-for="b in appointments.items.value.slice(0, 3)" :key="b.id" to="/app/bookings" class="flex items-center gap-2 rounded-xl p-2 hover:bg-raised">
+                <div class="w-12 text-center"><p class="text-xs font-bold">{{ new Date(b.startAt).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }) }}</p></div>
+                <div class="h-8 w-0.5 rounded-full" :style="{ background: b.providerColor || '#FF5A1F' }" />
+                <div class="min-w-0"><p class="truncate text-xs font-bold">{{ b.customerName }}</p><p class="truncate text-[10px] text-muted">{{ b.serviceName }}</p></div>
+              </NuxtLink>
+            </div>
+            <p v-else class="mt-4 text-xs text-muted">No appointments today. Share your booking link and fill the day.</p>
+            <NuxtLink to="/app/services" class="mt-3 inline-flex items-center gap-1 text-[10px] font-bold text-brand-600">Manage service menu <ArrowRight class="h-3 w-3" /></NuxtLink>
+          </BaseCard>
+          <BaseCard v-if="!isServiceMode">
             <div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Best seller</h2><TrendingUp class="h-4 w-4 text-success" /></div>
             <div v-if="topProduct" class="mt-4 flex items-center gap-3">
               <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-accent font-display text-lg font-bold text-forest-900">{{ topProduct.name[0] }}</div>

@@ -8,9 +8,12 @@ const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTe
 const cart = useCartStore();
 const open = ref(false);
 const route = useRoute();
+const mode = computed(() => props.business.businessMode || 'products');
+const bookPath = computed(() => `/s/${props.business.slug}/services`);
 const links = computed(() => [
   { to: `/s/${props.business.slug}`, label: 'Home', exact: true },
-  { to: `/s/${props.business.slug}/products`, label: 'Shop' },
+  ...(mode.value !== 'products' ? [{ to: bookPath.value, label: 'Services' }] : []),
+  ...(mode.value !== 'services' ? [{ to: `/s/${props.business.slug}/products`, label: 'Shop' }] : []),
   { to: `/s/${props.business.slug}/about`, label: 'About' },
   { to: `/s/${props.business.slug}/contact`, label: 'Contact' },
 ]);
@@ -37,11 +40,12 @@ watch(() => props.business.slug, (slug) => cart.init(slug, props.business.name),
           <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="text-xs font-semibold transition hover:opacity-60" :style="{ color: active(link.to, link.exact) ? template.colors.primary : template.colors.ink }">{{ link.label }}</NuxtLink>
         </nav>
         <div class="flex items-center gap-1.5">
-          <NuxtLink :to="`/s/${business.slug}/products`" class="flex h-10 w-10 items-center justify-center rounded-full transition hover:opacity-70" :style="{ color: template.colors.ink }" aria-label="Search products"><Search class="h-[18px] w-[18px]" /></NuxtLink>
-          <NuxtLink :to="`/s/${business.slug}/cart`" class="relative flex h-10 w-10 items-center justify-center rounded-full transition hover:opacity-70" :style="{ color: template.colors.ink }" aria-label="Cart">
+          <NuxtLink v-if="mode !== 'services'" :to="`/s/${business.slug}/products`" class="flex h-10 w-10 items-center justify-center rounded-full transition hover:opacity-70" :style="{ color: template.colors.ink }" aria-label="Search products"><Search class="h-[18px] w-[18px]" /></NuxtLink>
+          <NuxtLink v-if="mode !== 'services'" :to="`/s/${business.slug}/cart`" class="relative flex h-10 w-10 items-center justify-center rounded-full transition hover:opacity-70" :style="{ color: template.colors.ink }" aria-label="Cart">
             <ShoppingBag class="h-[18px] w-[18px]" />
             <span v-if="mounted && cart.count" class="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[9px] font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">{{ cart.count }}</span>
           </NuxtLink>
+          <NuxtLink v-if="mode !== 'products'" :to="bookPath" class="inline-flex min-h-[40px] items-center justify-center rounded-full px-4 text-[11px] font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">Book now</NuxtLink>
           <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full md:hidden" :style="{ color: template.colors.ink }" aria-label="Menu" @click="open = !open"><X v-if="open" class="h-5 w-5" /><Menu v-else class="h-5 w-5" /></button>
           <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="hidden items-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-bold md:inline-flex" :style="{ background: template.colors.primary, color: template.colors.onPrimary }"><MessageCircle class="h-3.5 w-3.5" /> WhatsApp</a>
         </div>
@@ -63,11 +67,12 @@ watch(() => props.business.slug, (slug) => cart.init(slug, props.business.name),
             <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }"><MessageCircle class="h-4 w-4" /> Chat with us</a>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">Shop</p>
-            <NuxtLink :to="`/s/${business.slug}/products`" class="mt-3 block text-sm opacity-80 hover:opacity-100">All products</NuxtLink>
+            <p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">{{ mode === 'products' ? 'Shop' : 'Book' }}</p>
+            <NuxtLink v-if="mode !== 'products'" :to="bookPath" class="mt-3 block text-sm opacity-80 hover:opacity-100">Book a service</NuxtLink>
+            <NuxtLink v-if="mode !== 'services'" :to="`/s/${business.slug}/products`" class="mt-3 block text-sm opacity-80 hover:opacity-100">All products</NuxtLink>
             <NuxtLink :to="`/s/${business.slug}/about`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Our story</NuxtLink>
             <NuxtLink :to="`/s/${business.slug}/contact`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Contact</NuxtLink>
-            <NuxtLink :to="`/s/${business.slug}/cart`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Your cart</NuxtLink>
+            <NuxtLink v-if="mode !== 'services'" :to="`/s/${business.slug}/cart`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Your cart</NuxtLink>
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">Find us</p>

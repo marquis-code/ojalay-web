@@ -1,5 +1,5 @@
 import { BaseApi } from '~/api/base/BaseApi';
-import type { Invoice, Order, Receipt, StorefrontHome, StorefrontProduct, StorefrontTemplate } from '~/types';
+import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, Receipt, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate } from '~/types';
 
 class PublicApi extends BaseApi {
   constructor() { super('/'); }
@@ -17,6 +17,22 @@ class PublicApi extends BaseApi {
   }): Promise<{ order: Order; orderToken: string; whatsappUrl: string | null; whatsappMessage: string; payment: { authorizationUrl: string; reference: string } | null }> {
     return this.request('post', `storefront/${slug}/orders`, payload);
   }
+  services(slug: string): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; items: Service[]; providers: PublicProvider[]; categories: string[] }> {
+    return this.request('get', `storefront/${slug}/services`);
+  }
+  service(slug: string, id: string): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; service: Service; providers: PublicProvider[] }> {
+    return this.request('get', `storefront/${slug}/services/${id}`);
+  }
+  availability(slug: string, params: { serviceId: string; date: string; providerId?: string; durationMinutes?: number }): Promise<AvailabilityResponse> {
+    return this.request('get', `storefront/${slug}/availability`, undefined, params as Record<string, unknown>);
+  }
+  book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; addOnNames?: string[] }): Promise<{ booking: Booking; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
+    return this.request('post', `storefront/${slug}/bookings`, payload);
+  }
+  booking(token: string): Promise<{ booking: Booking; business: Record<string, unknown> | null }> { return this.request('get', `public/bookings/${token}`); }
+  cancelBooking(token: string, reason?: string): Promise<{ cancelled: boolean; booking: Booking }> { return this.request('post', `public/bookings/${token}/cancel`, { reason }); }
+  rescheduleBooking(token: string, startAt: string, providerId?: string): Promise<Booking> { return this.request('post', `public/bookings/${token}/reschedule`, { startAt, providerId }); }
+  payBooking(token: string, email?: string): Promise<{ reference: string; authorizationUrl: string; amountKobo: number }> { return this.request('post', `public/payments/booking/${token}`, { email }); }
   contact(slug: string, payload: { name: string; phone: string; email?: string; message: string }): Promise<{ sent: boolean; whatsappUrl: string }> {
     return this.request('post', `storefront/${slug}/contact`, payload);
   }

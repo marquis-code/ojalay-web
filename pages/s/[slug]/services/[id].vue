@@ -38,7 +38,7 @@ useHead(() => data.value ? {
           <div v-if="data.service.addOns.length" class="mt-8"><p class="text-[10px] font-bold uppercase tracking-[0.16em]" :style="{ color: data.template.colors.primary }">Make it yours</p><div class="mt-3 grid gap-2 sm:grid-cols-2"><div v-for="addon in data.service.addOns" :key="addon.name" class="flex items-center justify-between rounded-xl border p-3" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 12%, transparent)` }"><div><p class="text-xs font-bold" :style="{ color: data.template.colors.ink }">{{ addon.name }}</p><p v-if="addon.durationMinutes" class="text-[10px]" :style="{ color: data.template.colors.muted }">+{{ addon.durationMinutes }} min</p></div><span class="text-xs font-bold" :style="{ color: data.template.colors.primary }">+{{ formatNaira(addon.priceKobo) }}</span></div></div></div>
           <div v-if="data.business.bookingSettings?.policy" class="mt-8 rounded-2xl border p-4 text-xs leading-relaxed" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 12%, transparent)`, color: data.template.colors.muted }"><strong :style="{ color: data.template.colors.ink }">Before you book.</strong> {{ data.business.bookingSettings.policy }}</div>
         </div>
-        <div class="lg:sticky lg:top-24"><ServiceBookingWidget :business="data.business" :template="data.template" :service="data.service" :providers="data.providers" /></div>
+        <div class="lg:sticky lg:top-24"><ClientOnly><ServiceBookingWidget :business="data.business" :template="data.template" :service="data.service" :providers="data.providers" /></ClientOnly></div>
       </div>
     </section>
   </StorefrontShell>

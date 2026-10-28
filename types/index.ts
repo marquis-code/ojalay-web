@@ -315,6 +315,10 @@ export interface Booking {
   endAt: string;
   durationMinutes: number;
   capacity: number;
+  packagePurchaseId?: string | null;
+  packageCode?: string | null;
+  packageName?: string | null;
+  packageValueKobo?: number;
   timezone: string;
   addOns: BookingAddon[];
   status: BookingStatus;
@@ -368,6 +372,7 @@ export interface WaitlistEntry {
   customerEmail?: string | null;
   preferredFrom: string;
   preferredTo: string;
+  preferredStartAt?: string | null;
   notes: string;
   status: 'waiting' | 'notified' | 'booked' | 'cancelled';
   notifiedAt?: string | null;
@@ -411,4 +416,27 @@ export interface BookingRoster {
   capacity: number;
   booked: number;
   items: { id: string; bookingNumber: string; customerName: string; customerPhone: string; status: string; paymentStatus: string }[];
+}
+
+export interface ServicePackage {
+  id: string; name: string; description: string; serviceId: string; serviceName: string;
+  sessions: number; priceKobo: number; validityDays: number; isMembership: boolean;
+  isActive: boolean; isPublic: boolean; sortOrder: number;
+}
+export interface PackagePurchase {
+  id: string; packageId: string; packageName: string; serviceId: string; serviceName: string;
+  customerId?: string | null; customerName: string; customerPhone: string; customerEmail?: string | null;
+  sessionsTotal: number; sessionsRemaining: number; priceKobo: number; amountPaidKobo: number;
+  paymentStatus: 'unpaid' | 'paid' | 'refunded'; status: 'pending' | 'active' | 'exhausted' | 'expired' | 'cancelled';
+  publicToken: string; redemptionCode: string; purchasedAt?: string | null; expiresAt: string; createdAt: string;
+}
+
+export interface CampusInfo {
+  code: string; name: string; shortName: string; city: string; slug: string;
+  signups: number; activated: number; ambassadors: number; applications: number;
+}
+export interface CampusOverview { city: string; headline: string; campuses: CampusInfo[]; leaderboard: CampusInfo[]; }
+export interface CampusApplication {
+  id: string; name: string; phone: string; email?: string | null; campusCode: string; campusName: string;
+  year: string; socials: string; why: string; status: 'pending' | 'approved' | 'rejected'; createdAt: string;
 }

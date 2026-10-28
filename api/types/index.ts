@@ -14,6 +14,7 @@ export interface RegisterPayload {
   category: string;
   phone?: string;
   referral?: string;
+  campus?: string;
 }
 
 export interface LoginPayload { email: string; password: string; }

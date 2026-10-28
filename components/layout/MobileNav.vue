@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BarChart3, Boxes, CalendarDays, CircleHelp, Gift, Globe2, House, LayoutGrid, Package, Plus, ReceiptText, Scissors, Settings, ShoppingBag, Star, UserRoundCog, Users, WalletCards, X } from 'lucide-vue-next';
+import { BarChart3, Boxes, CalendarDays, CircleHelp, Gift, Globe2, House, LayoutGrid, Package, Plus, ReceiptText, Scissors, Settings, ShoppingBag, Star, Ticket, UserRoundCog, Users, WalletCards, X } from 'lucide-vue-next';
 const route = useRoute();
 const businessStore = useBusinessStore();
 const moreOpen = ref(false);
@@ -14,6 +14,7 @@ const links: NavItem[] = [
 ];
 const more: NavItem[] = [
   { to: '/app/services', label: 'Services', icon: Scissors, modes: ['services', 'hybrid'] },
+  { to: '/app/packages', label: 'Packages', icon: Ticket, modes: ['services', 'hybrid'] },
   { to: '/app/products', label: 'Products', icon: Package, modes: ['products', 'hybrid'] },
   { to: '/app/team', label: 'Team', icon: UserRoundCog, modes: ['services', 'hybrid'] },
   { to: '/app/sales', label: 'Sales', icon: ReceiptText },

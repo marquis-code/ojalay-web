@@ -12,7 +12,7 @@ const mode = computed(() => props.business.businessMode || 'products');
 const bookPath = computed(() => `/s/${props.business.slug}/services`);
 const links = computed(() => [
   { to: `/s/${props.business.slug}`, label: 'Home', exact: true },
-  ...(mode.value !== 'products' ? [{ to: bookPath.value, label: 'Services' }] : []),
+  ...(mode.value !== 'products' ? [{ to: bookPath.value, label: 'Services' }, { to: `/s/${props.business.slug}/packages`, label: 'Packages' }] : []),
   ...(mode.value !== 'services' ? [{ to: `/s/${props.business.slug}/products`, label: 'Shop' }] : []),
   { to: `/s/${props.business.slug}/about`, label: 'About' },
   { to: `/s/${props.business.slug}/contact`, label: 'Contact' },
@@ -69,6 +69,7 @@ watch(() => props.business.slug, (slug) => cart.init(slug, props.business.name),
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">{{ mode === 'products' ? 'Shop' : 'Book' }}</p>
             <NuxtLink v-if="mode !== 'products'" :to="bookPath" class="mt-3 block text-sm opacity-80 hover:opacity-100">Book a service</NuxtLink>
+            <NuxtLink v-if="mode !== 'products'" :to="`/s/${business.slug}/packages`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Packages</NuxtLink>
             <NuxtLink v-if="mode !== 'services'" :to="`/s/${business.slug}/products`" class="mt-3 block text-sm opacity-80 hover:opacity-100">All products</NuxtLink>
             <NuxtLink :to="`/s/${business.slug}/about`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Our story</NuxtLink>
             <NuxtLink :to="`/s/${business.slug}/contact`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Contact</NuxtLink>

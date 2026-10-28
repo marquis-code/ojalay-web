@@ -52,3 +52,35 @@ export function useReviewActions(token: MaybeRefOrGetter<string>) {
   }
   return { busy, error, submit };
 }
+
+export function useStorefrontPackages(slug: MaybeRefOrGetter<string>) {
+  return useAsyncData(
+    () => `storefront-packages-${toValue(slug)}`,
+    () => publicApi.packages(toValue(slug)),
+    { watch: [() => toValue(slug)] },
+  );
+}
+export function usePackagePurchase(token: MaybeRefOrGetter<string>) {
+  return useAsyncData(
+    () => `package-purchase-${toValue(token)}`,
+    () => publicApi.packagePurchase(toValue(token)),
+    { watch: [() => toValue(token)] },
+  );
+}
+
+export function usePackageCheckout(slug: MaybeRefOrGetter<string>) {
+  const saving = ref(false);
+  const error = ref<string | null>(null);
+  async function checkout(packageId: string, payload: { customerName: string; customerPhone: string; customerEmail?: string }) {
+    saving.value = true; error.value = null;
+    try { return await publicApi.checkoutPackage(toValue(slug), packageId, payload); }
+    catch (err) { error.value = (err as Error).message; throw err; }
+    finally { saving.value = false; }
+  }
+  return { saving, error, checkout };
+}
+export function usePackagePayments() {
+  const busy = ref(false);
+  async function payPackage(token: string, email?: string) { busy.value = true; try { return await publicApi.payPackage(token, email); } finally { busy.value = false; } }
+  return { busy, payPackage };
+}

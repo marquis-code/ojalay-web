@@ -20,6 +20,7 @@ const year = new Date().getFullYear();
           <a href="#templates" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Storefronts</a>
           <a href="#pricing" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Pricing</a>
           <NuxtLink to="/register" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Start free</NuxtLink>
+          <NuxtLink to="/campus" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Ojaly Campus · Lagos</NuxtLink>
         </div>
         <div>
           <p class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#7C9989]">Company</p>

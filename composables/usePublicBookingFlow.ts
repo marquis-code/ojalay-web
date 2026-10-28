@@ -16,7 +16,7 @@ export function usePublicBookingFlow(slug: string) {
     catch (err) { error.value = (err as Error).message; availability.value = null; }
     finally { loading.value = false; }
   }
-  async function joinWaitlist(payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; notes?: string }) {
+  async function joinWaitlist(payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; preferredStartAt?: string; notes?: string }) {
     waitlistLoading.value = true; error.value = null;
     try { await publicApi.joinWaitlist(slug, payload); waitlistJoined.value = true; }
     catch (err) { error.value = (err as Error).message; throw err; }

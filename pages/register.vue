@@ -10,7 +10,8 @@ const toast = useToast();
 const businessStore = useBusinessStore();
 const { data: categories } = await useBusinessCategories();
 const referral = computed(() => typeof route.query.ref === 'string' ? route.query.ref.toUpperCase() : '');
-const form = reactive({ name: '', email: '', password: '', businessName: '', category: route.query.category as string || '', phone: '', referral: referral.value });
+const campus = computed(() => typeof route.query.campus === 'string' ? route.query.campus.toUpperCase() : '');
+const form = reactive({ name: '', email: '', password: '', businessName: '', category: route.query.category as string || '', phone: '', referral: referral.value, campus: campus.value });
 const errors = reactive<Record<string, string>>({});
 const showPassword = ref(false);
 const serverError = ref('');
@@ -40,6 +41,7 @@ async function submit() {
       <h1 class="mt-4 font-display text-4xl font-bold tracking-[-0.045em]">Set up your business.</h1>
       <p class="mt-2 text-sm leading-relaxed text-muted">Under five minutes. No card. You can change everything later.</p>
       <p v-if="plan" class="mt-3 rounded-xl bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-800 dark:bg-brand-500/10 dark:text-brand-200">You picked the {{ plan }} plan. Your free trial starts automatically — no payment now.</p>
+      <p v-if="campus" class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1.5 text-[11px] font-bold text-accent"><Sparkles class="h-3 w-3" /> {{ campus }} campus launch</p>
       <p v-if="referral" class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[11px] font-bold text-forest-900"><Sparkles class="h-3 w-3" /> Referred with code {{ referral }}</p>
     </div>
     <form class="space-y-4" novalidate @submit.prevent="submit">

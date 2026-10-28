@@ -144,7 +144,7 @@ onMounted(async () => {
         <div class="w-14 shrink-0 text-center sm:w-16"><p class="font-display text-lg font-bold">{{ time(booking.startAt) }}</p><p class="text-[9px] font-semibold text-muted">{{ booking.durationMinutes }} min</p></div>
         <div class="h-12 w-1 shrink-0 rounded-full" :style="{ background: booking.providerColor || '#FF5A1F' }" />
         <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-2"><p class="truncate font-bold">{{ booking.customerName }}</p><span class="rounded-full px-2 py-0.5 text-[9px] font-bold capitalize" :class="statusStyles[booking.status]">{{ booking.status.replace('_', ' ') }}</span><span v-if="booking.seriesTotal > 1" class="inline-flex items-center gap-0.5 rounded-full bg-brand-50 px-2 py-0.5 text-[9px] font-bold text-brand-700"><Repeat2 class="h-2.5 w-2.5" /> {{ booking.seriesIndex + 1 }}/{{ booking.seriesTotal }}</span></div>
+          <div class="flex flex-wrap items-center gap-2"><p class="truncate font-bold">{{ booking.customerName }}</p><span class="rounded-full px-2 py-0.5 text-[9px] font-bold capitalize" :class="statusStyles[booking.status]">{{ booking.status.replace('_', ' ') }}</span><span v-if="booking.packageName" class="rounded-full bg-brand-50 px-2 py-0.5 text-[9px] font-bold text-brand-700">Package</span><span v-if="booking.seriesTotal > 1" class="inline-flex items-center gap-0.5 rounded-full bg-brand-50 px-2 py-0.5 text-[9px] font-bold text-brand-700"><Repeat2 class="h-2.5 w-2.5" /> {{ booking.seriesIndex + 1 }}/{{ booking.seriesTotal }}</span></div>
           <p class="mt-0.5 truncate text-[12px] text-muted">{{ booking.serviceName }} · {{ booking.providerName }}</p>
           <p v-if="booking.addOns.length" class="mt-0.5 truncate text-[10px] text-muted">+ {{ booking.addOns.map((a) => a.name).join(', ') }}</p>
         </div>
@@ -154,6 +154,7 @@ onMounted(async () => {
 
     <BaseModal v-model:open="detailOpen" :title="selected?.customerName || 'Appointment'" :description="selected ? `${selected.bookingNumber} · ${selected.serviceName}` : ''" size="md">
       <div v-if="selected" class="space-y-4">
+        <div v-if="selected.packageName" class="flex items-center justify-between rounded-2xl bg-brand-50 p-3 text-xs font-semibold text-brand-700"><span>Covered by {{ selected.packageName }}</span><span class="font-mono">{{ selected.packageCode }}</span></div>
         <div v-if="selected.seriesTotal > 1" class="flex items-center justify-between rounded-2xl bg-brand-50 p-3 text-xs font-semibold text-brand-700"><span class="inline-flex items-center gap-1.5"><Repeat2 class="h-4 w-4" /> Repeating appointment</span><span>Session {{ selected.seriesIndex + 1 }} of {{ selected.seriesTotal }}</span></div>
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">When</p><p class="mt-1 font-bold">{{ new Date(selected.startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(selected.startAt) }}</p></div>

@@ -18,16 +18,17 @@ const businessStore = useBusinessStore();
 const profile = useProfile();
 const staffApi = useStaff();
 const whatsapp = useWhatsApp();
+const calendar = useCalendar();
 const summaries = useSummaries();
 const billing = useBilling();
 const domainApi = useDomain();
 const { data: categoryOptions } = await useBusinessCategories();
 const whatsappReadyLabels: Record<string, string> = { accessToken: 'Access token', phoneNumberId: 'Phone number ID', apiKey: '360dialog API key', appSecret: 'App secret', verifyToken: 'Verify token', platformNumber: 'Platform number' };
-const validTabs = ['profile', 'business', 'alerts', 'summaries', 'whatsapp', 'staff', 'billing', 'domain'];
+const validTabs = ['profile', 'business', 'alerts', 'summaries', 'whatsapp', 'calendar', 'staff', 'billing', 'domain'];
 const activeTab = ref(validTabs.includes(String(route.query.tab)) ? String(route.query.tab) : 'business');
 const tabs = [
   { key: 'business', label: 'Business' }, { key: 'profile', label: 'Your profile' }, { key: 'alerts', label: 'Alerts' },
-  { key: 'summaries', label: 'Summaries' }, { key: 'whatsapp', label: 'WhatsApp' }, { key: 'staff', label: 'Staff' },
+  { key: 'summaries', label: 'Summaries' }, { key: 'whatsapp', label: 'WhatsApp' }, { key: 'calendar', label: 'Calendar sync' }, { key: 'staff', label: 'Staff' },
   { key: 'billing', label: 'Billing' }, { key: 'domain', label: 'Domain' },
 ];
 const businessForm = reactive({ name: '', category: '', tagline: '', description: '', about: '', address: '', email: '', publicPhone: '', whatsappNumber: '', brandColor: '#FF5A1F' });
@@ -69,6 +70,7 @@ function hydrate() {
 watch(activeTab, async (tab) => {
   if (tab === 'staff' && isOwner.value) await staffApi.load().catch(() => undefined);
   if (tab === 'whatsapp') await whatsapp.load().catch(() => undefined);
+  if (tab === 'calendar') await calendar.load().catch(() => undefined);
   if (tab === 'billing') await billing.load().catch(() => undefined);
   if (tab === 'summaries') await summaries.load(summaryPeriod.value).catch(() => undefined);
 });
@@ -155,7 +157,8 @@ async function removeDomain() {
   catch (error) { toast.error((error as Error).message); }
 }
 function copy(value: string) { void navigator.clipboard.writeText(value); toast.success('Copied.'); }
-onMounted(async () => { if (!businessStore.context) await businessStore.load(); hydrate(); if (activeTab.value === 'billing') await billing.load().catch(() => undefined); if (activeTab.value === 'staff' && isOwner.value) await staffApi.load().catch(() => undefined); if (activeTab.value === 'whatsapp') await whatsapp.load().catch(() => undefined); if (activeTab.value === 'summaries') await summaries.load(summaryPeriod.value).catch(() => undefined); });
+onMounted(async () => { if (!businessStore.context) await businessStore.load(); hydrate(); if (activeTab.value === 'billing') await billing.load().catch(() => undefined); if (activeTab.value === 'staff' && isOwner.value) await staffApi.load().catch(() => undefined); if (activeTab.value === 'whatsapp') await whatsapp.load().catch(() => undefined);
+  if (activeTab.value === 'calendar') await calendar.load().catch(() => undefined); if (activeTab.value === 'summaries') await summaries.load(summaryPeriod.value).catch(() => undefined); });
 </script>
 
 <template>
@@ -270,6 +273,21 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
         <BaseCard><h3 class="font-display text-lg font-bold">SMS fallback</h3><p class="mt-1 text-xs leading-relaxed text-muted">Email is the first fallback for confirmations. Add Termii if you want SMS when a customer has no email or WhatsApp is unavailable.</p><div class="mt-3 rounded-xl p-3 text-xs" :class="whatsapp.status.value?.sms?.configured ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'">{{ whatsapp.status.value?.sms?.configured ? `SMS ready via ${whatsapp.status.value?.sms?.provider}` : 'SMS not configured. Add TERMII_API_KEY and TERMII_SENDER_ID.' }}</div></BaseCard>
         <BaseCard><h3 class="font-display text-lg font-bold">Approved templates</h3><p class="mt-1 text-[11px] text-muted">Register these names in Meta WhatsApp Manager.</p><div class="mt-2 space-y-2"><div v-for="template in whatsapp.status.value?.templates || []" :key="template.name" class="rounded-xl bg-raised/60 p-2.5"><p class="text-[11px] font-bold">{{ template.name }}</p><p class="text-[10px] text-muted">{{ template.params }} params · {{ template.description }}</p></div></div><p class="mt-3 break-all text-[10px] text-muted">Webhook: {{ whatsapp.status.value?.webhookUrl }}</p></BaseCard>
       </div>
+    </div>
+
+    <div v-else-if="activeTab === 'calendar'" class="space-y-5">
+      <BaseCard>
+        <div class="flex items-start gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><CalendarDays class="h-5 w-5" /></div><div><h2 class="font-display text-xl font-bold">Two-way calendar sync</h2><p class="text-[11px] leading-relaxed text-muted">Connect Google Calendar or Outlook. Ojaly pushes appointments into your calendar and blocks availability from events already in it.</p></div></div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div v-for="item in [{ key: 'google', label: 'Google Calendar' }, { key: 'outlook', label: 'Outlook Calendar' }]" :key="item.key" class="rounded-2xl border border-line p-4">
+            <div class="flex items-center justify-between gap-2"><p class="text-sm font-bold">{{ item.label }}</p><BaseBadge :variant="calendar.status.value?.connections.some((c) => c.provider === item.key) ? 'success' : calendar.status.value?.configured[item.key as 'google' | 'outlook'] ? 'warning' : 'neutral'">{{ calendar.status.value?.connections.some((c) => c.provider === item.key) ? 'Connected' : calendar.status.value?.configured[item.key as 'google' | 'outlook'] ? 'Ready to connect' : 'Not configured' }}</BaseBadge></div>
+            <p class="mt-1 text-[10px] text-muted">Last sync: {{ calendar.status.value?.connections.find((c) => c.provider === item.key)?.lastSyncAt ? formatDateTime(calendar.status.value!.connections.find((c) => c.provider === item.key)!.lastSyncAt as string) : 'Never' }}</p>
+            <div class="mt-3 flex flex-wrap gap-1.5"><BaseButton v-if="!calendar.status.value?.connections.some((c) => c.provider === item.key)" size="sm" :disabled="!calendar.status.value?.configured[item.key as 'google' | 'outlook']" @click="calendar.connect(item.key as 'google' | 'outlook')">Connect</BaseButton><BaseButton v-else size="sm" variant="outline" @click="calendar.disconnect(item.key as 'google' | 'outlook')">Disconnect</BaseButton></div>
+          </div>
+        </div>
+        <div class="mt-4 rounded-xl bg-raised/60 p-3 text-[10px] leading-relaxed text-muted">OAuth apps must be configured by the platform owner. Until then, the read-only calendar feed under Booking settings still works for Google Calendar and Outlook.</div>
+      </BaseCard>
+      <BaseCard><div class="flex flex-wrap items-center justify-between gap-3"><div><h3 class="font-display text-lg font-bold">Sync now</h3><p class="text-xs text-muted">Import busy blocks from connected calendars. Ojaly also checks every 15 minutes.</p></div><BaseButton :loading="calendar.syncing.value" :disabled="!calendar.status.value?.connections.length" @click="async () => { const result = await calendar.sync(); toast.success(`Synced ${result.synced} events.`); }">Sync now</BaseButton></div></BaseCard>
     </div>
 
     <div v-else-if="activeTab === 'staff'" class="space-y-5">

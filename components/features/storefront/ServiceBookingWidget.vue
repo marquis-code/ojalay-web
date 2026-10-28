@@ -17,6 +17,7 @@ const notes = ref('');
 const waitlistName = ref('');
 const waitlistPhone = ref('');
 const waitlistEmail = ref('');
+const packageCode = ref('');
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...props.providers.map((p) => ({ value: p.id, label: p.name }))]);
 const addOns = computed(() => props.service.addOns.filter((a) => addOnNames.value.includes(a.name)));
 const total = computed(() => props.service.priceKobo + addOns.value.reduce((sum, a) => sum + a.priceKobo, 0));
@@ -53,7 +54,7 @@ async function submit() {
     const result = await book({
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
       customerName: customerName.value.trim(), customerPhone: customerPhone.value.trim(),
-      customerEmail: customerEmail.value || undefined, notes: notes.value || undefined,
+      customerEmail: customerEmail.value || undefined, notes: notes.value || undefined, packageCode: packageCode.value || undefined,
       addOnNames: addOnNames.value,
     });
     if (result.payment?.authorizationUrl) window.location.href = result.payment.authorizationUrl;
@@ -122,6 +123,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <BaseInput v-model="customerPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" required />
           <BaseInput v-model="customerEmail" label="Email" type="email" placeholder="For your confirmation" />
           <BaseTextarea v-model="notes" label="Anything we should know?" placeholder="Allergies, preferences, parking…" />
+          <BaseInput v-model="packageCode" label="Package code (optional)" placeholder="Enter your prepaid code" />
           <div class="flex items-center justify-between border-t pt-3 text-sm" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }"><span>Total</span><span class="font-display text-xl font-bold">{{ formatNaira(total) }}</span></div>
           <div v-if="deposit" class="flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs text-warning"><span class="inline-flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> Deposit to secure</span><span class="font-bold">{{ formatNaira(deposit) }}</span></div>
           <p v-if="error" class="rounded-xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ error }}</p>

@@ -12,7 +12,7 @@ const { slots, slotsLoading, loadSlots, create, createRecurring } = useBookings(
 const saving = ref(false);
 const form = reactive({
   serviceId: '', providerId: '', date: '', startAt: '',
-  customerName: '', customerPhone: '', customerEmail: '', notes: '', addOnNames: [] as string[],
+  customerName: '', customerPhone: '', customerEmail: '', notes: '', packageCode: '', addOnNames: [] as string[],
   repeat: 'none', occurrences: '4',
 });
 const repeatOptions = [
@@ -52,7 +52,7 @@ async function submit() {
     const payload = {
       serviceId: form.serviceId, providerId: form.providerId || undefined, startAt: form.startAt,
       customerName: form.customerName, customerPhone: form.customerPhone,
-      customerEmail: form.customerEmail || undefined, notes: form.notes, addOnNames: form.addOnNames,
+      customerEmail: form.customerEmail || undefined, notes: form.notes, packageCode: form.packageCode || undefined, addOnNames: form.addOnNames,
     };
     if (form.repeat !== 'none') {
       const result = await createRecurring({ ...payload, frequency: form.repeat, occurrences: Number(form.occurrences) || 2 });
@@ -112,6 +112,7 @@ onMounted(async () => { form.date = tomorrow(); await Promise.all([loadServices(
           <BaseInput v-model="form.customerName" label="Customer name" placeholder="e.g. Tola Bakare" required />
           <BaseInput v-model="form.customerPhone" label="Phone" type="tel" placeholder="0803 123 4567" required />
           <BaseInput v-model="form.customerEmail" label="Email" type="email" placeholder="For confirmation and deposit link" />
+          <BaseInput v-model="form.packageCode" label="Package code (optional)" placeholder="e.g. AB12CD" hint="Prepaid sessions are deducted automatically." />
           <BaseTextarea v-model="form.notes" label="Notes" placeholder="Allergies, preferences, anything the team should know" />
         </div>
         <div class="card p-5">

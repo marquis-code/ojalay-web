@@ -1,5 +1,5 @@
 import { BaseApi } from '~/api/base/BaseApi';
-import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, Receipt, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate } from '~/types';
+import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, Receipt, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate, WaitlistEntry } from '~/types';
 
 class PublicApi extends BaseApi {
   constructor() { super('/'); }
@@ -28,6 +28,9 @@ class PublicApi extends BaseApi {
   }
   book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; addOnNames?: string[] }): Promise<{ booking: Booking; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
     return this.request('post', `storefront/${slug}/bookings`, payload);
+  }
+  joinWaitlist(slug: string, payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; notes?: string }): Promise<{ entry: WaitlistEntry & { already?: boolean }; business: StorefrontHome['business'] }> {
+    return this.request('post', `storefront/${slug}/waitlist`, payload);
   }
   booking(token: string): Promise<{ booking: Booking; business: Record<string, unknown> | null }> { return this.request('get', `public/bookings/${token}`); }
   cancelBooking(token: string, reason?: string): Promise<{ cancelled: boolean; booking: Booking }> { return this.request('post', `public/bookings/${token}/cancel`, { reason }); }

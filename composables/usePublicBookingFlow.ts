@@ -6,6 +6,8 @@ export function usePublicBookingFlow(slug: string) {
   const loading = ref(false);
   const submitting = ref(false);
   const error = ref<string | null>(null);
+  const waitlistLoading = ref(false);
+  const waitlistJoined = ref(false);
   const confirmed = ref<{ booking: Booking; whatsappUrl: string | null; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null } | null>(null);
 
   async function loadAvailability(serviceId: string, date: string, providerId?: string, durationMinutes?: number) {
@@ -13,6 +15,12 @@ export function usePublicBookingFlow(slug: string) {
     try { availability.value = await publicApi.availability(slug, { serviceId, date, providerId, durationMinutes }); }
     catch (err) { error.value = (err as Error).message; availability.value = null; }
     finally { loading.value = false; }
+  }
+  async function joinWaitlist(payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; notes?: string }) {
+    waitlistLoading.value = true; error.value = null;
+    try { await publicApi.joinWaitlist(slug, payload); waitlistJoined.value = true; }
+    catch (err) { error.value = (err as Error).message; throw err; }
+    finally { waitlistLoading.value = false; }
   }
   async function book(payload: Parameters<typeof publicApi.book>[1]) {
     submitting.value = true; error.value = null;
@@ -23,5 +31,5 @@ export function usePublicBookingFlow(slug: string) {
     } catch (err) { error.value = (err as Error).message; throw err; }
     finally { submitting.value = false; }
   }
-  return { availability, loading, submitting, error, confirmed, loadAvailability, book };
+  return { availability, loading, submitting, waitlistLoading, waitlistJoined, error, confirmed, loadAvailability, joinWaitlist, book };
 }

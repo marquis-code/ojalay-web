@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, Plus, Repeat2, Settings2, UserRound, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, Plus, Repeat2, Settings2, UserRound, Users, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import type { Booking } from '~/types';
 definePageMeta({ layout: 'app' });
@@ -77,7 +77,7 @@ onMounted(async () => {
 <template>
   <div class="space-y-5">
     <PageHeader title="Appointments" subtitle="Your day, your team and every client in one calm calendar." eyebrow="Bookings">
-      <template #actions><NuxtLink to="/app/bookings/settings" class="hidden items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-xs font-bold text-muted hover:bg-raised sm:inline-flex"><Settings2 class="h-4 w-4" /> Booking settings</NuxtLink><BaseButton to="/app/bookings/new"><Plus class="h-4 w-4" /> New booking</BaseButton></template>
+      <template #actions><NuxtLink to="/app/bookings/waitlist" class="hidden items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-xs font-bold text-muted hover:bg-raised sm:inline-flex"><Users class="h-4 w-4" /> Waitlist</NuxtLink><NuxtLink to="/app/bookings/settings" class="hidden items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-xs font-bold text-muted hover:bg-raised sm:inline-flex"><Settings2 class="h-4 w-4" /> Booking settings</NuxtLink><BaseButton to="/app/bookings/new"><Plus class="h-4 w-4" /> New booking</BaseButton></template>
     </PageHeader>
 
     <div class="grid gap-3 sm:grid-cols-3" data-tour="booking-stats">

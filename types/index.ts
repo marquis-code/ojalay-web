@@ -352,3 +352,20 @@ export interface BookingListResponse {
   meta: { total: number; page: number; limit: number; pages: number };
   summary: { today: number; upcoming: number; pending: number };
 }
+
+export interface WaitlistEntry {
+  id: string;
+  serviceId: string;
+  serviceName: string;
+  providerId?: string | null;
+  providerName?: string | null;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  preferredFrom: string;
+  preferredTo: string;
+  notes: string;
+  status: 'waiting' | 'notified' | 'booked' | 'cancelled';
+  notifiedAt?: string | null;
+  createdAt: string;
+}

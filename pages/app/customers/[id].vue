@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, Mail, MessageCircle, Pencil, Phone, Wallet } from 'lucide-vue-next';
+import { ArrowLeft, CalendarDays, Mail, MessageCircle, Pencil, Phone, Wallet } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { formatDate } from '~/utils/date';
 import { prettyPhone, whatsappLink } from '~/utils/phone';
@@ -44,6 +44,7 @@ onMounted(() => loadOne(id.value));
       <div class="grid gap-4 lg:grid-cols-2">
         <BaseCard><div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Purchases</h2><Wallet class="h-4 w-4 text-muted" /></div><div v-if="detail.sales.length" class="mt-3 divide-y divide-line"><div v-for="sale in detail.sales" :key="sale.id" class="flex items-center justify-between py-3 text-xs"><div><p class="font-semibold">{{ sale.saleNumber }}</p><p class="text-[10px] text-muted">{{ formatDate(sale.soldAt) }} · {{ sale.items.reduce((s, i) => s + i.quantity, 0) }} items</p></div><div class="text-right"><p class="font-bold">{{ formatNaira(sale.totalKobo) }}</p><BaseBadge :variant="sale.paymentStatus === 'paid' ? 'success' : 'warning'">{{ sale.paymentStatus }}</BaseBadge></div></div></div><p v-else class="mt-3 text-xs text-muted">No purchases yet.</p></BaseCard>
         <BaseCard><h2 class="font-display text-lg font-bold">Debt history</h2><div v-if="detail.debts.length" class="mt-3 divide-y divide-line"><div v-for="debt in detail.debts" :key="debt.id" class="flex items-center justify-between py-3 text-xs"><div><p class="font-semibold">{{ formatNaira(debt.principalKobo) }}</p><p class="text-[10px] text-muted">Due {{ formatDate(debt.dueDate) }}</p></div><div class="text-right"><p class="font-bold">{{ formatNaira(debt.balanceKobo) }} left</p><BaseBadge :variant="debt.balanceKobo <= 0 ? 'success' : 'warning'">{{ debt.balanceKobo <= 0 ? 'settled' : debt.status }}</BaseBadge></div></div></div><p v-else class="mt-3 text-xs text-muted">No debts on record.</p></BaseCard>
+        <BaseCard v-if="detail.bookings?.length"><div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Appointments</h2><CalendarDays class="h-4 w-4 text-muted" /></div><div class="mt-3 divide-y divide-line"><NuxtLink v-for="booking in detail.bookings" :key="booking.id" :to="`/app/bookings?date=${booking.startAt.slice(0,10)}`" class="flex items-center justify-between py-3 text-xs"><div><p class="font-semibold">{{ booking.serviceName }}</p><p class="text-[10px] text-muted">{{ formatDate(booking.startAt) }} · {{ booking.providerName }}</p></div><div class="text-right"><p class="font-bold">{{ formatNaira(booking.priceKobo) }}</p><BaseBadge :variant="booking.status === 'completed' ? 'success' : booking.status === 'cancelled' ? 'danger' : 'neutral'">{{ booking.status.replace('_', ' ') }}</BaseBadge></div></NuxtLink></div></BaseCard>
       </div>
     </template>
     <BaseModal v-model:open="editOpen" title="Edit customer">

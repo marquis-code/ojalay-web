@@ -6,6 +6,7 @@ definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'Appointments' });
 
 const toast = useToast();
+const route = useRoute();
 const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, reschedule } = useBookings();
 const { items: providers, load: loadProviders } = useProviders();
 const selected = ref<Booking | null>(null);
@@ -67,7 +68,10 @@ async function cancelBooking(id: string) {
 function time(value: string) { return new Date(value).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }); }
 function dateLabel(value: string) { return new Date(`${value}T12:00:00`).toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long' }); }
 watch(() => [filters.status, filters.providerId, filters.date], () => load());
-onMounted(async () => { await Promise.all([load(), loadProviders()]); });
+onMounted(async () => {
+  if (typeof route.query.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(route.query.date)) filters.date = route.query.date;
+  await Promise.all([load(), loadProviders()]);
+});
 </script>
 
 <template>

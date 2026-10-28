@@ -11,10 +11,10 @@ const saving = ref(false);
 const editing = ref<Provider | null>(null);
 const removing = ref<Provider | null>(null);
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const defaultHours = () => Array.from({ length: 7 }, (_, day) => ({ day, isWorking: day !== 0, start: '09:00', end: '18:00' }));
+const defaultHours = () => Array.from({ length: 7 }, (_, day) => ({ day, isWorking: day !== 0, start: '09:00', end: '18:00', breakStart: '', breakEnd: '' }));
 const form = reactive({
   name: '', title: '', bio: '', email: '', phone: '', avatarUrl: '', color: '#FF5A1F',
-  isBookable: true, isActive: true, weeklySchedule: defaultHours() as { day: number; isWorking: boolean; start: string; end: string }[],
+  isBookable: true, isActive: true, weeklySchedule: defaultHours() as { day: number; isWorking: boolean; start: string; end: string; breakStart: string; breakEnd: string }[],
   timeOff: [] as { startAt: string; endAt: string; reason: string }[],
 });
 const activeCount = computed(() => items.value.filter((p) => p.isActive).length);
@@ -29,7 +29,7 @@ function openEdit(provider: Provider) {
   editing.value = provider;
   const schedule = days.map((_, day) => {
     const found = provider.weeklySchedule.find((d) => d.day === day);
-    return { day, isWorking: found?.isWorking ?? false, start: found?.start || '09:00', end: found?.end || '18:00' };
+    return { day, isWorking: found?.isWorking ?? false, start: found?.start || '09:00', end: found?.end || '18:00', breakStart: found?.breaks?.[0]?.start || '', breakEnd: found?.breaks?.[0]?.end || '' };
   });
   Object.assign(form, {
     name: provider.name, title: provider.title, bio: provider.bio, email: provider.email || '',
@@ -48,7 +48,7 @@ async function save() {
       name: form.name.trim(), title: form.title.trim(), bio: form.bio.trim(),
       email: form.email || null, phone: form.phone || null, avatarUrl: form.avatarUrl || null,
       color: form.color, isBookable: form.isBookable, isActive: form.isActive,
-      weeklySchedule: form.weeklySchedule.map((d) => ({ ...d, breaks: [] })),
+      weeklySchedule: form.weeklySchedule.map((d) => ({ day: d.day, isWorking: d.isWorking, start: d.start, end: d.end, breaks: d.breakStart && d.breakEnd ? [{ start: d.breakStart, end: d.breakEnd }] : [] })),
       timeOff: form.timeOff.filter((t) => t.startAt && t.endAt).map((t) => ({ startAt: `${t.startAt}T00:00:00+01:00`, endAt: `${t.endAt}T23:59:59+01:00`, reason: t.reason })),
     };
     if (editing.value) await update(editing.value.id, payload as Partial<Provider>);
@@ -120,11 +120,18 @@ onMounted(load);
         <div>
           <div class="flex items-center justify-between"><p class="label-base mb-0">Weekly working hours</p><span class="text-[10px] text-muted">Leave all off to use business hours</span></div>
           <div class="mt-2 space-y-2">
-            <div v-for="d in form.weeklySchedule" :key="d.day" class="grid grid-cols-[70px_28px_1fr_1fr] items-center gap-2 rounded-xl border border-line p-2">
-              <span class="text-xs font-bold">{{ days[d.day] }}</span>
-              <input v-model="d.isWorking" type="checkbox" class="h-4 w-4" :aria-label="`${days[d.day]} working`">
-              <input v-model="d.start" type="time" class="input-base !py-2 !text-xs" :disabled="!d.isWorking" :aria-label="`${days[d.day]} start`">
-              <input v-model="d.end" type="time" class="input-base !py-2 !text-xs" :disabled="!d.isWorking" :aria-label="`${days[d.day]} end`">
+            <div v-for="d in form.weeklySchedule" :key="d.day" class="rounded-xl border border-line p-2">
+              <div class="grid grid-cols-[70px_28px_1fr_1fr] items-center gap-2">
+                <span class="text-xs font-bold">{{ days[d.day] }}</span>
+                <input v-model="d.isWorking" type="checkbox" class="h-4 w-4" :aria-label="`${days[d.day]} working`">
+                <input v-model="d.start" type="time" class="input-base !py-2 !text-xs" :disabled="!d.isWorking" :aria-label="`${days[d.day]} start`">
+                <input v-model="d.end" type="time" class="input-base !py-2 !text-xs" :disabled="!d.isWorking" :aria-label="`${days[d.day]} end`">
+              </div>
+              <div v-if="d.isWorking" class="mt-1.5 grid grid-cols-[70px_1fr_1fr] items-center gap-2">
+                <span class="text-[9px] font-semibold text-muted">Break</span>
+                <input v-model="d.breakStart" type="time" class="input-base !py-1.5 !text-[10px]" :aria-label="`${days[d.day]} break start`">
+                <input v-model="d.breakEnd" type="time" class="input-base !py-1.5 !text-[10px]" :aria-label="`${days[d.day]} break end`">
+              </div>
             </div>
           </div>
         </div>

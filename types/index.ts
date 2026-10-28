@@ -314,6 +314,7 @@ export interface Booking {
   startAt: string;
   endAt: string;
   durationMinutes: number;
+  capacity: number;
   timezone: string;
   addOns: BookingAddon[];
   status: BookingStatus;
@@ -401,4 +402,13 @@ export interface ReviewContext {
   business: { id: string; name: string; slug: string; logoUrl?: string | null; brandColor: string } | null;
   review: Review | null;
   canReview: boolean;
+}
+
+
+export interface BookingRoster {
+  bookingId: string;
+  startAt: string;
+  capacity: number;
+  booked: number;
+  items: { id: string; bookingNumber: string; customerName: string; customerPhone: string; status: string; paymentStatus: string }[];
 }

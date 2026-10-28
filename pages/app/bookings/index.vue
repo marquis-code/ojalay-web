@@ -7,12 +7,15 @@ useSeoMeta({ title: 'Appointments' });
 
 const toast = useToast();
 const route = useRoute();
-const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, refund, reschedule } = useBookings();
+const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, refund, roster, reschedule } = useBookings();
 const { items: providers, load: loadProviders } = useProviders();
 const selected = ref<Booking | null>(null);
 const detailOpen = ref(false);
 const busy = ref(false);
 const refundOpen = ref(false);
+const rosterOpen = ref(false);
+const rosterData = ref<import('~/types').BookingRoster | null>(null);
+const rosterLoading = ref(false);
 const rescheduleOpen = ref(false);
 const newDate = ref('');
 const newStart = ref('');
@@ -59,6 +62,12 @@ async function update(id: string, status: string) {
   try { await setStatus(id, status); toast.success(`Booking ${status.replace('_', ' ')}.`); selected.value = items.value.find((b) => b.id === id) || null; }
   catch (error) { toast.error((error as Error).message); }
   finally { busy.value = false; }
+}
+async function openRoster(booking: Booking) {
+  rosterOpen.value = true; rosterLoading.value = true; rosterData.value = null;
+  try { rosterData.value = await roster(booking.id); }
+  catch (error) { toast.error((error as Error).message); rosterOpen.value = false; }
+  finally { rosterLoading.value = false; }
 }
 async function confirmRefund() {
   if (!selected.value) return;
@@ -150,6 +159,7 @@ onMounted(async () => {
         <p v-if="selected.notes" class="rounded-2xl border border-line p-3 text-xs text-muted">{{ selected.notes }}</p>
         <div v-if="selected.paymentStatus === 'unpaid' && selected.depositKobo" class="rounded-2xl bg-warning/10 p-3 text-xs text-warning">Deposit of {{ formatNaira(selected.depositKobo) }} is still unpaid.</div>
         <div class="flex flex-wrap gap-2">
+          <BaseButton v-if="selected.capacity > 1" size="sm" variant="outline" @click="openRoster(selected)"><Users class="h-4 w-4" /> Roster ({{ selected.capacity }})</BaseButton>
           <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="outline" :loading="busy" @click="openReschedule(selected)"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
           <BaseButton v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'" size="sm" variant="outline" :loading="busy" @click="refundOpen = true">Refund payment</BaseButton>
           <BaseButton v-if="selected.status === 'pending'" size="sm" :loading="busy" @click="update(selected.id, 'confirmed')"><Check class="h-4 w-4" /> Confirm</BaseButton>
@@ -158,6 +168,14 @@ onMounted(async () => {
           <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="ghost" class="text-danger" :loading="busy" @click="cancelBooking(selected.id)"><X class="h-4 w-4" /> Cancel</BaseButton>
         </div>
         <div class="border-t border-line pt-3 text-xs text-muted"><p>Client can manage this booking here:</p><NuxtLink :to="`/booking/${selected.publicToken}`" target="_blank" class="mt-1 block break-all font-semibold text-brand-600">/booking/{{ selected.publicToken }}</NuxtLink></div>
+      </div>
+    </BaseModal>
+
+    <BaseModal v-model:open="rosterOpen" title="Group roster" description="Everyone booked into this session." size="md">
+      <div v-if="rosterLoading" class="skeleton h-32 rounded-2xl" />
+      <div v-else-if="rosterData" class="space-y-3">
+        <div class="flex items-center justify-between rounded-2xl bg-raised/60 p-3 text-xs font-semibold"><span>{{ rosterData.booked }} of {{ rosterData.capacity }} spots booked</span><span>{{ new Date(rosterData.startAt).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }) }}</span></div>
+        <div class="divide-y divide-line"><div v-for="item in rosterData.items" :key="item.id" class="flex items-center justify-between py-3"><div><p class="text-sm font-bold">{{ item.customerName }}</p><p class="text-[10px] text-muted">{{ item.bookingNumber }} · {{ item.customerPhone }}</p></div><div class="text-right"><BaseBadge :variant="item.status === 'confirmed' ? 'success' : 'warning'">{{ item.status }}</BaseBadge><p class="mt-1 text-[10px] text-muted">{{ item.paymentStatus.replace('_', ' ') }}</p></div></div></div>
       </div>
     </BaseModal>
 

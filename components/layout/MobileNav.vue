@@ -31,7 +31,7 @@ const primaryTo = computed(() => mode.value === 'services' ? '/app/bookings/new'
 const primaryLabel = computed(() => mode.value === 'services' ? 'Book' : 'Sell');
 const navLinks = computed(() => links.filter(visible));
 const moreLinks = computed(() => more.filter(visible));
-const columns = computed(() => mode.value === 'services' ? 'grid-cols-4' : 'grid-cols-5');
+const columns = computed(() => navLinks.value.length + 2 >= 6 ? 'grid-cols-6' : navLinks.value.length + 2 === 5 ? 'grid-cols-5' : 'grid-cols-4');
 const isActive = (to: string, exact = false) => exact ? route.path === to : route.path.startsWith(to);
 </script>
 

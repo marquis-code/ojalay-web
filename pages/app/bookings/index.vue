@@ -80,13 +80,13 @@ onMounted(async () => {
       <template #actions><NuxtLink to="/app/bookings/settings" class="hidden items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-xs font-bold text-muted hover:bg-raised sm:inline-flex"><Settings2 class="h-4 w-4" /> Booking settings</NuxtLink><BaseButton to="/app/bookings/new"><Plus class="h-4 w-4" /> New booking</BaseButton></template>
     </PageHeader>
 
-    <div class="grid gap-3 sm:grid-cols-3">
+    <div class="grid gap-3 sm:grid-cols-3" data-tour="booking-stats">
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Today</p><p class="mt-1 font-display text-2xl font-bold">{{ summary.today }}</p><p class="text-[11px] text-muted">appointments</p></div>
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Upcoming</p><p class="mt-1 font-display text-2xl font-bold">{{ summary.upcoming }}</p><p class="text-[11px] text-muted">confirmed or pending</p></div>
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Needs confirmation</p><p class="mt-1 font-display text-2xl font-bold text-warning">{{ summary.pending }}</p><p class="text-[11px] text-muted">waiting on you</p></div>
     </div>
 
-    <div class="card p-3 sm:p-4">
+    <div class="card p-3 sm:p-4" data-tour="booking-calendar">
       <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div class="flex items-center gap-1">
           <button class="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-raised" aria-label="Previous day" @click="shiftDay(-1)"><ArrowLeft class="h-4 w-4" /></button>

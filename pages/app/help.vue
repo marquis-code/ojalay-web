@@ -46,7 +46,7 @@ onMounted(async () => {
         <p class="mt-2 text-sm leading-relaxed text-white/70">Pick a tour. Ojaly highlights the exact buttons, walks you through the flow and gets out of the way.</p>
         <div class="relative mt-5 max-w-lg">
           <Search class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
-          <input v-model="query" type="search" placeholder="Search help: debt, stock, website, WhatsApp…" class="min-h-[48px] w-full rounded-2xl border border-white/15 bg-white/10 pl-11 pr-4 text-sm text-white placeholder:text-white/40 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30">
+          <input v-model="query" type="search" placeholder="Search help: bookings, deposits, debt, stock, WhatsApp…" class="min-h-[48px] w-full rounded-2xl border border-white/15 bg-white/10 pl-11 pr-4 text-sm text-white placeholder:text-white/40 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30">
         </div>
       </div>
     </section>

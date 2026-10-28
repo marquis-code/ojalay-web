@@ -43,6 +43,20 @@ export const TOURS: Tour[] = [
     ],
   },
   {
+    id: 'bookings',
+    title: 'Run your appointment book',
+    description: 'Set the menu, protect the calendar and turn appointments into paid sales.',
+    duration: '75 seconds',
+    color: '#B45AF2',
+    steps: [
+      { route: '/app/bookings', target: 'booking-stats', title: 'Your day at a glance', body: 'Today, upcoming and requests waiting for confirmation. The calendar below is the real day.', placement: 'bottom' },
+      { route: '/app/services', target: 'service-menu', title: 'Build the service menu', body: 'Duration, price, deposit and the team member who delivers it. Add-ons let customers extend the appointment.', placement: 'left' },
+      { route: '/app/team', target: 'team-list', title: 'Protect the calendar', body: 'Set working hours, breaks and time off. Customers only see slots that are genuinely open.', placement: 'bottom' },
+      { route: '/app/bookings/new', target: 'booking-form', title: 'Take a walk-in or phone booking', body: 'The same availability engine stops you double-booking the team, then sends the customer their management link.', placement: 'right' },
+      { route: '/app/bookings', target: 'booking-calendar', title: 'Complete, don’t just confirm', body: 'Completing an appointment creates the sale, receipt and any unpaid balance in one tap.', placement: 'top' },
+    ],
+  },
+  {
     id: 'whatsapp',
     title: 'Sell from WhatsApp',
     description: 'Link your number, paste chats and let the bot keep the records.',

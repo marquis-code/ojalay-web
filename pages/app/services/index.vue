@@ -95,7 +95,7 @@ onMounted(async () => { await Promise.all([load(), loadProviders()]); if (!categ
     <BaseEmptyState v-else-if="!items.length" title="Build your service menu" message="Add what you offer, how long it takes, what it costs and who delivers it. Then publish your booking page." action-label="Add your first service" @action="openCreate">
       <template #icon><Scissors class="h-9 w-9" /></template>
     </BaseEmptyState>
-    <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-tour="service-menu">
       <article v-for="service in items" :key="service.id" class="card overflow-hidden p-0">
         <div class="h-1.5" :style="{ background: service.color }" />
         <div class="p-5">

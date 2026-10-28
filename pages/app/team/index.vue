@@ -87,7 +87,7 @@ onMounted(load);
     <BaseEmptyState v-else-if="!items.length" title="Add your first team member" message="Even a solo owner should be on the team so customers can choose who they want to see." action-label="Add team member" @action="openCreate">
       <template #icon><UserRoundCog class="h-9 w-9" /></template>
     </BaseEmptyState>
-    <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-tour="team-list">
       <article v-for="provider in items" :key="provider.id" class="card p-5">
         <div class="flex items-start gap-3">
           <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-sm font-bold text-white" :style="{ background: provider.color }">

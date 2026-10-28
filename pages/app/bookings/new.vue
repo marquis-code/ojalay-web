@@ -56,7 +56,7 @@ onMounted(async () => { form.date = tomorrow(); await Promise.all([loadServices(
     <NuxtLink to="/app/bookings" class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink"><ArrowLeft class="h-4 w-4" /> Back to appointments</NuxtLink>
     <PageHeader title="New appointment" subtitle="Book a client in without double-booking the team." eyebrow="Bookings" />
 
-    <form class="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]" @submit.prevent="submit">
+    <form class="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]" data-tour="booking-form" @submit.prevent="submit">
       <div class="space-y-4">
         <div class="card space-y-4 p-5">
           <h2 class="font-display text-lg font-bold">What are they booking?</h2>

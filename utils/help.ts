@@ -17,6 +17,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
   { key: 'money', label: 'Money & profit', description: 'Costs, expenses, reports, exports and what the numbers mean.' },
   { key: 'customers', label: 'Customers & debts', description: 'Sell on credit, send reminders and get paid.' },
   { key: 'stock', label: 'Products & stock', description: 'Variants, restocks, low-stock thresholds and overselling.' },
+  { key: 'bookings', label: 'Services & bookings', description: 'Service menus, team schedules, deposits, reminders and reschedules.' },
   { key: 'website', label: 'Your website', description: 'Templates, media, publishing, domains and the embed widget.' },
   { key: 'whatsapp', label: 'WhatsApp', description: 'Paste chats, link your number, bot commands and summaries.' },
   { key: 'billing', label: 'Plans & referrals', description: 'Trials, upgrades, invoices and the affiliate programme.' },
@@ -60,6 +61,26 @@ export const HELP_ARTICLES: HelpArticle[] = [
       'Sales and confirmed orders reduce stock automatically. Cancellations and voids put it back. Use Stock adjustments for damaged items, personal use or a recount.',
       'Set a low-stock threshold per variant. When stock reaches it, Ojaly nudges you in-app and can email or WhatsApp you. Alerts are debounced so you are not spammed.',
       'Ojaly refuses to oversell. If two people try to buy the last item, only one order can reserve it.',
+    ],
+  },
+  {
+    id: 'service-menu', category: 'bookings', title: 'Set up your service menu',
+    summary: 'Turn Ojaly into a booking business without losing the product side.',
+    body: [
+      'Open Bookings → Booking settings and choose Services or Both. Services hides the shop and stock tools; Both keeps the catalogue and adds appointments.',
+      'Add each service in Services with its duration, price and the team member who delivers it. Add-ons let a customer extend the appointment while booking.',
+      'Add your team in Team & schedules, set working hours and breaks, and add time off when someone is away. A solo owner should still add themselves so customers can choose them.',
+      'Turn on online booking and set your minimum notice, booking window, deposit percentage and cancellation policy. Publish from My website when the menu is ready.',
+    ],
+  },
+  {
+    id: 'booking-flow', category: 'bookings', title: 'Take a booking from link to receipt',
+    summary: 'How customers book, pay deposits and what happens when you complete the appointment.',
+    body: [
+      'Share your service page. Customers pick a service, date and live time slot, then leave their name and WhatsApp number. If the service needs a deposit, they pay it with Paystack before the booking is confirmed.',
+      'Every booking has a private management link. The customer can view it, pay the balance, reschedule or cancel inside your cancellation window without creating an account.',
+      'Owners see the day in Appointments. Confirm pending requests, move an appointment, record a no-show or cancel it. Reminders go out by email and WhatsApp before the appointment.',
+      'When the appointment is done, tap Complete. Ojaly creates the sale and receipt, adds the revenue to reports, and records any unpaid balance as a customer debt.',
     ],
   },
   {

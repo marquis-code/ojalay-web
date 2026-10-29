@@ -22,8 +22,8 @@ function features(plan: Plan): string[] {
     <div class="shell">
       <div class="mx-auto max-w-2xl text-center">
         <p class="eyebrow">Pricing</p>
-        <h2 class="mt-3 font-display text-4xl font-bold tracking-[-0.04em] sm:text-5xl">Start free. Grow when it makes sense.</h2>
-        <p class="mt-3 text-sm leading-relaxed text-muted">No card to start. Your data never gets locked when a trial ends — you simply drop to the free tier.</p>
+        <h2 class="mt-3 font-display text-4xl font-bold tracking-[-0.04em] sm:text-5xl">Free to start. Upgrade when your team grows.</h2>
+        <p class="mt-3 text-sm leading-relaxed text-muted">Students book free. Service businesses list free. Paid plans are for teams that need more staff seats, exports and advanced tools.</p>
         <div class="mt-6 inline-flex items-center rounded-full border border-line bg-surface p-1">
           <button type="button" class="rounded-full px-4 py-2 text-xs font-bold" :class="!yearly ? 'bg-ink text-canvas' : 'text-muted'" @click="yearly = false">Monthly</button>
           <button type="button" class="rounded-full px-4 py-2 text-xs font-bold" :class="yearly ? 'bg-ink text-canvas' : 'text-muted'" @click="yearly = true">Yearly <span class="text-success">save 20%</span></button>

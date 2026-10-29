@@ -1,37 +1,46 @@
 <script setup lang="ts">
-import { ArrowDown, CircleDollarSign, PackagePlus, Rocket } from 'lucide-vue-next';
-const steps = [
-  { icon: Rocket, number: '01', title: 'Set up in minutes', body: 'Create your account, name your business, pick a vibe. That’s your back office and storefront ready.', detail: 'Name + category + logo. Done.' },
-  { icon: PackagePlus, number: '02', title: 'Add what you sell', body: 'Add products, variants and prices once. The same catalog powers your stock, sales, receipts and website.', detail: 'Variants, SKU, cost and selling price.' },
-  { icon: CircleDollarSign, number: '03', title: 'See the truth', body: 'Record a sale. Ojaly calculates profit, updates stock, tracks debts and publishes your website automatically.', detail: 'Profit: the number you came for.' },
+import { BadgeCheck, CalendarCheck, Compass, CreditCard, Repeat2, Scissors } from 'lucide-vue-next';
+const student = [
+  { icon: Compass, title: 'Discover a verified business', body: 'Browse UNILAG and CMUL by service, category and rating. Every listing is reviewed.' },
+  { icon: CalendarCheck, title: 'Book a real time', body: 'Pick a live slot. The business sees it immediately, and you get a confirmation.' },
+  { icon: CreditCard, title: 'Pay securely. Get a receipt.', body: 'Deposit or full payment through Paystack. Your booking, receipt and management link are created automatically.' },
+];
+const owner = [
+  { icon: BadgeCheck, title: 'Get verified', body: 'Add your campus, services and prices. Our team reviews the business before it appears.' },
+  { icon: Scissors, title: 'Publish your service menu', body: 'Durations, prices, deposits, add-ons, packages and team schedules in one place.' },
+  { icon: Repeat2, title: 'Get paid. Build the record.', body: 'Every booking creates a customer, payment, receipt and review request. Rebook with packages and reminders.' },
 ];
 </script>
 
 <template>
-  <section id="how" class="border-b border-line bg-surface py-16 sm:py-24">
+  <section id="how" class="border-b border-line bg-forest-900 py-16 text-white sm:py-24">
     <div class="shell">
-      <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p class="eyebrow">How it works</p>
-          <h2 class="mt-3 max-w-xl font-display text-4xl font-bold tracking-[-0.04em] sm:text-5xl">From chaos to clarity in three moves.</h2>
-        </div>
-        <p class="max-w-sm text-sm leading-relaxed text-muted">No accounting degree. No developer. You already know how to use WhatsApp — you can use Ojaly.</p>
+      <div class="max-w-2xl">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">One system. Two sides.</p>
+        <h2 class="mt-3 font-display text-4xl font-bold tracking-[-0.045em] sm:text-5xl">The student finds you. Ojaly keeps the record.</h2>
+        <p class="mt-3 text-sm leading-relaxed text-white/60">No new behaviour for the customer. No retyping for the business. The transaction does the work.</p>
       </div>
-      <div class="relative mt-12 grid gap-5 lg:grid-cols-3">
-        <div class="absolute left-[16.6%] right-[16.6%] top-12 hidden border-t-2 border-dashed border-line lg:block" />
-        <div v-for="(step, index) in steps" :key="step.number" class="relative rounded-3xl border border-line bg-canvas p-6">
-          <div class="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-ink bg-brand-500 text-white shadow-chunky-sm">
-            <component :is="step.icon" class="h-6 w-6" />
+      <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-[2rem] border border-white/10 bg-white/5 p-5 sm:p-6">
+          <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-accent">For students</p>
+          <div class="mt-5 space-y-4">
+            <div v-for="(step, index) in student" :key="step.title" class="flex gap-3">
+              <div class="flex flex-col items-center"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-forest-900"><component :is="step.icon" class="h-4 w-4" /></span><span v-if="index < student.length - 1" class="mt-1 h-full w-px bg-white/15" /></div>
+              <div><p class="text-sm font-bold">{{ step.title }}</p><p class="mt-1 text-xs leading-relaxed text-white/55">{{ step.body }}</p></div>
+            </div>
           </div>
-          <span class="mt-5 block font-display text-5xl font-bold text-line">{{ step.number }}</span>
-          <h3 class="mt-2 font-display text-2xl font-bold tracking-tight">{{ step.title }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-muted">{{ step.body }}</p>
-          <p class="mt-5 inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] font-bold text-muted">{{ step.detail }}</p>
-          <ArrowDown v-if="index < steps.length - 1" class="absolute -bottom-4 left-1/2 h-6 w-6 -translate-x-1/2 rounded-full border border-line bg-surface p-1 text-brand-500 lg:hidden" />
+          <BaseButton to="/campus" variant="secondary" class="mt-6">Browse the marketplace</BaseButton>
         </div>
-      </div>
-      <div class="mt-9 flex justify-center">
-        <BaseButton to="/register" size="lg">Start my business <span aria-hidden="true">→</span></BaseButton>
+        <div class="rounded-[2rem] border border-white/10 bg-white/5 p-5 sm:p-6">
+          <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-accent">For service businesses</p>
+          <div class="mt-5 space-y-4">
+            <div v-for="(step, index) in owner" :key="step.title" class="flex gap-3">
+              <div class="flex flex-col items-center"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-accent"><component :is="step.icon" class="h-4 w-4" /></span><span v-if="index < owner.length - 1" class="mt-1 h-full w-px bg-white/15" /></div>
+              <div><p class="text-sm font-bold">{{ step.title }}</p><p class="mt-1 text-xs leading-relaxed text-white/55">{{ step.body }}</p></div>
+            </div>
+          </div>
+          <BaseButton to="/register?campus=UNILAG" variant="secondary" class="mt-6">List your service free</BaseButton>
+        </div>
       </div>
     </div>
   </section>

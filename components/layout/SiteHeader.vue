@@ -26,7 +26,7 @@ const links = [
         </template>
         <template v-else>
           <NuxtLink to="/login" class="hidden rounded-full px-4 py-2 text-sm font-semibold hover:bg-raised sm:inline-flex">Sign in</NuxtLink>
-          <BaseButton to="/register" size="sm" class="hidden sm:inline-flex">Start free <span aria-hidden="true">→</span></BaseButton>
+          <BaseButton to="/register" size="sm" class="hidden sm:inline-flex">List your business <span aria-hidden="true">→</span></BaseButton>
         </template>
         <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-line lg:hidden" aria-label="Open menu" @click="open = !open">
           <X v-if="open" class="h-5 w-5" /><Menu v-else class="h-5 w-5" />

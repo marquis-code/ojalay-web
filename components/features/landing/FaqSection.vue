@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { Plus } from 'lucide-vue-next';
 const faqs = [
-  { q: 'Is Ojaly only for students?', a: 'Not at all. Ojaly is built for ambitious Nigerian businesses at any stage — thrift and fashion sellers, food vendors, salons and barbers, designers, printers, gadget sellers, online stores and service businesses. Student founders get a head start because the product is mobile-first and WhatsApp-native, but the same tools work for any small business.' },
-  { q: 'I sell services, not products. Can I use Ojaly?', a: 'Yes. Use Ojaly to record jobs, deposits, expenses, customer balances, payment links and receipts without forcing your work into a product catalogue. You can still publish a storefront for the physical products you sell alongside your services.' },
-  { q: 'Do I really get a free website?', a: 'Yes. Every business gets a storefront generated from the products you already add. It has home, product listing, product pages, cart, checkout, about and contact. You can publish it in one tap.' },
-  { q: 'Can I use Ojaly without the website?', a: 'Of course. If you already have a site, use the back office only, or drop our order widget onto your existing site. The management system is the product; the site is the bonus.' },
-  { q: 'I sell mostly on WhatsApp. Will this work?', a: 'That is exactly who we built it for. Paste a customer chat and Ojaly extracts the order. You can also link your number and text our bot things like “sold 2 shirts 5000”. Every order is confirmed before it is saved.' },
-  { q: 'How do I know my profit is correct?', a: 'Every sale stores the cost price at the time of sale. Ojaly subtracts cost of goods and your recorded expenses from revenue. You see gross profit and net profit, plus a plain-language explanation.' },
-  { q: 'What happens when my trial ends?', a: 'Your account drops to the free plan. Nothing is deleted. You keep your data, your sales history and your website. Paid limits on products, staff seats and exports simply apply until you upgrade.' },
-  { q: 'Can my staff use it?', a: 'Yes. Owners can invite staff and choose exactly which areas they can access — sales, stock, customers and debts. Staff cannot change your plan or sensitive settings.' },
-  { q: 'Is my money handled by Ojaly?', a: 'No. Payments go through Paystack straight to your own settlement account. Ojaly records the transaction, updates the order or debt and issues the receipt.' },
-  { q: 'Does it work when network is bad?', a: 'Ojaly caches the app shell and queues sales and expenses recorded offline. When your connection returns, they sync automatically. Images are compressed before upload.' },
+  { q: 'What is Ojaly now?', a: 'Ojaly is a campus service marketplace and booking record. Students discover verified student businesses at UNILAG and CMUL, book a real time and pay securely. The business gets the customer, deposit, receipt and review in the same transaction.' },
+  { q: 'Who is it for?', a: 'Students who want trusted hair, food, nails, printing, laundry, design, repair and tutoring services. Service businesses that want demand and a booking system. Product sellers can still use Ojaly, but the campus marketplace is built for services first.' },
+  { q: 'How do I know the businesses are real?', a: 'A business must be tagged to a campus and reviewed by the Ojaly campus team before it appears. Verified listings show a badge, reviews only come from completed appointments, and every payment gets a receipt.' },
+  { q: 'How does payment work?', a: 'Payments go through Paystack directly to the business. Ojaly records the booking, deposit, receipt and remaining balance. We do not hold your money.' },
+  { q: 'I already sell on WhatsApp. Why use Ojaly?', a: 'Keep WhatsApp for conversation. Use Ojaly for discovery, real availability, deposits, receipts and records. Send the link in WhatsApp instead of typing prices and times forever.' },
+  { q: 'Do I need the WhatsApp API?', a: 'No. Ojaly works with shareable WhatsApp links, email and SMS fallback. WhatsApp automation is optional. Cloud API review will never block you from booking or getting paid.' },
+  { q: 'What if a day is fully booked?', a: 'Join the waitlist. If a customer cancels or reschedules, Ojaly offers the opening to waiting customers by email and WhatsApp.' },
+  { q: 'Can I reschedule or cancel?', a: 'Yes. Every booking has a private management link. Reschedule or cancel within the business policy window; deposits and cancellation rules are shown upfront.' },
+  { q: 'Is it free?', a: 'Students browse and book for free. Service businesses start free and can upgrade when they need more staff, packages or advanced tools. No card is required to start.' },
+  { q: 'Which campuses are live?', a: 'Lagos first: University of Lagos (UNILAG) and the College of Medicine, University of Lagos (CMUL). More campuses will follow based on demand.' },
 ];
 const open = ref<number | null>(0);
 </script>

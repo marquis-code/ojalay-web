@@ -32,7 +32,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'theme-color', content: '#06231A' },
-        { name: 'description', content: 'Ojaly is the operating system for ambitious Nigerian businesses. Track real profit, stock, debts and expenses — and turn your catalogue into a free storefront.' },
+        { name: 'description', content: 'Ojaly is the trusted booking and payment layer for local service businesses. Discover verified providers, book a real time and pay securely.' },
         { property: 'og:site_name', content: 'Ojaly' },
         { property: 'og:type', content: 'website' },
         { property: 'og:image', content: 'https://ojaly.org/images/business/market-trader.webp' },
@@ -44,7 +44,7 @@ export default defineNuxtConfig({
         { rel: 'manifest', href: '/manifest.webmanifest' },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' },
-        { rel: 'apple-touch-icon', href: '/pwa-192.png' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
     },
   },
@@ -71,7 +71,7 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Ojaly — business, handled',
+      name: 'Ojaly — book local services',
       short_name: 'Ojaly',
       description: 'Verified local service marketplace and booking record for providers in Lagos.',
       theme_color: '#06231A',

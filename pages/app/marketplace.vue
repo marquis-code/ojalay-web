@@ -16,7 +16,7 @@ onMounted(load);
       <template #actions><BaseButton to="/app/share" variant="outline"><QrCode class="h-4 w-4" /> Share shop</BaseButton></template>
     </PageHeader>
     <div v-if="!isVerified" class="card border-warning/30 bg-warning/5 p-5"><div class="flex items-start gap-3"><ShieldCheck class="mt-0.5 h-5 w-5 text-warning" /><div><p class="font-bold">Your business is not verified for marketplace discovery yet.</p><p class="mt-1 text-xs leading-relaxed text-muted">Verification is what makes customers trust the listing. Our team reviews the business and services. You can still share your normal shop link today.</p></div></div></div>
-    <div v-else class="card border-success/20 bg-success/5 p-4 text-xs font-semibold text-success"><ShieldCheck class="mr-1 inline h-4 w-4" /> Verified campus business. Your services are eligible for discovery.</div>
+    <div v-else class="card border-success/20 bg-success/5 p-4 text-xs font-semibold text-success"><ShieldCheck class="mr-1 inline h-4 w-4" /> Verified local business. Your services are eligible for discovery.</div>
 
     <div class="grid gap-3 sm:grid-cols-3">
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Marketplace bookings</p><p class="mt-1 font-display text-2xl font-bold">{{ data?.summary.bookings || 0 }}</p></div>

@@ -16,7 +16,7 @@ const points = [
   {
     icon: ShieldCheck, number: '03', label: 'The trust question',
     question: '“Why should a customer pay me before meeting me?”',
-    answer: 'A verified campus badge, reviews from completed appointments and a receipt after every payment. Trust is visible before the first message.',
+    answer: 'A verified provider badge, reviews from completed appointments and a receipt after every payment. Trust is visible before the first message.',
     outcome: 'Look legitimate from the first tap',
   },
   {

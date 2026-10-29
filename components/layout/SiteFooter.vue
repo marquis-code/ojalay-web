@@ -9,7 +9,7 @@ const year = new Date().getFullYear();
       <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <LogoMark dark />
-          <p class="mt-4 max-w-xs text-sm leading-relaxed text-[#A8C0B4]">The trusted booking and payment layer for campus service businesses. Lagos first: UNILAG and CMUL.</p>
+          <p class="mt-4 max-w-xs text-sm leading-relaxed text-[#A8C0B4]">The trusted booking and payment layer for local service businesses. Lagos first — campus and community.</p>
           <a href="https://wa.me/2348000000000" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-bold text-white">
             <MessageCircle class="h-4 w-4" /> Chat on WhatsApp
           </a>

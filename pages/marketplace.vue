@@ -3,9 +3,13 @@ import { ArrowRight, Check, GraduationCap, MapPin, Search, ShieldCheck, Sparkles
 import { formatNaira } from '~/utils/money';
 definePageMeta({ layout: 'default' });
 useSeoMeta({
-  title: 'Ojaly — book trusted local service businesses in Lagos',
-  description: 'Discover verified local service businesses across Lagos. Book and pay securely inside Ojaly. Campus businesses at UNILAG and CMUL included.',
+  title: 'Book trusted local service businesses in Lagos',
+  description: 'Discover verified local service businesses across Lagos — campus and community. Book a real time, pay securely and get a receipt.',
+  ogTitle: 'Ojaly — book trusted local services',
+  ogDescription: 'A verified Lagos marketplace for local service businesses. Book and pay inside Ojaly.',
+  ogUrl: 'https://ojaly.org/marketplace',
 });
+useHead({ link: [{ rel: 'canonical', href: 'https://ojaly.org/marketplace' }] });
 const { data: campusData } = await useCampusOverview();
 const marketplace = useMarketplace();
 const { saving, error, apply } = useCampusApplication();

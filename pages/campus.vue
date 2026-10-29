@@ -1,5 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' });
-await navigateTo('/marketplace', { redirectCode: 301, replace: true });
+const route = useRoute();
+await navigateTo({ path: '/marketplace', query: route.query }, { redirectCode: 301, replace: true });
 </script>
 <template><div /></template>

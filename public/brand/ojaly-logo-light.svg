@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="80" viewBox="0 0 340 80">
+  <rect width="64" height="64" x="4" y="8" rx="16" fill="#06231A"/>
+  <rect x="14" y="18" width="44" height="44" rx="13" fill="#FF5A1F"/>
+  <circle cx="36" cy="40" r="12.5" fill="none" stroke="#FBF7EF" stroke-width="7"/>
+  <text x="84" y="54" font-family="Space Grotesk, Arial, sans-serif" font-size="42" font-weight="700" letter-spacing="-2" fill="#FBF7EF">ojaly<tspan fill="#FF5A1F">.</tspan></text>
+</svg>

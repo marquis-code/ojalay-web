@@ -6,7 +6,7 @@ const customer = [
   { icon: CreditCard, title: 'Pay securely. Get a receipt.', body: 'Deposit or full payment through Paystack. Your booking, receipt and management link are created automatically.' },
 ];
 const owner = [
-  { icon: BadgeCheck, title: 'Get verified', body: 'Add your campus, services and prices. Our team reviews the business before it appears.' },
+  { icon: BadgeCheck, title: 'Get verified', body: 'Add your location, services and prices. Our team reviews the business before it appears.' },
   { icon: Scissors, title: 'Publish your service menu', body: 'Durations, prices, deposits, add-ons, packages and team schedules in one place.' },
   { icon: Repeat2, title: 'Get paid. Build the record.', body: 'Every booking creates a customer, payment, receipt and review request. Rebook with packages and reminders.' },
 ];

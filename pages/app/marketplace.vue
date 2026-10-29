@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { ArrowRight, QrCode, ShieldCheck, TrendingUp } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
+import { marketplaceApi } from '~/api/factories/marketplaceApi';
 import { formatDate } from '~/utils/date';
 definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'Marketplace discovery' });
 const { data, loading, load } = useMarketplaceMine();
 const businessStore = useBusinessStore();
 const isVerified = computed(() => Boolean(businessStore.business?.campusVerified));
+const requested = ref(Boolean(businessStore.business?.verificationRequestedAt));
+const requesting = ref(false);
+const requestNote = ref('');
+async function requestVerification() {
+  requesting.value = true;
+  try { const result = await marketplaceApi.requestVerification(); requested.value = true; requestNote.value = result.message; }
+  catch (error) { requestNote.value = (error as Error).message; }
+  finally { requesting.value = false; }
+}
 onMounted(load);
 </script>
 
@@ -15,7 +25,7 @@ onMounted(load);
     <PageHeader title="Marketplace discovery" subtitle="Bookings that came from Ojaly's Lagos discovery — with your GMV and commission." eyebrow="Demand">
       <template #actions><BaseButton to="/app/share" variant="outline"><QrCode class="h-4 w-4" /> Share shop</BaseButton></template>
     </PageHeader>
-    <div v-if="!isVerified" class="card border-warning/30 bg-warning/5 p-5"><div class="flex items-start gap-3"><ShieldCheck class="mt-0.5 h-5 w-5 text-warning" /><div><p class="font-bold">Your business is not verified for marketplace discovery yet.</p><p class="mt-1 text-xs leading-relaxed text-muted">Verification is what makes customers trust the listing. Our team reviews the business and services. You can still share your normal shop link today.</p></div></div></div>
+    <div v-if="!isVerified" class="card border-warning/30 bg-warning/5 p-5"><div class="flex items-start gap-3"><ShieldCheck class="mt-0.5 h-5 w-5 text-warning" /><div><p class="font-bold">Your business is not verified for marketplace discovery yet.</p><p class="mt-1 text-xs leading-relaxed text-muted">Verification is what makes customers trust the listing. Our team reviews the business and services — campus membership is not required. You can still share your normal shop link today.</p><div class="mt-3 flex flex-wrap items-center gap-2"><BaseButton :loading="requesting" :disabled="requested" @click="requestVerification">{{ requested ? 'Verification requested' : 'Request verification' }}</BaseButton><span v-if="requestNote" class="text-[10px] leading-relaxed text-muted">{{ requestNote }}</span></div></div></div></div>
     <div v-else class="card border-success/20 bg-success/5 p-4 text-xs font-semibold text-success"><ShieldCheck class="mr-1 inline h-4 w-4" /> Verified local business. Your services are eligible for discovery.</div>
 
     <div class="grid gap-3 sm:grid-cols-3">

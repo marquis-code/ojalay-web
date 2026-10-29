@@ -7,23 +7,23 @@ import { ArrowLeft } from 'lucide-vue-next';
     <section class="relative hidden overflow-hidden bg-forest-900 p-10 text-white lg:flex lg:flex-col lg:justify-between xl:p-14">
       <div class="absolute inset-0 grid-paper opacity-20" />
       <div class="absolute -right-24 top-24 h-72 w-72 rounded-full bg-brand-500/90" />
-      <div class="absolute bottom-24 right-32 h-20 w-20 rotate-12 rounded-3xl bg-accent" />
+      <div class="absolute bottom-24 right-32 h-20 w-20 rotate-12 rounded-3xl bg-brand-500/80" />
       <div class="relative">
         <NuxtLink to="/" aria-label="Ojaly home"><LogoMark dark size="lg" /></NuxtLink>
       </div>
       <div class="relative max-w-xl">
-        <p class="mb-4 inline-flex rounded-full border border-white/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#A8C0B4]">Built for ambitious businesses</p>
-        <h1 class="font-display text-5xl font-bold leading-[0.98] tracking-[-0.05em] xl:text-6xl">Know your money.<br><span class="text-brand-400">Own your shine.</span></h1>
-        <p class="mt-5 max-w-md text-base leading-relaxed text-[#BFD2C7]">Track sales, stock and debts in one place. Your catalog automatically becomes a free website.</p>
+        <p class="mb-4 inline-flex rounded-full border border-white/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#A8C0B4]">Lagos local services · campus &amp; community</p>
+        <h1 class="font-display text-5xl font-bold leading-[0.98] tracking-[-0.05em] xl:text-6xl">Be found.<br><span class="text-brand-300">Be booked. Be trusted.</span></h1>
+        <p class="mt-5 max-w-md text-base leading-relaxed text-[#BFD2C7]">List your services or products, take bookings and payments, and turn every customer into a record — whether you are on campus or in the community.</p>
         <div class="mt-9 rounded-3xl border border-white/15 bg-white/5 p-5 backdrop-blur">
-          <p class="text-sm leading-relaxed text-[#E4EEE8]">“I used to guess my profit. Now I know it before I close my laptop. Ojaly paid for itself in one week.”</p>
+          <p class="text-sm leading-relaxed text-[#E4EEE8]">“Ojaly put my business in front of customers who were ready to book. The deposit alone changed my no-shows.”</p>
           <div class="mt-4 flex items-center gap-3">
-            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-accent font-bold text-forest-900">TA</span>
-            <div><p class="text-sm font-bold">Tola A.</p><p class="text-[11px] text-[#8CAB99]">Founder, Tola Thrift · UNILAG</p></div>
+            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500/80 font-bold text-forest-900">KC</span>
+            <div><p class="text-sm font-bold">Kola A.</p><p class="text-[11px] text-[#8CAB99]">Barber · Yaba, Lagos</p></div>
           </div>
         </div>
       </div>
-      <p class="relative text-xs text-[#7C9989]">Naira first. WhatsApp native. No jargon.</p>
+      <p class="relative text-xs text-[#7C9989]">Lagos first. Campus and community. No jargon.</p>
     </section>
 
     <section class="flex flex-col bg-canvas">

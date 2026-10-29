@@ -6,6 +6,8 @@ definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'Services' });
 
 const toast = useToast();
+const route = useRoute();
+const businessStore = useBusinessStore();
 const { items, categories, loading, load, create, update, remove } = useServices();
 const { items: providers, load: loadProviders } = useProviders();
 const open = ref(false);
@@ -76,7 +78,11 @@ async function hide() {
   try { await remove(removing.value.id); toast.success('Service hidden.'); removing.value = null; }
   catch (error) { toast.error((error as Error).message); }
 }
-onMounted(async () => { await Promise.all([load(), loadProviders()]); if (!categories.value.length) form.category = 'Beauty'; });
+onMounted(async () => {
+  await Promise.all([load(), loadProviders()]);
+  if (!categories.value.length) form.category = 'Beauty';
+  if (route.query.onboarding === '1' && !items.value.length) openCreate();
+});
 </script>
 
 <template>
@@ -84,6 +90,8 @@ onMounted(async () => { await Promise.all([load(), loadProviders()]); if (!categ
     <PageHeader title="Services" subtitle="Your bookable menu — duration, price, deposit and who delivers it." eyebrow="Service menu">
       <template #actions><BaseButton @click="openCreate"><Plus class="h-4 w-4" /> Add service</BaseButton></template>
     </PageHeader>
+
+    <div v-if="items.length && businessStore.business && !businessStore.business.storefrontPublished" class="card border-warning/30 bg-warning/5 p-4 text-xs"><p class="font-bold">Your profile is not published yet.</p><p class="mt-1 leading-relaxed text-muted">Publish your storefront so customers and the Ojaly marketplace can find you. You can still edit everything later.</p><NuxtLink to="/app/website" class="mt-2 inline-flex font-bold text-brand-600">Publish my profile →</NuxtLink></div>
 
     <div class="grid gap-3 sm:grid-cols-3">
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Active services</p><p class="mt-1 font-display text-2xl font-bold">{{ activeCount }}</p></div>

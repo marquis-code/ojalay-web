@@ -12,6 +12,8 @@ export interface RegisterPayload {
   password: string;
   businessName: string;
   category: string;
+  businessMode?: 'products' | 'services' | 'hybrid';
+  address?: string;
   phone?: string;
   referral?: string;
   campus?: string;

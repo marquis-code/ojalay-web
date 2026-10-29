@@ -39,7 +39,7 @@ const owner = [
               <div><p class="text-sm font-bold">{{ step.title }}</p><p class="mt-1 text-xs leading-relaxed text-white/55">{{ step.body }}</p></div>
             </div>
           </div>
-          <BaseButton to="/register?campus=UNILAG" variant="light" class="mt-6">List your service free</BaseButton>
+          <BaseButton to="/register" variant="light" class="mt-6">List your service free</BaseButton>
         </div>
       </div>
     </div>

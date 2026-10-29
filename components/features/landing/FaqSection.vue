@@ -10,7 +10,7 @@ const faqs = [
   { q: 'What if a day is fully booked?', a: 'Join the waitlist. If a customer cancels or reschedules, Ojaly offers the opening to waiting customers by email and WhatsApp.' },
   { q: 'Can I reschedule or cancel?', a: 'Yes. Every booking has a private management link. Reschedule or cancel within the business policy window; deposits and cancellation rules are shown upfront.' },
   { q: 'Is it free?', a: 'Students browse and book for free. Service businesses start free and can upgrade when they need more staff, packages or advanced tools. No card is required to start.' },
-  { q: 'Which campuses are live?', a: 'Lagos first, with campus communities UNILAG and CMUL as launch partners. Any trusted local service provider can apply for verification.' },
+  { q: 'Where is Ojaly available?', a: 'Lagos first. Campus communities UNILAG and CMUL are launch filters, not requirements. Any trusted local service provider — campus or community — can apply for verification.' },
 ];
 const open = ref<number | null>(0);
 </script>

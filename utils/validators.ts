@@ -10,7 +10,9 @@ export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   businessName: z.string().min(2, 'Give your business a name.'),
-  category: z.string().min(1, 'Pick a category.'),
+  category: z.string().min(1, 'Pick a category.').max(60, 'Keep the business type under 60 characters.'),
+  businessMode: z.enum(['products', 'services', 'hybrid']).optional(),
+  address: z.string().max(120).optional(),
   phone: phoneSchema.optional().or(z.literal('')),
   referral: z.string().max(80).optional(),
 });

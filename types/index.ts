@@ -32,7 +32,7 @@ export interface Business {
   email?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
   seoTitle: string; seoDescription: string; customDomain?: string | null; customDomainVerified: boolean;
   summarySettings: { dailyEnabled: boolean; weeklyEnabled: boolean; sendTime: string; weeklyDay: number; channels: { whatsapp: boolean; email: boolean } };
-  alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; campusCode?: string | null; campusName?: string | null; campusVerified?: boolean; campusAmbassadorCode?: string | null; marketplaceFeePercent?: number; isSuspended?: boolean; createdAt?: string;
+  alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; campusCode?: string | null; campusName?: string | null; campusVerified?: boolean; campusAmbassadorCode?: string | null; marketplaceFeePercent?: number; verificationRequestedAt?: string | null; isSuspended?: boolean; createdAt?: string;
 }
 export interface BusinessContext {
   business: Business; plan: Plan; subscription: Subscription | null; entitlements: Entitlements;

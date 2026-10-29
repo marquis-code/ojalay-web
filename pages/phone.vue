@@ -12,14 +12,22 @@ const step = ref(1);
 const busy = ref(false);
 const error = ref('');
 const channel = ref<'sms' | 'email' | ''>('');
-const form = reactive({ phone: '', name: '', businessName: '', email: '', category: 'other', campus: campus.value, ambassador: ambassador.value });
+const { data: categories } = await useBusinessCategories();
+const form = reactive({ phone: '', name: '', businessName: '', email: '', category: '', customCategory: '', businessMode: 'products' as 'products' | 'services' | 'hybrid', address: '', campus: campus.value, ambassador: ambassador.value });
+const categoryOptions = computed(() => {
+  const options = (categories.value || []).map((c) => ({ value: c.key, label: c.label }));
+  return options.some((c) => c.value === 'other') ? options : [...options, { value: 'other', label: 'Something else (type it in)' }];
+});
+const modeOptions = [{ value: 'products', label: 'Products & stock' }, { value: 'services', label: 'Services & appointments' }, { value: 'hybrid', label: 'Both' }];
+const isOther = computed(() => form.category === 'other');
 const code = ref('');
 async function request() {
   error.value = '';
   if (form.phone.trim().length < 7) { error.value = 'Enter a valid phone number.'; return; }
+  if (isOther.value && form.customCategory.trim().length < 2) { error.value = 'Type your business type.'; return; }
   busy.value = true;
   try {
-    const result = await auth.phoneStart({ ...form, name: form.name || undefined, businessName: form.businessName || undefined, email: form.email || undefined, campus: form.campus || undefined, ambassador: form.ambassador || undefined });
+    const result = await auth.phoneStart({ ...form, category: isOther.value ? form.customCategory.trim() : form.category, name: form.name || undefined, businessName: form.businessName || undefined, email: form.email || undefined, campus: form.campus || undefined, ambassador: form.ambassador || undefined });
     channel.value = result.channel;
     step.value = 2;
     toast.success(`Code sent by ${result.channel}. It expires in 10 minutes.`);
@@ -53,6 +61,10 @@ async function verify() {
       <BaseInput v-model="form.name" label="Your name" placeholder="Tola Adeyemi" />
       <BaseInput v-model="form.businessName" label="Business name" placeholder="Tola Thrift" />
       <BaseInput v-model="form.email" label="Email (for the fallback code)" type="email" placeholder="you@example.com" />
+      <BaseSelect v-model="form.category" label="What do you offer?" :options="categoryOptions" placeholder="Pick the closest category" />
+      <BaseInput v-if="isOther" v-model="form.customCategory" label="Type your business type" placeholder="e.g. Podcast studio, wig installation, phone repair" />
+      <BaseSelect v-model="form.businessMode" label="What do you want to manage?" :options="modeOptions" />
+      <BaseInput v-model="form.address" label="Where do you operate?" placeholder="Yaba, Lagos" hint="Campus not required." />
       <p v-if="error" class="rounded-xl bg-danger/5 p-3 text-xs font-semibold text-danger">{{ error }}</p>
       <BaseButton type="submit" block size="lg" :loading="busy">Send my code <ArrowRight class="h-4 w-4" /></BaseButton>
       <p class="text-center text-[10px] text-muted">New here? Your business and free storefront are created after you verify.</p>

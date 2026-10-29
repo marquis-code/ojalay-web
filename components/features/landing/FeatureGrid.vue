@@ -31,7 +31,7 @@ const features = [
         <div class="flex flex-col justify-between rounded-[2rem] border border-line bg-brand-100 p-6 text-forest-900">
           <div><p class="text-[10px] font-bold uppercase tracking-[0.16em] text-forest-900/50">For the owner</p><h3 class="mt-2 font-display text-2xl font-bold leading-tight">GMV, commission and repeat customers in one dashboard.</h3></div>
           <div class="mt-5 space-y-2 text-xs font-semibold"><p class="flex items-center justify-between rounded-lg bg-white/50 px-3 py-2"><span>Marketplace bookings</span><span>18</span></p><p class="flex items-center justify-between rounded-lg bg-white/50 px-3 py-2"><span>GMV</span><span>₦240,000</span></p><p class="flex items-center justify-between rounded-lg bg-forest-900 px-3 py-2 text-brand-300"><span>Repeat customers</span><span>37%</span></p></div>
-          <NuxtLink to="/register?campus=UNILAG" class="mt-5 inline-flex items-center gap-1.5 text-xs font-bold">List your service <ArrowUpRight class="h-3.5 w-3.5" /></NuxtLink>
+          <NuxtLink to="/register" class="mt-5 inline-flex items-center gap-1.5 text-xs font-bold">List your service <ArrowUpRight class="h-3.5 w-3.5" /></NuxtLink>
         </div>
         <div v-for="feature in features" :key="feature.title" class="group rounded-3xl border border-line bg-surface p-6 transition hover:border-ink hover:shadow-soft">
           <div class="flex items-center justify-between"><div class="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300"><component :is="feature.icon" class="h-5 w-5" /></div><ArrowUpRight class="h-4 w-4 text-line transition group-hover:text-brand-500" /></div>

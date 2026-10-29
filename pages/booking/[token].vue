@@ -1,5 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ layout: false });
+useCustomerTheme();
 import { ref, computed } from 'vue';
 import { CalendarDays, CalendarPlus, MapPin, MessageCircle, ShieldCheck, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';

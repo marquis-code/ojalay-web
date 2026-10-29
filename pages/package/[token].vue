@@ -2,6 +2,7 @@
 import { Check, CreditCard, PackageCheck, Sparkles } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 definePageMeta({ layout: false });
+useCustomerTheme();
 useSeoMeta({ title: 'Your package', robots: 'noindex,nofollow' });
 const route = useRoute();
 const token = computed(() => String(route.params.token));

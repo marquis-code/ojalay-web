@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Check, Star } from 'lucide-vue-next';
 definePageMeta({ layout: false });
+useCustomerTheme();
 useSeoMeta({ title: 'Leave a review', robots: 'noindex,nofollow' });
 const route = useRoute();
 const token = computed(() => String(route.params.token));

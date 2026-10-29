@@ -22,6 +22,40 @@ const wa = computed(() => whatsappLink(props.business.whatsappNumber || props.bu
 const mounted = ref(false);
 onMounted(() => { cart.hydrate(); mounted.value = true; });
 watch(() => props.business.slug, (slug) => cart.init(slug, props.business.name), { immediate: true });
+
+const THEME_KEYS = ['--bg', '--surface', '--raised', '--ink', '--muted', '--line'] as const;
+function rgbTriplet(hex: string): string {
+  const value = hex.replace('#', '').trim();
+  const full = value.length === 3 ? value.split('').map((c) => c + c).join('') : value;
+  const number = Number.parseInt(full, 16);
+  return `${(number >> 16) & 255} ${(number >> 8) & 255} ${number & 255}`;
+}
+function mix(hex: string, other: string, amount: number): string {
+  const a = rgbTriplet(hex).split(' ').map(Number);
+  const b = rgbTriplet(other).split(' ').map(Number);
+  return `${Math.round(a[0] + (b[0] - a[0]) * amount)} ${Math.round(a[1] + (b[1] - a[1]) * amount)} ${Math.round(a[2] + (b[2] - a[2]) * amount)}`;
+}
+function applyStorefrontTheme() {
+  if (!import.meta.client) return;
+  const root = document.documentElement;
+  const colors = props.template.colors;
+  root.style.setProperty('--bg', rgbTriplet(colors.background));
+  root.style.setProperty('--surface', rgbTriplet(colors.surface));
+  root.style.setProperty('--raised', mix(colors.surface, colors.ink, 0.05));
+  root.style.setProperty('--ink', rgbTriplet(colors.ink));
+  root.style.setProperty('--muted', rgbTriplet(colors.muted));
+  root.style.setProperty('--line', mix(colors.surface, colors.ink, 0.14));
+  root.style.setProperty('color-scheme', 'light');
+}
+function clearStorefrontTheme() {
+  if (!import.meta.client) return;
+  const root = document.documentElement;
+  THEME_KEYS.forEach((key) => root.style.removeProperty(key));
+  root.style.removeProperty('color-scheme');
+}
+onMounted(applyStorefrontTheme);
+watch(() => props.template, applyStorefrontTheme, { deep: true });
+onBeforeUnmount(clearStorefrontTheme);
 </script>
 
 <template>

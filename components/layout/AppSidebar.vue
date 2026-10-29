@@ -20,7 +20,7 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
       { to: '/app', label: 'Overview', icon: LayoutDashboard, exact: true },
       { to: '/app/bookings', label: 'Appointments', icon: CalendarDays, modes: ['services', 'hybrid'] },
       { to: '/app/orders', label: 'Orders', icon: ShoppingBag, modes: ['products', 'hybrid'] },
-      { to: '/app/sales', label: 'Sales', icon: CircleDollarSign },
+      { to: '/app/sales', label: 'Sales', icon: CircleDollarSign, modes: ['products', 'hybrid'] },
       { to: '/app/services', label: 'Services', icon: Scissors, modes: ['services', 'hybrid'] },
       { to: '/app/packages', label: 'Packages', icon: Ticket, modes: ['services', 'hybrid'] },
       { to: '/app/products', label: 'Products', icon: Package, modes: ['products', 'hybrid'] },

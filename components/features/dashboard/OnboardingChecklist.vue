@@ -17,7 +17,7 @@ const collapsed = ref(false);
     </button>
     <div v-if="!collapsed" class="border-t border-forest-900/15 px-5 pb-5 pt-3">
       <div class="mb-4 h-2 overflow-hidden rounded-full bg-forest-900/15"><div class="h-full rounded-full bg-forest-900 transition-all duration-500" :style="{ width: `${props.onboarding.percent}%` }" /></div>
-      <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         <NuxtLink v-for="step in props.onboarding.steps" :key="step.key" :to="step.href" class="flex min-h-[52px] items-center gap-2.5 rounded-xl bg-white/50 px-3 text-xs font-bold transition hover:bg-white/80">
           <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2" :class="step.done ? 'border-forest-900 bg-forest-900 text-white' : 'border-forest-900/30'"><Check v-if="step.done" class="h-3.5 w-3.5" :stroke-width="3" /></span>
           <span :class="step.done ? 'line-through opacity-60' : ''">{{ step.label }}</span>

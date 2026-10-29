@@ -17,7 +17,7 @@ const more: NavItem[] = [
   { to: '/app/packages', label: 'Packages', icon: Ticket, modes: ['services', 'hybrid'] },
   { to: '/app/products', label: 'Products', icon: Package, modes: ['products', 'hybrid'] },
   { to: '/app/team', label: 'Team', icon: UserRoundCog, modes: ['services', 'hybrid'] },
-  { to: '/app/sales', label: 'Sales', icon: ReceiptText },
+  { to: '/app/sales', label: 'Sales', icon: ReceiptText, modes: ['products', 'hybrid'] },
   { to: '/app/customers', label: 'Customers', icon: Users },
   { to: '/app/debts', label: 'Debts', icon: WalletCards },
   { to: '/app/expenses', label: 'Expenses', icon: ReceiptText },
@@ -32,8 +32,8 @@ const more: NavItem[] = [
   { to: '/app/settings', label: 'Settings', icon: Settings },
 ];
 const visible = (link: NavItem) => !link.modes || link.modes.includes(mode.value);
-const primaryTo = computed(() => mode.value === 'services' ? '/app/bookings/new' : '/app/sales/new');
-const primaryLabel = computed(() => mode.value === 'services' ? 'Book' : 'Sell');
+const primaryTo = computed(() => mode.value !== 'products' ? '/app/bookings/new' : '/app/sales/new');
+const primaryLabel = computed(() => mode.value !== 'products' ? 'Book' : 'Sell');
 const navLinks = computed(() => links.filter(visible));
 const moreLinks = computed(() => more.filter(visible));
 const columns = computed(() => navLinks.value.length + 2 >= 6 ? 'grid-cols-6' : navLinks.value.length + 2 === 5 ? 'grid-cols-5' : 'grid-cols-4');

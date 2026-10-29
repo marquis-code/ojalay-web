@@ -1,10 +1,13 @@
 import { BaseApi } from '~/api/base/BaseApi';
-import type { AvailabilityResponse, Booking, BookingListResponse, BookingRoster } from '~/types';
+import type { AvailabilityResponse, Booking, BookingListResponse, BookingMetrics, BookingRoster } from '~/types';
 
 class BookingsApi extends BaseApi {
   constructor() { super('/bookings'); }
   listBookings(params: { date?: string; from?: string; to?: string; status?: string; providerId?: string; serviceId?: string; search?: string; page?: number; limit?: number } = {}): Promise<BookingListResponse> {
     return this.request('get', '', undefined, params as Record<string, unknown>);
+  }
+  metrics(params: { range?: string; from?: string; to?: string } = {}): Promise<BookingMetrics> {
+    return this.request('get', '/metrics', undefined, params as Record<string, unknown>);
   }
   availability(params: { serviceId: string; date: string; providerId?: string }): Promise<AvailabilityResponse> {
     return this.request('get', '/availability', undefined, params as Record<string, unknown>);

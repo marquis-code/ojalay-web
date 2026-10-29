@@ -22,7 +22,7 @@ const open = ref<number | null>(0);
         <p class="eyebrow">Questions</p>
         <h2 class="mt-3 font-display text-4xl font-bold tracking-[-0.04em]">Ask us anything.</h2>
         <p class="mt-3 text-sm leading-relaxed text-muted">Straight answers, no jargon. Still unsure? Message us on WhatsApp and a human will reply.</p>
-        <a href="https://wa.me/2348000000000" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 rounded-2xl bg-[#25D366] px-4 py-3 text-sm font-bold text-forest-900">Chat with a human →</a>
+        <a href="https://wa.me/2348000000000" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 rounded-2xl bg-forest-900 px-4 py-3 text-sm font-bold text-white">Chat with a human →</a>
       </div>
       <div class="divide-y divide-line rounded-3xl border border-line bg-canvas px-5 sm:px-7">
         <div v-for="(faq, index) in faqs" :key="faq.q" class="py-1">

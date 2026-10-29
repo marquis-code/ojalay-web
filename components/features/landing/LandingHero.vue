@@ -24,12 +24,12 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
 
 <template>
   <section class="relative overflow-hidden border-b border-line bg-canvas">
-    <div class="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-accent/40 blur-3xl" />
+    <div class="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-200/50 blur-3xl" />
     <div class="shell relative grid gap-10 py-12 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-20">
       <div>
         <div class="flex flex-wrap items-center gap-2">
           <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-600"><span class="h-1.5 w-1.5 rounded-full bg-brand-500" /> Lagos · local service businesses</span>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1.5 text-[10px] font-bold text-accent"><BadgeCheck class="h-3 w-3" /> Verified providers</span>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1.5 text-[10px] font-bold text-white"><BadgeCheck class="h-3 w-3" /> Verified providers</span>
         </div>
         <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.9rem,7vw,5.8rem)] font-bold leading-[0.91] tracking-[-0.06em] text-ink">The trusted way to book local services.</h1>
         <p class="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">Discover verified hair, food, nails, printing, laundry, design and repair businesses across Lagos — book a real time and pay securely. No DMs. No transfer screenshots. No guessing.</p>
@@ -52,16 +52,16 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
       </div>
 
       <div class="relative mx-auto w-full max-w-md [perspective:1200px] lg:max-w-none" @mouseenter="paused = true" @mouseleave="paused = false">
-        <div class="absolute -inset-2 rotate-2 rounded-[2.2rem] border-2 border-ink bg-accent" />
+        <div class="absolute -inset-2 rotate-2 rounded-[2.2rem] border-2 border-ink bg-brand-500" />
         <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] border-2 border-ink bg-surface shadow-[8px_8px_0_0_#06231A]">
           <div v-for="(card, index) in cards" :key="card.image" class="hero-card absolute inset-0 transition-all duration-700 ease-[cubic-bezier(.2,.8,.2,1)] [backface-visibility:hidden]" :class="{ 'hero-card-active': index === active }" :style="{ opacity: index === active ? 1 : index === (active + 1) % cards.length ? 0.45 : 0, transform: index === active ? 'rotateY(0deg) scale(1)' : index === (active + 1) % cards.length ? 'rotateY(10deg) scale(.96) translateX(18px)' : 'rotateY(-18deg) scale(.9) translateX(-22px)', zIndex: index === active ? 3 : index === (active + 1) % cards.length ? 2 : 1 }">
             <img :src="card.image" :alt="card.alt" class="h-full w-full object-cover" :style="{ objectPosition: card.position }">
             <div class="absolute inset-0 bg-gradient-to-t from-forest-900/65 via-transparent to-transparent" />
-            <div class="absolute left-3 top-3 flex gap-1.5"><span class="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Verified</span><span class="inline-flex items-center gap-1 rounded-full bg-forest-900/70 px-2.5 py-1 text-[9px] font-bold text-white"><Star class="h-3 w-3 fill-accent text-accent" /> {{ card.rating }}</span></div>
-            <div class="absolute inset-x-3 bottom-3 rounded-xl bg-white/95 p-3 text-forest-900 shadow-lg backdrop-blur">
+            <div class="absolute left-3 top-3 flex gap-1.5"><span class="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Verified</span><span class="inline-flex items-center gap-1 rounded-full bg-forest-900/70 px-2.5 py-1 text-[9px] font-bold text-white"><Star class="h-3 w-3 fill-brand-300 text-brand-300" /> {{ card.rating }}</span></div>
+            <div class="absolute inset-x-3 bottom-3 rounded-xl bg-white p-3 text-forest-900 shadow-lg">
               <div class="flex items-center justify-between gap-2"><div class="min-w-0"><p class="truncate text-xs font-bold text-forest-900">{{ card.business }}</p><p class="truncate text-[9px] text-forest-900/60">{{ card.category }} · {{ card.area }}</p></div><p class="shrink-0 text-[10px] font-bold text-brand-600">{{ card.price }}</p></div>
               <div class="mt-2 flex items-center gap-1.5 rounded-lg bg-forest-900/5 px-2 py-1.5 text-[9px] font-semibold text-forest-900/60"><CalendarCheck class="h-3 w-3 text-success" /> {{ card.service }} · real slot</div>
-              <div class="mt-1.5 flex items-center gap-1.5 rounded-lg bg-forest-900 px-2 py-1.5 text-[9px] font-semibold text-white"><Receipt class="h-3 w-3 text-accent" /> Receipt + record created</div>
+              <div class="mt-1.5 flex items-center gap-1.5 rounded-lg bg-forest-900 px-2 py-1.5 text-[9px] font-semibold text-white"><Receipt class="h-3 w-3 text-brand-300" /> Receipt + record created</div>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
 <style scoped>
 .hero-card { transform-origin: center center; }
 .hero-card-active { animation: hero-flip .72s cubic-bezier(.2,.8,.2,1); }
-@keyframes hero-flip { 0% { transform: rotateY(-72deg) scale(.94); opacity: .15; } 65% { transform: rotateY(7deg) scale(1.015); opacity: 1; } 100% { transform: rotateY(0deg) scale(1); opacity: 1; } }
+@keyframes hero-flip { 0% { transform: rotateY(-72deg) scale(.94); } 65% { transform: rotateY(7deg) scale(1.015); } 100% { transform: rotateY(0deg) scale(1); } }
 .hero-thumb-enter-active, .hero-thumb-leave-active, .hero-text-enter-active, .hero-text-leave-active { transition: opacity .35s ease, transform .35s ease; }
 .hero-thumb-enter-from, .hero-thumb-leave-to, .hero-text-enter-from, .hero-text-leave-to { opacity: 0; transform: translateY(4px); }
 </style>

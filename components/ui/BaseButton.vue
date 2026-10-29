@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Loader2 } from 'lucide-vue-next';
 
-type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'dark';
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'dark' | 'light';
 type Size = 'sm' | 'md' | 'lg' | 'icon';
 
 const props = withDefaults(defineProps<{
@@ -20,11 +20,12 @@ const emit = defineEmits<{ click: [MouseEvent] }>();
 
 const variants: Record<Variant, string> = {
   primary: 'bg-brand-500 text-white hover:bg-brand-600 shadow-[0_3px_0_0_#8F290B] active:translate-y-[2px] active:shadow-[0_1px_0_0_#8F290B]',
-  secondary: 'bg-forest-900 text-white hover:bg-forest-800 shadow-[0_3px_0_0_#FF5A1F] active:translate-y-[2px] active:shadow-none dark:bg-accent dark:text-forest-900 dark:shadow-[0_3px_0_0_#FF5A1F]',
+  secondary: 'bg-forest-900 text-white hover:bg-forest-800 shadow-[0_3px_0_0_#FF5A1F] active:translate-y-[2px] active:shadow-none dark:bg-white dark:text-forest-900 dark:shadow-[0_3px_0_0_#FF5A1F]',
   outline: 'border-2 border-ink bg-transparent text-ink hover:bg-raised',
   ghost: 'bg-transparent text-ink hover:bg-raised',
   danger: 'bg-danger text-white hover:brightness-90',
   dark: 'bg-ink text-canvas hover:opacity-90',
+  light: 'border-2 border-white/40 bg-transparent text-white hover:bg-white/10',
 };
 const sizes: Record<Size, string> = {
   sm: 'min-h-[40px] px-3.5 text-[13px] rounded-xl gap-1.5',

@@ -34,7 +34,10 @@ const year = new Date().getFullYear();
         </div>
       </div>
       <div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#7C9989] sm:flex-row sm:items-center sm:justify-between">
-        <p>© {{ year }} Ojaly. Made for hustlers, not corporations.</p>
+        <div>
+          <p>© 2026 ERRANDERS COMPANY LIMITED. All rights reserved.</p>
+          <p class="mt-1 text-[11px] text-[#A8C0B4]">Erranders is owned and operated by ERRANDERS COMPANY LIMITED.</p>
+        </div>
         <p>Naira first. WhatsApp native. Trusted local providers.</p>
       </div>
     </div>

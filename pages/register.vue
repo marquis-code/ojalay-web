@@ -28,11 +28,21 @@ async function submit() {
   serverError.value = '';
   Object.keys(errors).forEach((k) => delete errors[k]);
   if (isOther.value && form.customCategory.trim().length < 2) { errors.category = 'Type your business type so customers can find you.'; return; }
-  const prepared = { ...form, category: isOther.value ? form.customCategory.trim() : form.category };
+  const resolvedCategory = isOther.value ? form.customCategory.trim() : form.category;
+  const prepared = {
+    ...form,
+    category: resolvedCategory,
+    customCategory: isOther.value ? form.customCategory.trim() : undefined,
+    phone: form.phone?.trim() || undefined,
+    address: form.address?.trim() || undefined,
+    campus: form.campus?.trim() || undefined,
+    ambassador: form.ambassador?.trim() || undefined,
+    referral: form.referral?.trim() || undefined,
+  };
   const parsed = registerSchema.safeParse(prepared);
   if (!parsed.success) { Object.assign(errors, zodErrors(parsed.error)); return; }
   try {
-    await auth.register({ ...prepared, phone: form.phone || undefined });
+    await auth.register(prepared);
     businessStore.reset();
     const services = form.businessMode !== 'products';
     toast.success(services ? 'You’re in. Add your services and availability next.' : 'You’re in. Add your first product and watch the numbers come alive.');

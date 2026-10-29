@@ -21,6 +21,16 @@ const baseQuantity = ref(String(props.product?.quantity ?? 0));
 const variantRows = ref<Array<{ name: string; sku: string; price: string; cost: string; quantity: string; threshold: string; colour: string; size: string }>>([]);
 const errors = reactive<Record<string, string>>({});
 const isEdit = computed(() => props.mode === 'edit');
+const { generating, productDescription } = useAiCopy();
+async function generateDescription() {
+  if (name.value.trim().length < 2) return toast.error('Add a product name first.');
+  try {
+    const result = await productDescription({ name: name.value.trim(), category: category.value || undefined, imageUrl: images.value[0] || undefined, priceKobo: nairaToKobo(basePrice.value) || undefined });
+    description.value = result.description;
+    if (result.tags?.length) tags.value = result.tags.join(', ');
+    toast.success(result.usedAi ? 'AI wrote a first draft. Edit it in your voice.' : 'A starter description is ready. Edit it in your voice.');
+  } catch (error) { toast.error((error as Error).message); }
+}
 
 const suggestedCategories = computed(() => {
   const base = ['Hoodies', 'Tees', 'Caps', 'Dresses', 'Shoes', 'Bags', 'Skincare', 'Food', 'Drinks', 'Accessories', 'Books', 'Services'];
@@ -86,7 +96,7 @@ function submit() {
       <p class="mt-1 text-xs text-muted">Customers see this on your storefront.</p>
       <div class="mt-5 grid gap-4 sm:grid-cols-2">
         <div class="sm:col-span-2"><BaseInput v-model="name" label="Product name" placeholder="e.g. Oversized campus hoodie" :error="errors.name" required /></div>
-        <div class="sm:col-span-2"><BaseTextarea v-model="description" label="Description" placeholder="What is it, what makes it good, how does it fit?" hint="Short and clear beats long and clever." /></div>
+        <div class="sm:col-span-2"><div class="flex items-end justify-between gap-2"><div class="flex-1"><BaseTextarea v-model="description" label="Description" placeholder="What is it, what makes it good, how does it fit?" hint="Short and clear beats long and clever." /></div><button type="button" class="mb-6 inline-flex min-h-[38px] shrink-0 items-center gap-1.5 rounded-xl border border-line bg-raised/60 px-3 text-[10px] font-bold hover:border-ink disabled:opacity-50" :disabled="generating" @click="generateDescription"><Sparkles class="h-3.5 w-3.5 text-brand-500" /> {{ generating ? 'Writing…' : 'Write with AI' }}</button></div></div>
         <div>
           <BaseInput v-model="category" label="Category" placeholder="Hoodies" :error="errors.category" required hint="Type a new one or pick a suggestion." />
           <div class="mt-2 flex flex-wrap gap-1.5">

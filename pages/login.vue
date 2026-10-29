@@ -60,6 +60,7 @@ function useDemo() {
     </form>
     <div class="mt-6 flex items-center gap-3"><span class="h-px flex-1 bg-line" /><span class="text-[10px] font-bold uppercase tracking-wider text-muted">or</span><span class="h-px flex-1 bg-line" /></div>
     <button type="button" class="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-line bg-surface text-sm font-bold transition hover:bg-raised" @click="useDemo"><Sparkles class="h-4 w-4 text-brand-500" /> Try the demo business</button>
+    <p class="mt-3 text-center text-xs font-semibold"><NuxtLink to="/phone" class="text-brand-600 underline decoration-brand decoration-2 underline-offset-4">Use a phone code instead →</NuxtLink></p>
     <p class="mt-6 text-center text-sm text-muted">New to Ojaly? <NuxtLink to="/register" class="font-bold text-ink underline decoration-brand decoration-2 underline-offset-4">Create your business</NuxtLink></p>
   </div>
 </template>

@@ -27,6 +27,12 @@ export const useAuthStore = defineStore('auth', () => {
     tokenStorage.set(session.accessToken, session.refreshToken);
   }
 
+  const phoneStart = authApi.phoneStart;
+  async function phoneVerify(payload: { phone: string; code: string }) {
+    const session = await authApi.phoneVerify(payload);
+    applySession(session);
+    return session;
+  }
   async function login(payload: LoginPayload) {
     loading.value = true; error.value = null;
     try {
@@ -163,7 +169,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user, businesses, activeBusinessId, ready, loading, error, impersonation,
     isAuthenticated, isImpersonating, activeBusiness, isOwner, displayName, initials,
-    login, register, hydrate, ensureReady, fetchMe, switchBusiness, updateProfile, logout, clearSession, applySession,
+    phoneStart, phoneVerify, login, register, hydrate, ensureReady, fetchMe, switchBusiness, updateProfile, logout, clearSession, applySession,
     forgotPassword, resetPassword, verifyEmail, resendVerification, acceptImpersonation, exitImpersonation,
   };
 });

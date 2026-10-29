@@ -66,6 +66,7 @@ async function submit() {
       <span class="inline-flex items-center gap-1.5"><Check class="h-3.5 w-3.5 text-success" /> No card needed</span>
       <span class="inline-flex items-center gap-1.5"><Check class="h-3.5 w-3.5 text-success" /> Data is yours</span>
     </div>
+    <p class="mt-3 text-center text-xs font-semibold"><NuxtLink :to="`/phone?campus=${campus}&ambassador=${ambassador}`" class="text-brand-600 underline decoration-brand decoration-2 underline-offset-4">Or start with just your phone →</NuxtLink></p>
     <p class="mt-6 text-center text-sm text-muted">Already have an account? <NuxtLink to="/login" class="font-bold text-ink underline decoration-brand decoration-2 underline-offset-4">Sign in</NuxtLink></p>
   </div>
 </template>

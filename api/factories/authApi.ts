@@ -11,6 +11,12 @@ export const authApi = {
   register(payload: RegisterPayload): Promise<AuthSession> {
     return unwrap(http().post('/auth/register', payload));
   },
+  phoneStart(payload: { phone: string; name?: string; businessName?: string; email?: string; category?: string; campus?: string; ambassador?: string }): Promise<{ sent: boolean; channel: 'sms' | 'email'; expiresInSeconds: number }> {
+    return unwrap(http().post('/auth/phone/start', payload));
+  },
+  phoneVerify(payload: { phone: string; code: string }): Promise<AuthSession> {
+    return unwrap(http().post('/auth/phone/verify', payload));
+  },
   login(payload: LoginPayload): Promise<AuthSession> {
     return unwrap(http().post('/auth/login', payload));
   },

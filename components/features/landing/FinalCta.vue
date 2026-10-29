@@ -12,7 +12,7 @@ const auth = useAuthStore();
       <h2 class="mx-auto mt-4 max-w-3xl text-balance font-display text-5xl font-bold tracking-[-0.05em] sm:text-7xl">Be found.<br><span class="text-forest-900">Be booked. Be trusted.</span></h2>
       <p class="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-white/85 sm:text-base">Customers get a trusted way to book. Service businesses get demand, deposits and a record that proves the business is real. Start with your campus.</p>
       <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <BaseButton to="/campus" variant="dark" size="lg">Browse the marketplace <ArrowRight class="h-5 w-5" /></BaseButton>
+        <BaseButton to="/marketplace" variant="dark" size="lg">Browse the marketplace <ArrowRight class="h-5 w-5" /></BaseButton>
         <BaseButton :to="auth.isAuthenticated ? '/app' : '/register?campus=UNILAG'" variant="secondary" size="lg">{{ auth.isAuthenticated ? 'Open dashboard' : 'List your service free' }}</BaseButton>
       </div>
       <a href="https://wa.me/2348000000000" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-2 text-xs font-bold text-white/80"><MessageCircle class="h-4 w-4" /> Talk to the campus team</a>

@@ -17,7 +17,7 @@ import { ArrowRight, Check, ShieldCheck, Sparkles, Users } from 'lucide-vue-next
           <p class="mt-1 text-xs leading-relaxed text-muted">For anyone booking a local service.</p>
           <p class="mt-5 font-display text-4xl font-bold">Free</p>
           <ul class="mt-5 flex-1 space-y-2 text-[13px] text-muted"><li class="flex gap-2"><Check class="mt-0.5 h-4 w-4 shrink-0 text-success" /> Browse verified providers</li><li class="flex gap-2"><Check class="mt-0.5 h-4 w-4 shrink-0 text-success" /> Book and pay securely</li><li class="flex gap-2"><Check class="mt-0.5 h-4 w-4 shrink-0 text-success" /> Receipt and booking management</li><li class="flex gap-2"><Check class="mt-0.5 h-4 w-4 shrink-0 text-success" /> Reviews and rebooking</li></ul>
-          <BaseButton to="/campus" variant="outline" block class="mt-6">Browse marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
+          <BaseButton to="/marketplace" variant="outline" block class="mt-6">Browse marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
         </div>
         <div class="relative flex flex-col rounded-3xl border-2 border-ink bg-forest-900 p-6 text-white shadow-[8px_8px_0_0_#FF5A1F] sm:p-7">
           <div class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-900">Built for service businesses</div>

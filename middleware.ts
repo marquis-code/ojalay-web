@@ -12,7 +12,7 @@ declare const process: { env: Record<string, string | undefined> };
 const RESERVED = [
   '/_nuxt', '/api', '/embed', '/s/', '/receipt', '/invoice', '/pay', '/payment',
   '/order', '/login', '/register', '/forgot-password', '/reset-password',
-  '/verify-email', '/phone', '/booking', '/review', '/package', '/campus', '/app', '/offline', '/favicon', '/pwa-', '/robots', '/sitemap',
+  '/verify-email', '/phone', '/booking', '/review', '/package', '/marketplace', '/campus', '/app', '/offline', '/favicon', '/pwa-', '/robots', '/sitemap',
   '/assets', '/sw.js', '/workbox', '/manifest', '/apple-touch', '/_ipx', '/__nuxt', '/_payload',
 ];
 

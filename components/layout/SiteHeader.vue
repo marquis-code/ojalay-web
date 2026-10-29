@@ -3,7 +3,7 @@ import { Menu, X, ArrowUpRight } from 'lucide-vue-next';
 const open = ref(false);
 const auth = useAuthStore();
 const links = [
-  { href: '/campus', label: 'Marketplace' },
+  { href: '/marketplace', label: 'Marketplace' },
   { href: '#how', label: 'How it works' },
   { href: '#features', label: 'Features' },
   { href: '#pricing', label: 'Pricing' },

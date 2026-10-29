@@ -29,7 +29,7 @@ const owner = [
               <div><p class="text-sm font-bold">{{ step.title }}</p><p class="mt-1 text-xs leading-relaxed text-white/55">{{ step.body }}</p></div>
             </div>
           </div>
-          <BaseButton to="/campus" variant="secondary" class="mt-6">Browse the marketplace</BaseButton>
+          <BaseButton to="/marketplace" variant="secondary" class="mt-6">Browse the marketplace</BaseButton>
         </div>
         <div class="rounded-[2rem] border border-white/10 bg-white/5 p-5 sm:p-6">
           <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-accent">For service businesses</p>

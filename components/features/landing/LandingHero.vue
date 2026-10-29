@@ -34,7 +34,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.9rem,7vw,5.8rem)] font-bold leading-[0.91] tracking-[-0.06em] text-ink">The trusted way to book local services.</h1>
         <p class="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">Discover verified hair, food, nails, printing, laundry, design and repair businesses across Lagos — book a real time and pay securely. No DMs. No transfer screenshots. No guessing.</p>
         <div class="mt-7 flex flex-col gap-2 sm:flex-row">
-          <BaseButton to="/campus" size="lg">Browse the marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
+          <BaseButton to="/marketplace" size="lg">Browse the marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
           <BaseButton :to="auth.isAuthenticated ? '/app' : '/register'" variant="secondary" size="lg">{{ auth.isAuthenticated ? 'Open dashboard' : 'List your service free' }}</BaseButton>
         </div>
         <div class="mt-6 grid max-w-xl grid-cols-2 gap-2 text-[11px] font-semibold text-muted sm:grid-cols-4">

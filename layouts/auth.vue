@@ -3,8 +3,9 @@ import { ArrowLeft } from 'lucide-vue-next';
 </script>
 
 <template>
-  <div class="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
-    <section class="relative hidden overflow-hidden bg-forest-900 p-10 text-white lg:flex lg:flex-col lg:justify-between xl:p-14">
+  <div class="min-h-dvh lg:h-dvh lg:overflow-hidden grid lg:grid-cols-[1.05fr_1fr]">
+    <!-- Left Hero/Branding Column: Fixed on viewport, never scrolls -->
+    <section class="relative hidden overflow-hidden bg-forest-900 p-10 text-white lg:flex lg:flex-col lg:justify-between lg:h-full lg:overflow-hidden xl:p-14">
       <div class="absolute inset-0 grid-paper opacity-20" />
       <div class="absolute -right-24 top-24 h-72 w-72 rounded-full bg-brand-500/90" />
       <div class="absolute bottom-24 right-32 h-20 w-20 rotate-12 rounded-3xl bg-brand-500/80" />
@@ -26,15 +27,16 @@ import { ArrowLeft } from 'lucide-vue-next';
       <p class="relative text-xs text-[#7C9989]">Lagos first. Campus and community. No jargon.</p>
     </section>
 
-    <section class="flex flex-col bg-canvas">
-      <div class="flex items-center justify-between p-5 sm:p-7">
-        <NuxtLink to="/" class="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink lg:invisible"><ArrowLeft class="h-4 w-4" /> Home</NuxtLink>
+    <!-- Right Form Column: Scrollable independently without moving the page -->
+    <section class="flex flex-col bg-canvas lg:h-full lg:overflow-y-auto">
+      <div class="sticky top-0 z-20 flex items-center justify-between border-b border-line/40 bg-canvas/90 px-5 py-4 backdrop-blur-md sm:px-7">
+        <NuxtLink to="/" class="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink"><ArrowLeft class="h-4 w-4" /> Home</NuxtLink>
         <div class="flex items-center gap-2">
           <ThemeToggle />
           <div class="lg:hidden"><LogoMark /></div>
         </div>
       </div>
-      <div class="flex flex-1 items-center justify-center px-5 pb-12 sm:px-8">
+      <div class="flex flex-1 items-center justify-center px-5 py-8 sm:px-8">
         <div class="w-full max-w-md"><slot /></div>
       </div>
       <p class="px-5 pb-6 text-center text-[11px] text-muted sm:px-8">By continuing you agree to Ojaly's fair-use terms. Your data belongs to you.</p>

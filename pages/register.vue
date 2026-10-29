@@ -55,15 +55,15 @@ async function submit() {
 
 <template>
   <div>
-    <div class="mb-7">
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-[11px] font-bold text-brand-700"><Sparkles class="h-3.5 w-3.5" /> Free to join · campus or community</span>
-      <h1 class="mt-4 font-display text-4xl font-bold tracking-[-0.045em]">Set up your business.</h1>
-      <p class="mt-2 text-sm leading-relaxed text-muted">Under five minutes. No card. Products, services or both — you do not need to be on a campus.</p>
-      <p v-if="plan" class="mt-3 rounded-xl bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-800 dark:bg-brand-500/10 dark:text-brand-200">You picked the {{ plan }} plan. Your free trial starts automatically — no payment now.</p>
-      <p v-if="campus" class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1.5 text-[11px] font-bold text-accent"><Sparkles class="h-3 w-3" /> {{ campus }} campus launch</p>
-      <p v-if="referral" class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[11px] font-bold text-forest-900"><Sparkles class="h-3 w-3" /> Referred with code {{ referral }}</p>
+    <div class="mb-5">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-[11px] font-bold text-brand-700 dark:bg-brand-500/10 dark:text-brand-200"><Sparkles class="h-3.5 w-3.5" /> Free to join · campus or community</span>
+      <h1 class="mt-3 font-display text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Set up your business.</h1>
+      <p class="mt-1.5 text-xs leading-relaxed text-muted sm:text-sm">Under five minutes. No card. Products, services or both.</p>
+      <p v-if="plan" class="mt-2 rounded-xl bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-800 dark:bg-brand-500/10 dark:text-brand-200">You picked the {{ plan }} plan. Your free trial starts automatically — no payment now.</p>
+      <p v-if="campus" class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1 text-[11px] font-bold text-accent"><Sparkles class="h-3 w-3" /> {{ campus }} campus launch</p>
+      <p v-if="referral" class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] font-bold text-forest-900"><Sparkles class="h-3 w-3" /> Referred with code {{ referral }}</p>
     </div>
-    <form class="space-y-4" novalidate @submit.prevent="submit">
+    <form class="space-y-3.5" novalidate @submit.prevent="submit">
       <BaseInput v-model="form.name" label="Your name" placeholder="Tola Adeyemi" autocomplete="name" :error="errors.name" required />
       <BaseInput v-model="form.email" label="Email address" type="email" placeholder="you@example.com" autocomplete="email" :error="errors.email" required />
       <BaseInput v-model="form.businessName" label="Business name" placeholder="Tola Thrift" autocomplete="organization" :error="errors.businessName" required hint="This becomes your storefront link too." />
@@ -71,8 +71,10 @@ async function submit() {
       <div v-if="isOther" class="rounded-xl border border-brand-500/20 bg-brand-50/60 p-3"><BaseInput v-model="form.customCategory" label="Type your business type" placeholder="e.g. Podcast studio, wig installation, phone repair" :error="errors.category" required /><p class="mt-1.5 text-[10px] leading-relaxed text-muted">This becomes your category on Ojaly. Choose the closest category above if you are unsure.</p></div>
       <p v-else class="text-[10px] leading-relaxed text-muted">Over 40 categories. If yours is not listed, choose <strong class="text-ink">Something else (type it in)</strong> above.</p>
       <BaseSelect v-model="form.businessMode" label="What do you want to manage?" :options="modeOptions" :error="errors.businessMode" required />
-      <BaseInput v-model="form.address" label="Where do you operate?" placeholder="e.g. Yaba, Lagos" :error="errors.address" hint="Campus not required. Add your area or city so customers know where to find you." />
-      <BaseInput v-model="form.phone" label="WhatsApp number" inputmode="tel" placeholder="0803 123 4567" autocomplete="tel" :error="errors.phone" hint="Optional, but useful for order alerts." />
+      <div class="grid gap-3 sm:grid-cols-2">
+        <BaseInput v-model="form.address" label="Where do you operate?" placeholder="e.g. Yaba, Lagos" :error="errors.address" />
+        <BaseInput v-model="form.phone" label="WhatsApp number" inputmode="tel" placeholder="0803 123 4567" autocomplete="tel" :error="errors.phone" />
+      </div>
       <BaseInput v-model="form.password" label="Create a password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="At least 8 characters" :error="errors.password" required>
         <template #suffix>
           <button type="button" class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-muted hover:text-ink" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">

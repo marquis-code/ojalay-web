@@ -5,6 +5,7 @@ import { formatNaira } from '~/utils/money';
 const route = useRoute();
 const slug = computed(() => String(route.params.slug));
 const id = computed(() => String(route.params.id));
+const marketplaceCampus = computed(() => route.query.marketplace === '1' ? (typeof route.query.campus === 'string' ? route.query.campus : undefined) : undefined);
 const { data, error } = await useStorefrontService(slug, id);
 if (error.value || !data.value?.service) {
   throw createError({ statusCode: 404, statusMessage: 'Service not found', fatal: true });
@@ -43,7 +44,7 @@ useHead(() => data.value ? {
           <div v-if="data.business.bookingSettings?.policy" class="mt-8 rounded-2xl border p-4 text-xs leading-relaxed" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 12%, transparent)`, color: data.template.colors.muted }"><strong :style="{ color: data.template.colors.ink }">Before you book.</strong> {{ data.business.bookingSettings.policy }}</div>
           <div v-if="data.reviews?.count" class="mt-8 border-t pt-6" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 12%, transparent)` }"><div class="flex items-end justify-between gap-3"><div><p class="text-[10px] font-bold uppercase tracking-[0.16em]" :style="{ color: data.template.colors.primary }">Client love</p><h2 class="mt-1 font-display text-2xl font-bold" :style="{ color: data.template.colors.ink }">{{ data.reviews.average }} out of 5</h2></div><span class="text-xs font-semibold" :style="{ color: data.template.colors.muted }">{{ data.reviews.count }} review{{ data.reviews.count === 1 ? '' : 's' }}</span></div><div class="mt-3 space-y-2"><div v-for="review in data.reviews.items.slice(0, 3)" :key="review.id" class="rounded-xl border p-3" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 10%, transparent)` }"><div class="flex items-center gap-2"><span class="text-xs font-bold" :style="{ color: data.template.colors.ink }">{{ review.customerName }}</span><span class="text-warning">{{ '★'.repeat(review.rating) }}</span></div><p v-if="review.comment" class="mt-1 text-xs leading-relaxed" :style="{ color: data.template.colors.muted }">{{ review.comment }}</p></div></div></div>
         </div>
-        <div class="lg:sticky lg:top-24"><ClientOnly><ServiceBookingWidget :business="data.business" :template="data.template" :service="data.service" :providers="data.providers" /></ClientOnly></div>
+        <div class="lg:sticky lg:top-24"><ClientOnly><ServiceBookingWidget :business="data.business" :template="data.template" :service="data.service" :providers="data.providers" :marketplace-campus="marketplaceCampus" /></ClientOnly></div>
       </div>
     </section>
   </StorefrontShell>

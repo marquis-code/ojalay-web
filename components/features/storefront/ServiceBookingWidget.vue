@@ -2,7 +2,7 @@
 import { ArrowRight, CalendarDays, Check, ChevronLeft, Clock3, Loader2, MessageCircle, ShieldCheck } from 'lucide-vue-next';
 import type { PublicProvider, Service, StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { formatNaira } from '~/utils/money';
-const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; service: Service; providers: PublicProvider[] }>();
+const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; service: Service; providers: PublicProvider[]; marketplaceCampus?: string }>();
 const { availability, loading, submitting, waitlistLoading, waitlistJoined, error, confirmed, loadAvailability, joinWaitlist, book } = usePublicBookingFlow(props.business.slug);
 
 const step = ref(1);
@@ -54,7 +54,7 @@ async function submit() {
     const result = await book({
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
       customerName: customerName.value.trim(), customerPhone: customerPhone.value.trim(),
-      customerEmail: customerEmail.value || undefined, notes: notes.value || undefined, packageCode: packageCode.value || undefined,
+      customerEmail: customerEmail.value || undefined, notes: notes.value || undefined, packageCode: packageCode.value || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
       addOnNames: addOnNames.value,
     });
     if (result.payment?.authorizationUrl) window.location.href = result.payment.authorizationUrl;

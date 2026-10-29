@@ -32,7 +32,7 @@ export interface Business {
   email?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
   seoTitle: string; seoDescription: string; customDomain?: string | null; customDomainVerified: boolean;
   summarySettings: { dailyEnabled: boolean; weeklyEnabled: boolean; sendTime: string; weeklyDay: number; channels: { whatsapp: boolean; email: boolean } };
-  alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; isSuspended?: boolean; createdAt?: string;
+  alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; campusCode?: string | null; campusName?: string | null; campusVerified?: boolean; campusAmbassadorCode?: string | null; marketplaceFeePercent?: number; isSuspended?: boolean; createdAt?: string;
 }
 export interface BusinessContext {
   business: Business; plan: Plan; subscription: Subscription | null; entitlements: Entitlements;
@@ -125,6 +125,7 @@ export interface StorefrontBusiness {
   socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
   email?: string | null; address: string; about: string; seoTitle: string; seoDescription: string; currency: string;
   businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null;
+  campusCode?: string | null; campusName?: string | null; campusVerified?: boolean;
 }
 export interface StorefrontProductVariant { id: string; name: string; attributes: Record<string, string>; priceKobo: number; imageUrl?: string | null; inStock: boolean; lowStock: boolean; }
 export interface StorefrontProduct {
@@ -439,4 +440,23 @@ export interface CampusOverview { city: string; headline: string; campuses: Camp
 export interface CampusApplication {
   id: string; name: string; phone: string; email?: string | null; campusCode: string; campusName: string;
   year: string; socials: string; why: string; status: 'pending' | 'approved' | 'rejected'; createdAt: string;
+}
+
+export interface MarketplaceBusiness {
+  id: string; name: string; slug: string; tagline: string; description: string;
+  logoUrl?: string | null; bannerUrl?: string | null; category: string;
+  campusCode: string; campusName: string; verified: boolean; address: string;
+  rating: number; reviewCount: number; serviceCount: number; minPriceKobo: number;
+  services: { id: string; name: string; category: string; priceKobo: number; durationMinutes: number }[];
+  categories: string[];
+}
+export interface MarketplaceResponse {
+  campuses: { code: string; name: string; shortName: string; city: string; slug: string }[];
+  categories: string[];
+  businesses: MarketplaceBusiness[];
+  total: number;
+}
+export interface MarketplaceMine {
+  bookings: { id: string; bookingNumber: string; customerName: string; serviceName: string; startAt: string; status: string; priceKobo: number; feeKobo: number; campus?: string | null }[];
+  summary: { bookings: number; gmvKobo: number; commissionKobo: number; completed: number };
 }

@@ -3,19 +3,19 @@ import { ArrowRight, BadgeCheck, CalendarCheck, Check, Repeat2, Search, ShieldCh
 const points = [
   {
     icon: Search, number: '01', label: 'The discovery question',
-    question: '“Where do students find me when they’re not already in my DMs?”',
-    answer: 'Ojaly Campus puts verified service businesses in front of UNILAG and CMUL students by category, rating and campus. Discovery becomes demand — not another link you have to push alone.',
-    outcome: 'Get found by students who are ready to book',
+    question: '“Where do customers find me when they’re not already in my DMs?”',
+    answer: 'Ojaly puts verified local service providers in front of customers across Lagos, with UNILAG and CMUL as launch communities. Discovery becomes demand — not another link you have to push alone.',
+    outcome: 'Get found by customers who are ready to book',
   },
   {
     icon: CalendarCheck, number: '02', label: 'The booking question',
     question: '“How do I stop WhatsApp bookings from clashing?”',
-    answer: 'Live availability, buffers and deposits. A student picks a real slot, pays a deposit and gets a confirmation. Your calendar stays honest and no-shows cost less.',
+    answer: 'Live availability, buffers and deposits. A customer picks a real slot, pays a deposit and gets a confirmation. Your calendar stays honest and no-shows cost less.',
     outcome: 'A calendar that cannot double-book you',
   },
   {
     icon: ShieldCheck, number: '03', label: 'The trust question',
-    question: '“Why should a student pay me before meeting me?”',
+    question: '“Why should a customer pay me before meeting me?”',
     answer: 'A verified campus badge, reviews from completed appointments and a receipt after every payment. Trust is visible before the first message.',
     outcome: 'Look legitimate from the first tap',
   },

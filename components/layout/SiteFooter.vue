@@ -20,7 +20,7 @@ const year = new Date().getFullYear();
           <a href="#templates" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Storefronts</a>
           <a href="#pricing" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Pricing</a>
           <NuxtLink to="/register" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Start free</NuxtLink>
-          <NuxtLink to="/campus" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Ojaly Campus · Lagos</NuxtLink>
+          <NuxtLink to="/campus" class="block py-1.5 text-sm text-[#C7D8CE] hover:text-white">Marketplace · Lagos</NuxtLink>
         </div>
         <div>
           <p class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#7C9989]">Company</p>
@@ -35,7 +35,7 @@ const year = new Date().getFullYear();
       </div>
       <div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#7C9989] sm:flex-row sm:items-center sm:justify-between">
         <p>© {{ year }} Ojaly. Made for hustlers, not corporations.</p>
-        <p>Naira first. WhatsApp native. Student approved.</p>
+        <p>Naira first. WhatsApp native. Trusted local providers.</p>
       </div>
     </div>
   </footer>

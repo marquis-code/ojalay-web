@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowUpRight, BadgeCheck, BarChart3, CalendarCheck, CreditCard, MessageCircle, PackageCheck, Receipt, Repeat2, Star } from 'lucide-vue-next';
 const features = [
-  { icon: BadgeCheck, title: 'Verified campus demand', body: 'Students discover only businesses the campus team has reviewed. Trust is built into the listing.' },
+  { icon: BadgeCheck, title: 'Verified local demand', body: 'Customers discover only businesses the Ojaly team has reviewed. Trust is built into the listing.' },
   { icon: CalendarCheck, title: 'Real availability', body: 'Live slots, buffers, breaks and time off. A booking cannot collide with another one.' },
   { icon: CreditCard, title: 'Deposits before the appointment', body: 'Paystack deposits reduce no-shows and settle to the business. The customer gets a receipt.' },
   { icon: PackageCheck, title: 'Packages & memberships', body: 'Sell prepaid sessions, deduct them on booking and turn one client into repeat revenue.' },

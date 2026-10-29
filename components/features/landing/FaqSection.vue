@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { Plus } from 'lucide-vue-next';
 const faqs = [
-  { q: 'What is Ojaly now?', a: 'Ojaly is a campus service marketplace and booking record. Students discover verified student businesses at UNILAG and CMUL, book a real time and pay securely. The business gets the customer, deposit, receipt and review in the same transaction.' },
-  { q: 'Who is it for?', a: 'Students who want trusted hair, food, nails, printing, laundry, design, repair and tutoring services. Service businesses that want demand and a booking system. Product sellers can still use Ojaly, but the campus marketplace is built for services first.' },
-  { q: 'How do I know the businesses are real?', a: 'A business must be tagged to a campus and reviewed by the Ojaly campus team before it appears. Verified listings show a badge, reviews only come from completed appointments, and every payment gets a receipt.' },
+  { q: 'What is Ojaly now?', a: 'Ojaly is a local service marketplace and booking record. Customers discover verified service businesses across Lagos — including UNILAG and CMUL — book a real time and pay securely. The business gets the customer, deposit, receipt and review in the same transaction.' },
+  { q: 'Who is it for?', a: 'Anyone who wants trusted hair, food, nails, printing, laundry, design, repair and tutoring services. Service businesses that want demand and a booking system — campus and community. Product sellers can still use Ojaly, but the marketplace is built for services first.' },
+  { q: 'How do I know the businesses are real?', a: 'A business must be reviewed by the Ojaly team before it appears. Verified listings show a badge, reviews only come from completed appointments, and every payment gets a receipt.' },
   { q: 'How does payment work?', a: 'Payments go through Paystack directly to the business. Ojaly records the booking, deposit, receipt and remaining balance. We do not hold your money.' },
   { q: 'I already sell on WhatsApp. Why use Ojaly?', a: 'Keep WhatsApp for conversation. Use Ojaly for discovery, real availability, deposits, receipts and records. Send the link in WhatsApp instead of typing prices and times forever.' },
   { q: 'Do I need the WhatsApp API?', a: 'No. Ojaly works with shareable WhatsApp links, email and SMS fallback. WhatsApp automation is optional. Cloud API review will never block you from booking or getting paid.' },
   { q: 'What if a day is fully booked?', a: 'Join the waitlist. If a customer cancels or reschedules, Ojaly offers the opening to waiting customers by email and WhatsApp.' },
   { q: 'Can I reschedule or cancel?', a: 'Yes. Every booking has a private management link. Reschedule or cancel within the business policy window; deposits and cancellation rules are shown upfront.' },
   { q: 'Is it free?', a: 'Students browse and book for free. Service businesses start free and can upgrade when they need more staff, packages or advanced tools. No card is required to start.' },
-  { q: 'Which campuses are live?', a: 'Lagos first: University of Lagos (UNILAG) and the College of Medicine, University of Lagos (CMUL). More campuses will follow based on demand.' },
+  { q: 'Which campuses are live?', a: 'Lagos first, with campus communities UNILAG and CMUL as launch partners. Any trusted local service provider can apply for verification.' },
 ];
 const open = ref<number | null>(0);
 </script>

@@ -5,7 +5,7 @@ export function useMarketplace() {
   const data = ref<MarketplaceResponse | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
-  const campus = ref('UNILAG');
+  const campus = ref('');
   const category = ref('');
   const query = ref('');
   async function load() {
@@ -15,7 +15,7 @@ export function useMarketplace() {
     finally { loading.value = false; }
   }
   function open(business: MarketplaceBusiness) {
-    const campusCode = business.campusCode || campus.value;
+    const campusCode = business.campusCode || campus.value || 'LAGOS';
     return `/s/${business.slug}/services?marketplace=1&campus=${campusCode}`;
   }
   return { data, loading, error, campus, category, query, load, open };

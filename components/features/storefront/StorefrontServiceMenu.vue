@@ -20,7 +20,7 @@ const wa = computed(() => props.business.whatsappNumber || props.business.public
     <section class="relative overflow-hidden" :style="{ background: template.colors.background, color: template.colors.ink }">
       <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
         <div>
-          <p class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" :style="{ background: template.colors.accent, color: template.colors.ink }"><Sparkles class="h-3 w-3" /> {{ business.campusVerified ? `${business.campusCode || 'Campus'} verified business` : 'Appointments open' }}</p>
+          <p class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" :style="{ background: template.colors.accent, color: template.colors.ink }"><Sparkles class="h-3 w-3" /> {{ business.campusVerified ? 'Verified local business' : 'Appointments open' }}</p>
           <h1 class="mt-5 max-w-xl font-display text-[clamp(2.8rem,6vw,5.2rem)] font-bold leading-[0.93] tracking-[-0.055em]">Book your next <span :style="{ color: template.colors.primary }">appointment.</span></h1>
           <p class="mt-4 max-w-lg text-sm leading-relaxed sm:text-base" :style="{ color: template.colors.muted }">{{ business.description || business.tagline }}</p>
           <div class="mt-6 flex flex-wrap gap-2 text-[10px] font-semibold" :style="{ color: template.colors.muted }">

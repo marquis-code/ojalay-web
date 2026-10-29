@@ -3,11 +3,10 @@ import { Menu, X, ArrowUpRight } from 'lucide-vue-next';
 const open = ref(false);
 const auth = useAuthStore();
 const links = [
+  { href: '/campus', label: 'Marketplace' },
   { href: '#how', label: 'How it works' },
   { href: '#features', label: 'Features' },
-  { href: '#templates', label: 'Storefronts' },
   { href: '#pricing', label: 'Pricing' },
-  { href: '/campus', label: 'Campus' },
   { href: '#faq', label: 'FAQ' },
 ];
 </script>
@@ -36,7 +35,7 @@ const links = [
     <div v-if="open" class="border-t border-line bg-surface p-4 lg:hidden">
       <a v-for="link in links" :key="link.href" :href="link.href" class="flex min-h-[48px] items-center rounded-xl px-3 text-sm font-semibold hover:bg-raised" @click="open = false">{{ link.label }}</a>
       <NuxtLink to="/login" class="flex min-h-[48px] items-center rounded-xl px-3 text-sm font-semibold hover:bg-raised" @click="open = false">Sign in</NuxtLink>
-      <NuxtLink to="/register" class="mt-1 flex min-h-[48px] items-center justify-center rounded-xl bg-brand-500 px-3 text-sm font-bold text-white" @click="open = false">Start free →</NuxtLink>
+      <NuxtLink to="/register" class="mt-1 flex min-h-[48px] items-center justify-center rounded-xl bg-brand-500 px-3 text-sm font-bold text-white" @click="open = false">List your business →</NuxtLink>
     </div>
   </header>
 </template>

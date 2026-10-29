@@ -1,10 +1,9 @@
 <script setup lang="ts">
-const { data: plans } = await usePublicPlans();
 useSeoMeta({
-  title: 'Ojaly — book trusted student businesses at UNILAG and CMUL',
-  description: 'Discover verified student service businesses at UNILAG and CMUL. Book a real time, pay securely and get a receipt. For service businesses: demand, deposits and a trusted booking record.',
-  ogTitle: 'Ojaly — book trusted student businesses.',
-  ogDescription: 'A verified campus marketplace and booking record for student service businesses in Lagos.',
+  title: 'Ojaly — book trusted local service businesses in Lagos',
+  description: 'Discover verified local service businesses across Lagos — campus and non-campus. Book a real time, pay securely and get a receipt. For service businesses: demand, deposits and a trusted booking record.',
+  ogTitle: 'Ojaly — book trusted local service businesses.',
+  ogDescription: 'A verified local marketplace and booking record for service businesses in Lagos — campus and non-campus.',
   ogType: 'website',
   ogUrl: 'https://ojaly.org',
   twitterCard: 'summary_large_image',
@@ -19,7 +18,7 @@ useHead({
       name: 'Ojaly',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
-      description: 'Campus service marketplace and booking record for verified student businesses in Lagos.',
+      description: 'Local service marketplace and booking record for verified providers in Lagos.',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     }),
   }],
@@ -33,7 +32,7 @@ definePageMeta({ layout: 'default' });
     <PainPoints />
     <HowItWorks />
     <FeatureGrid />
-    <PricingSection :plans="plans || []" />
+    <PricingSection />
     <FaqSection />
     <FinalCta />
   </div>

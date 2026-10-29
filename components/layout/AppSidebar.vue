@@ -44,7 +44,7 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
     links: [
       { to: '/app/website', label: 'My website', icon: Globe2 },
       { to: '/app/share', label: 'Share my shop', icon: QrCode },
-      { to: '/app/marketplace', label: 'Campus marketplace', icon: Store },
+      { to: '/app/marketplace', label: 'Marketplace', icon: Store },
       { to: '/app/affiliates', label: 'Refer & earn', icon: Gift, ownerOnly: true },
       { to: '/app/help', label: 'Help center', icon: CircleHelp },
       { to: '/app/settings', label: 'Settings', icon: Settings },

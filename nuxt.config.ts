@@ -28,7 +28,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'en-NG' },
-      title: 'Ojaly — run your business. Know your money.',
+      title: 'Ojaly — book trusted local service businesses.',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'theme-color', content: '#06231A' },
@@ -73,7 +73,7 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Ojaly — business, handled',
       short_name: 'Ojaly',
-      description: 'Run your business, know your money and get a free website.',
+      description: 'Verified local service marketplace and booking record for providers in Lagos.',
       theme_color: '#06231A',
       background_color: '#FBF7EF',
       display: 'standalone',

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 import {
   Bell, Building2, Check, ChevronRight, Copy, CreditCard, Crown, Globe2, KeyRound, Link2, Loader2,
   Mail, MessageCircle, Plus, RefreshCw, ShieldCheck, Smartphone, Sparkles, Trash2, UserRound, Users,
@@ -140,6 +141,7 @@ async function removeStaff(id: string) {
 async function upgrade(planKey: string) {
   try {
     const result = await billing.checkout(planKey, yearly.value ? 'yearly' : 'monthly', coupon.value || undefined);
+    if (result.reference) rememberPayment(result.reference, window.location.pathname);
     window.location.href = result.authorizationUrl;
   } catch (error) { toast.error((error as Error).message); }
 }

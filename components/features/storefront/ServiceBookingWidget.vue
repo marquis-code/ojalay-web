@@ -2,6 +2,7 @@
 import { ArrowRight, CalendarDays, Check, ChevronLeft, Clock3, Loader2, MessageCircle, ShieldCheck } from 'lucide-vue-next';
 import type { PublicProvider, Service, StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { formatNaira } from '~/utils/money';
+import { rememberPayment } from '~/utils/pending-payment';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; service: Service; providers: PublicProvider[]; marketplaceCampus?: string }>();
 const { availability, loading, submitting, waitlistLoading, waitlistJoined, error, confirmed, loadAvailability, joinWaitlist, book } = usePublicBookingFlow(props.business.slug);
 
@@ -57,7 +58,10 @@ async function submit() {
       customerEmail: customerEmail.value || undefined, notes: notes.value || undefined, packageCode: packageCode.value || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
       addOnNames: addOnNames.value,
     });
-    if (result.payment?.authorizationUrl) window.location.href = result.payment.authorizationUrl;
+    if (result.payment?.authorizationUrl) {
+      rememberPayment(result.payment.reference, window.location.pathname);
+      window.location.href = result.payment.authorizationUrl;
+    }
     else step.value = 4;
   } catch { /* error shown */ }
 }

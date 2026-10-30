@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 import { ArrowRight, CheckCircle2, LockKeyhole, MessageCircle } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { formatDate } from '~/utils/date';
@@ -21,7 +22,7 @@ const wa = computed(() => whatsappLink(business.value.whatsappNumber, `Hi ${busi
 async function pay() {
   if (!email.value) { errorMessage.value = 'Enter your email to pay.'; return; }
   loading.value = true; errorMessage.value = '';
-  try { const result = await payment.pay(email.value); window.location.href = result.authorizationUrl; }
+  try { const result = await payment.pay(email.value); rememberPayment(result.reference, window.location.pathname); window.location.href = result.authorizationUrl; }
   catch (err) { errorMessage.value = (err as Error).message; }
   finally { loading.value = false; }
 }

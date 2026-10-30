@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 import { ArrowRight, CheckCircle2, LockKeyhole } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { formatDate } from '~/utils/date';
@@ -18,7 +19,7 @@ useSeoMeta({ title: computed(() => `Pay invoice ${invoice.value.invoiceNumber}`)
 useHead({ titleTemplate: '%s' });
 async function pay() {
   loading.value = true; errorMessage.value = '';
-  try { const result = await payment.pay(email.value || undefined); window.location.href = result.authorizationUrl; }
+  try { const result = await payment.pay(email.value || undefined); rememberPayment(result.reference, window.location.pathname); window.location.href = result.authorizationUrl; }
   catch (err) { errorMessage.value = (err as Error).message; }
   finally { loading.value = false; }
 }

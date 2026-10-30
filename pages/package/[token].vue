@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 import { Check, CreditCard, PackageCheck, Sparkles } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 definePageMeta({ layout: false });
@@ -13,7 +14,7 @@ const busy = ref(false);
 const toast = useToast();
 async function pay() {
   busy.value = true;
-  try { const result = await payPackage(token.value, data.value?.purchase.customerEmail || undefined); window.location.href = result.authorizationUrl; }
+  try { const result = await payPackage(token.value, data.value?.purchase.customerEmail || undefined); rememberPayment(result.reference, window.location.pathname); window.location.href = result.authorizationUrl; }
   catch (err) { toast.error((err as Error).message); }
   finally { busy.value = false; }
 }

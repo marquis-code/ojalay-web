@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 definePageMeta({ layout: false });
 useCustomerTheme();
 import { ref, computed } from 'vue';
@@ -36,7 +37,7 @@ async function doReschedule() {
   try { await reschedule(newStart.value); notice.value = 'Your appointment has been moved.'; showReschedule.value = false; await refresh(); } catch { /* error */ }
 }
 async function doPay() {
-  try { const result = await pay(booking.value?.customerEmail || undefined); window.location.href = result.authorizationUrl; } catch { /* error */ }
+  try { const result = await pay(booking.value?.customerEmail || undefined); rememberPayment(result.reference, window.location.pathname); window.location.href = result.authorizationUrl; } catch { /* error */ }
 }
 onMounted(() => { const d = new Date(); d.setDate(d.getDate() + 1); newDate.value = d.toISOString().slice(0, 10); });
 watch(showReschedule, (open) => { if (open) void loadSlots(); });

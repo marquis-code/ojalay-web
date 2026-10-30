@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 import { CheckCircle2, Clock, MessageCircle, Truck, XCircle } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { formatDate } from '~/utils/date';
@@ -23,7 +24,7 @@ const email = ref('');
 const payError = ref('');
 async function payBalance() {
   paying.value = true; payError.value = '';
-  try { const result = await payment.pay(email.value || undefined); window.location.href = result.authorizationUrl; }
+  try { const result = await payment.pay(email.value || undefined); rememberPayment(result.reference, window.location.pathname); window.location.href = result.authorizationUrl; }
   catch (err) { payError.value = (err as Error).message; }
   finally { paying.value = false; }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { rememberPayment } from '~/utils/pending-payment';
 import { ArrowRight, Check, PackageCheck, Sparkles } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import type { ServicePackage } from '~/types';
@@ -19,7 +20,10 @@ async function checkout() {
   saving.value = true;
   try {
     const result = await purchase(selected.value.id, { customerName: form.customerName.trim(), customerPhone: form.customerPhone.trim(), customerEmail: form.customerEmail || undefined });
-    if (result.payment?.authorizationUrl) window.location.href = result.payment.authorizationUrl;
+    if (result.payment?.authorizationUrl) {
+      rememberPayment(result.payment.reference, window.location.pathname);
+      window.location.href = result.payment.authorizationUrl;
+    }
     else toast.info('Package created. Ask the business for your code.');
   } catch (error) { toast.error((error as Error).message); }
   finally { saving.value = false; }

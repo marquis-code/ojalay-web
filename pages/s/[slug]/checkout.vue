@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle2, LockKeyhole, MessageCircle } from 'lucide-vue-
 import { formatNaira } from '~/utils/money';
 import { optimizedImage } from '~/utils/cloudinary';
 import { whatsappLink } from '~/utils/phone';
+import { rememberPayment, readPendingPayment } from '~/utils/pending-payment';
 definePageMeta({ layout: false });
 const route = useRoute();
 const router = useRouter();
@@ -21,7 +22,12 @@ const { submitting, error: submitError, result, place } = useStorefrontCheckout(
 const waUrl = ref('');
 const orderNumber = ref('');
 const orderToken = ref('');
-onMounted(() => { cart.hydrate(); cart.init(business.value.slug, business.value.name); });
+onMounted(() => {
+  cart.hydrate();
+  cart.init(business.value.slug, business.value.name);
+  const pending = readPendingPayment();
+  if (pending && !result.value) void router.replace(`/payment/callback?reference=${encodeURIComponent(pending.reference)}`);
+});
 async function submit() {
   Object.keys(errors).forEach((k) => delete errors[k]);
   if (form.name.trim().length < 2) errors.name = 'Enter your name.';
@@ -40,6 +46,7 @@ async function submit() {
     waUrl.value = response.whatsappUrl || '';
     cart.clear();
     if (response.payment?.authorizationUrl) {
+      rememberPayment(response.payment.reference, `/s/${slug.value}/checkout`);
       toast.success('Order created. Taking you to Paystack…');
       window.location.href = response.payment.authorizationUrl;
     }

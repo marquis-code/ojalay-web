@@ -9,6 +9,7 @@ const router = useRouter();
 const offline = useOfflineStore();
 const { unread, fetchNotifications } = useNotifications();
 const menuOpen = ref(false);
+const confirmLogout = ref(false);
 const bizOpen = ref(false);
 const root = ref<HTMLElement | null>(null);
 
@@ -20,7 +21,12 @@ async function onSwitch(id: string) {
   await businessStore.load();
   await router.push('/app');
 }
+function requestLogout() {
+  menuOpen.value = false;
+  confirmLogout.value = true;
+}
 async function logout() {
+  confirmLogout.value = false;
   menuOpen.value = false;
   await auth.logout();
   businessStore.reset();
@@ -91,13 +97,24 @@ onBeforeUnmount(() => document.removeEventListener('click', onClickOutside));
               <NuxtLink to="/app/settings?tab=profile" class="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-raised" @click="menuOpen = false"><UserRound class="h-4 w-4 text-muted" /> Profile</NuxtLink>
               <NuxtLink to="/app/website" class="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-raised" @click="menuOpen = false"><Store class="h-4 w-4 text-muted" /> Website</NuxtLink>
               <NuxtLink to="/app/settings" class="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-raised" @click="menuOpen = false"><Settings class="h-4 w-4 text-muted" /> Settings</NuxtLink>
-              <button type="button" class="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-danger hover:bg-danger/5" @click="logout"><LogOut class="h-4 w-4" /> Sign out</button>
+              <button type="button" class="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-danger hover:bg-danger/5" @click="requestLogout"><LogOut class="h-4 w-4" /> Sign out</button>
             </div>
           </Transition>
         </div>
       </div>
     </div>
   </header>
+
+  <BaseModal v-model:open="confirmLogout" title="Sign out of Ojaly?" description="Your data stays safe. You can sign back in anytime." size="sm">
+    <div class="flex items-start gap-3 rounded-2xl border border-line bg-raised/50 p-3 text-xs leading-relaxed text-muted">
+      <LogOut class="mt-0.5 h-4 w-4 shrink-0 text-danger" />
+      <p>You’ll be returned to the sign-in page. Any unsaved changes will be lost.</p>
+    </div>
+    <div class="mt-5 flex justify-end gap-2">
+      <BaseButton variant="ghost" @click="confirmLogout = false">Stay signed in</BaseButton>
+      <BaseButton variant="danger" :loading="auth.loading" @click="logout"><LogOut class="h-4 w-4" /> Sign out</BaseButton>
+    </div>
+  </BaseModal>
 </template>
 
 <style scoped>

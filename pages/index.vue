@@ -29,6 +29,7 @@ definePageMeta({ layout: 'default' });
 <template>
   <div>
     <LandingHero />
+    <DemoBusinesses />
     <PainPoints />
     <HowItWorks />
     <FeatureGrid />

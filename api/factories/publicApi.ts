@@ -1,5 +1,5 @@
 import { BaseApi } from '~/api/base/BaseApi';
-import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, PublicReview, Receipt, Review, ReviewContext, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate, WaitlistEntry, PackagePurchase, ServicePackage, CampusOverview, CampusApplication, MarketplaceResponse } from '~/types';
+import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, PublicReview, Receipt, Review, ReviewContext, Service, StorefrontHome, StorefrontProduct, StorefrontTemplate, WaitlistEntry, PackagePurchase, ServicePackage, CampusOverview, CampusApplication, DemoBusiness, MarketplaceResponse } from '~/types';
 
 class PublicApi extends BaseApi {
   constructor() { super('/'); }
@@ -29,6 +29,7 @@ class PublicApi extends BaseApi {
   book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; addOnNames?: string[]; packageCode?: string; marketplaceCampus?: string }): Promise<{ booking: Booking; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
     return this.request('post', `storefront/${slug}/bookings`, payload);
   }
+  demoBusinesses(): Promise<DemoBusiness[]> { return this.request('get', 'marketplace/demo'); }
   marketplace(params: { campus?: string; category?: string; q?: string } = {}): Promise<MarketplaceResponse> { return this.request('get', 'marketplace', undefined, params as Record<string, unknown>); }
   campus(): Promise<CampusOverview> { return this.request('get', 'campus'); }
   applyCampus(payload: { name: string; phone: string; email?: string; campusCode: string; year?: string; socials?: string; why?: string }): Promise<{ application: CampusApplication; already?: boolean }> { return this.request('post', 'campus/apply', payload); }

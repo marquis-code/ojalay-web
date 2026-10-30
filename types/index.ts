@@ -471,3 +471,10 @@ export interface BookingMetrics {
   topServices: { name: string; bookings: number; revenueKobo: number }[];
   recentBookings: Booking[];
 }
+
+export interface DemoBusiness {
+  id: string; name: string; slug: string; tagline: string; logoUrl?: string | null; bannerUrl?: string | null;
+  mode: 'products' | 'services' | 'hybrid'; campusCode: string; campusName: string; address: string;
+  serviceCount: number; productCount: number; startingPriceKobo?: number | null;
+  href: string; cta: string;
+}

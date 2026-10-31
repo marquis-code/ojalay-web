@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 import {
   ArrowUpRight, BarChart3, Boxes, Building2, CalendarDays, CircleDollarSign, CircleHelp, Gift, Globe2, LayoutDashboard,
-  Package, QrCode, Scissors, Store, Settings, ShoppingBag, Sparkles, Star, Ticket, Users, UserRoundCog, WalletCards, X, ReceiptText,
+  MessageSquare, Package, QrCode, Scissors, Store, Settings, ShoppingBag, Sparkles, Star, Ticket, Users, UserRoundCog, WalletCards, X, ReceiptText,
 } from 'lucide-vue-next';
 
 defineProps<{ open: boolean }>();
@@ -19,6 +19,7 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
     links: [
       { to: '/app', label: 'Overview', icon: LayoutDashboard, exact: true },
       { to: '/app/bookings', label: 'Appointments', icon: CalendarDays, modes: ['services', 'hybrid'] },
+      { to: '/app/requests', label: 'Custom requests', icon: MessageSquare, modes: ['services', 'hybrid'] },
       { to: '/app/orders', label: 'Orders', icon: ShoppingBag, modes: ['products', 'hybrid'] },
       { to: '/app/sales', label: 'Sales', icon: CircleDollarSign, modes: ['products', 'hybrid'] },
       { to: '/app/services', label: 'Services', icon: Scissors, modes: ['services', 'hybrid'] },

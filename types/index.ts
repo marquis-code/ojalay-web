@@ -478,3 +478,25 @@ export interface DemoBusiness {
   serviceCount: number; productCount: number; startingPriceKobo?: number | null;
   href: string; cta: string;
 }
+
+export interface CustomRequestQuoteItem { label: string; amountKobo: number; }
+export interface CustomRequestQuote {
+  items: CustomRequestQuoteItem[]; serviceKobo: number; hairKobo: number; addOnKobo: number;
+  totalKobo: number; depositKobo: number; durationMinutes: number; startAt: string;
+  providerId?: string | null; note: string; expiresAt: string; createdAt: string;
+}
+export interface CustomRequestMessage { sender: 'customer' | 'business'; name: string; body: string; createdAt: string; }
+export interface CustomRequest {
+  id: string; publicToken: string; serviceId: string; serviceName: string;
+  customerName: string; customerPhone: string; customerEmail?: string | null;
+  style: string; length: string; hairOption: 'vendor' | 'client' | 'not_sure';
+  preferredDate: string; preferredTime: string; budgetKobo: number; notes: string;
+  referenceUrls: string[]; status: 'new' | 'quoted' | 'accepted' | 'booked' | 'declined' | 'expired';
+  quote?: CustomRequestQuote | null; messages: CustomRequestMessage[]; bookingId?: string | null; bookingPublicToken?: string | null; createdAt?: string;
+  business?: { name: string; slug: string; logoUrl?: string | null; bannerUrl?: string | null; tagline: string; address: string; whatsappNumber?: string | null } | null;
+}
+export interface CustomRequestPayload {
+  serviceId: string; customerName: string; customerPhone: string; customerEmail?: string;
+  style?: string; length?: string; hairOption?: 'vendor' | 'client' | 'not_sure';
+  preferredDate?: string; preferredTime?: string; budgetKobo?: number; notes?: string; referenceUrls?: string[];
+}

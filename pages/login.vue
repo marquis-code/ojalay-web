@@ -28,8 +28,8 @@ async function submit() {
   }
 }
 function useDemo() {
-  form.email = 'demo@ojaly.org';
-  form.password = 'Demo12345';
+  form.email = 'demo.tola@ojaly.org';
+  form.password = 'DemoPass123!';
   toast.info('Demo account filled. Tap sign in.');
 }
 </script>

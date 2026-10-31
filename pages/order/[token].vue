@@ -53,7 +53,15 @@ async function payBalance() {
             <div class="mt-2 flex flex-col gap-2 sm:flex-row"><input v-model="email" type="email" placeholder="Email for receipt" class="input-base text-xs sm:flex-1"><button class="rounded-xl bg-brand-500 px-4 py-3 text-xs font-bold text-white disabled:opacity-50" :disabled="paying" @click="payBalance">{{ paying ? 'Opening…' : `Pay ${formatNaira(outstanding)}` }}</button></div>
             <p v-if="payError" class="mt-2 text-[11px] text-danger">{{ payError }}</p>
           </div>
-          <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="mt-5 flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-bold text-forest-900"><MessageCircle class="h-4 w-4" /> Message {{ business.name }}</a>
+          <div v-if="wa" class="mt-6">
+            <div v-if="order.amountPaidKobo > 0" class="mb-3 rounded-2xl border border-success/20 bg-success/5 p-3 text-center">
+              <p class="text-xs font-bold text-success">✓ Payment Confirmed</p>
+              <p class="mt-0.5 text-[11px] text-muted">Your order is being processed. Message {{ business.name }} below if you have any delivery questions or instructions.</p>
+            </div>
+            <a :href="wa" target="_blank" rel="noopener" class="flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-bold text-forest-900 shadow-sm transition hover:opacity-95">
+              <MessageCircle class="h-4 w-4" /> Message {{ business.name }}
+            </a>
+          </div>
           <p class="mt-4 text-center text-[10px] text-muted">Tracking link provided by {{ business.name }}. Powered by Ojaly.</p>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { ArrowLeft, CheckCircle2, ImagePlus, Loader2, Send, Sparkles, Trash2 } from 'lucide-vue-next';
 import { uploadsApi } from '~/api/factories/uploadsApi';
 import { customRequestsApi } from '~/api/factories/customRequestsApi';
+import { todayInput } from '~/utils/date';
 definePageMeta({ layout: false });
 const route = useRoute();
 const slug = computed(() => String(route.params.slug));
@@ -84,8 +85,8 @@ async function submit() {
             <BaseInput v-model="form.length" label="Length / size" placeholder="e.g. waist length, small" />
             <BaseSelect v-model="form.hairOption" label="Hair" :options="[{ value: 'vendor', label: 'Business should supply the hair' }, { value: 'client', label: 'I will bring my own hair' }, { value: 'not_sure', label: 'Not sure — advise me' }]" />
             <BaseInput v-model="form.budget" label="Budget (optional)" prefix="₦" inputmode="decimal" placeholder="60,000" />
-            <BaseInput v-model="form.date" label="Preferred date" type="date" />
-            <BaseInput v-model="form.time" label="Preferred time" type="time" />
+            <BaseDatePicker v-model="form.date" label="Preferred date" :min="todayInput()" />
+            <BaseTimePicker v-model="form.time" label="Preferred time" />
           </div>
           <BaseTextarea v-model="form.notes" label="Anything else?" placeholder="Colour, density, prep, allergies, preferred finish…" />
           <div>

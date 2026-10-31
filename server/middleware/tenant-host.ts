@@ -1,6 +1,6 @@
 const RESERVED_PREFIXES = [
   '/s/', '/_nuxt', '/api', '/embed', '/receipt', '/invoice', '/pay', '/payment', '/order',
-  '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/phone', '/booking', '/review', '/package', '/marketplace', '/campus', '/app',
+  '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/phone', '/booking', '/request', '/payment', '/review', '/package', '/marketplace', '/campus', '/app',
   '/offline', '/favicon', '/pwa-', '/robots', '/sitemap', '/manifest', '/apple-touch', '/__nuxt', '/_payload', '/assets', '/_ipx',
 ];
 const cache = new Map<string, { slug: string; expires: number }>();

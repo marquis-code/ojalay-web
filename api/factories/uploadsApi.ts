@@ -37,6 +37,16 @@ class UploadsApi {
     return { url, optimizedUrl: optimizedImage(url, 1200) };
   }
 
+  async uploadPublicRequestImage(file: File): Promise<{ url: string; optimizedUrl: string }> {
+    if (!file.type.startsWith('image/')) throw new Error('Choose a JPG, PNG or WebP photo.');
+    const compressed = await compressImage(file, { maxWidth: 1800, maxHeight: 1800, quality: 0.8 });
+    if (compressed.size > 5 * 1024 * 1024) throw new Error('That photo is still over 5MB after compression. Choose a smaller image.');
+    const form = new FormData();
+    form.append('file', compressed);
+    const response = await http().post('/uploads/public/custom-request', form);
+    return response.data.data as { url: string; optimizedUrl: string };
+  }
+
   async uploadVideo(file: File, onProgress?: (pct: number) => void): Promise<{ url: string }> {
     if (!['video/mp4', 'video/webm', 'video/quicktime'].includes(file.type)) throw new Error('Choose an MP4, WebM or MOV video.');
     if (file.size > 50 * 1024 * 1024) throw new Error('Video must be under 50MB.');

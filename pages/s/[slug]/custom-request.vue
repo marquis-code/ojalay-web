@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ArrowLeft, CheckCircle2, Send, Sparkles } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, ImagePlus, Loader2, Send, Sparkles, Trash2 } from 'lucide-vue-next';
+import { uploadsApi } from '~/api/factories/uploadsApi';
 import { customRequestsApi } from '~/api/factories/customRequestsApi';
 definePageMeta({ layout: false });
 const route = useRoute();
@@ -17,6 +18,22 @@ const errors = reactive<Record<string, string>>({});
 const submitting = ref(false);
 const created = ref<{ publicToken: string } | null>(null);
 const budgetKobo = computed(() => Math.round(Number(form.budget.replace(/[^0-9.]/g, '')) * 100) || 0);
+const photoInput = ref<HTMLInputElement | null>(null);
+const photos = ref<{ url: string; optimizedUrl: string }[]>([]);
+const uploading = ref(false);
+const uploadError = ref('');
+async function addPhotos(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files || []).slice(0, 3 - photos.value.length);
+  input.value = '';
+  if (!files.length) return;
+  uploading.value = true; uploadError.value = '';
+  try {
+    for (const file of files) photos.value.push(await uploadsApi.uploadPublicRequestImage(file));
+  } catch (err) { uploadError.value = (err as Error).message; }
+  finally { uploading.value = false; }
+}
+function removePhoto(index: number) { photos.value.splice(index, 1); }
 async function submit() {
   Object.keys(errors).forEach((key) => delete errors[key]);
   if (!service.value) errors.service = 'Choose a service first.';
@@ -31,6 +48,7 @@ async function submit() {
       customerEmail: form.email, style: form.style, length: form.length, hairOption: form.hairOption,
       preferredDate: form.date, preferredTime: form.time, budgetKobo: budgetKobo.value, notes: form.notes,
       referenceUrls: [form.ref1, form.ref2].filter((url) => /^https?:\/\//.test(url)),
+      referenceImages: photos.value.map((photo) => photo.url),
     });
     created.value = request;
   } catch (err) { errors.form = (err as Error).message; }
@@ -70,9 +88,25 @@ async function submit() {
             <BaseInput v-model="form.time" label="Preferred time" type="time" />
           </div>
           <BaseTextarea v-model="form.notes" label="Anything else?" placeholder="Colour, density, prep, allergies, preferred finish…" />
+          <div>
+            <p class="mb-2 text-[11px] font-bold text-ink">Reference photos <span class="font-normal text-muted">(up to 3)</span></p>
+            <div class="grid grid-cols-3 gap-2">
+              <div v-for="(photo, i) in photos" :key="photo.url" class="group relative aspect-square overflow-hidden rounded-xl border border-line bg-raised">
+                <img :src="photo.optimizedUrl" alt="Reference" class="h-full w-full object-cover">
+                <button type="button" class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-ink/80 text-white" aria-label="Remove photo" @click="removePhoto(i)"><Trash2 class="h-3.5 w-3.5" /></button>
+              </div>
+              <button v-if="photos.length < 3" type="button" class="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-raised/40 text-muted hover:border-brand-400" :disabled="uploading" @click="photoInput?.click()">
+                <Loader2 v-if="uploading" class="h-5 w-5 animate-spin" /><ImagePlus v-else class="h-5 w-5" />
+                <span class="text-[9px] font-semibold">{{ uploading ? 'Uploading…' : 'Add photo' }}</span>
+              </button>
+            </div>
+            <input ref="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple class="hidden" @change="addPhotos">
+            <p v-if="uploadError" class="mt-1 text-[10px] text-danger">{{ uploadError }}</p>
+            <p class="mt-1 text-[9px] text-muted">Photos help the business quote accurately. JPG, PNG or WebP, 5MB max.</p>
+          </div>
           <div class="grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.ref1" label="Reference link 1" placeholder="Instagram / Pinterest URL" /><BaseInput v-model="form.ref2" label="Reference link 2" placeholder="Optional" /></div>
           <p v-if="errors.form" class="rounded-xl border border-danger/20 bg-danger/5 p-3 text-xs text-danger">{{ errors.form }}</p>
-          <button type="submit" class="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full text-sm font-bold disabled:opacity-50" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" :disabled="submitting"><Send v-if="!submitting" class="h-4 w-4" /> {{ submitting ? 'Sending request…' : 'Send custom request' }}</button>
+          <button type="submit" class="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full text-sm font-bold disabled:opacity-50" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" :disabled="submitting || uploading"><Send v-if="!submitting" class="h-4 w-4" /> {{ submitting ? 'Sending request…' : 'Send custom request' }}</button>
           <p class="text-center text-[10px]" :style="{ color: template.colors.muted }">No payment now. You’ll review the quote before accepting.</p>
         </form>
       </template>

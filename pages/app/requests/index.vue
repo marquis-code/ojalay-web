@@ -14,7 +14,7 @@ const quoteOpen = ref(false);
 const saving = ref(false);
 const message = ref('');
 const sending = ref(false);
-const form = reactive({ service: '', hair: '', addOn: '', duration: 120, deposit: '', date: '', time: '', note: '', expires: 48 });
+const form = reactive({ service: '', hair: '', addOn: '', duration: 120, deposit: '', note: '', expires: 48, slots: [{ date: '', time: '' }, { date: '', time: '' }, { date: '', time: '' }] });
 const totalKobo = computed(() => nairaToKobo(form.service) + nairaToKobo(form.hair) + nairaToKobo(form.addOn));
 function openQuote(request: CustomRequest) {
   selectedId.value = request.id;
@@ -23,8 +23,12 @@ function openQuote(request: CustomRequest) {
   form.addOn = '';
   form.duration = 120;
   form.deposit = String(Math.round((request.budgetKobo * 0.2) / 100) || '');
-  form.date = request.preferredDate || new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-  form.time = request.preferredTime || '10:00';
+  const firstDate = request.preferredDate || new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+  const existingSlots = request.quote?.slots?.length ? request.quote.slots : request.quote?.startAt ? [request.quote.startAt] : [];
+  form.slots = [0, 1, 2].map((index) => {
+    const date = existingSlots[index] ? new Date(existingSlots[index]) : null;
+    return { date: date ? date.toISOString().slice(0, 10) : index === 0 ? firstDate : '', time: date ? date.toTimeString().slice(0, 5) : index === 0 ? (request.preferredTime || '10:00') : '' };
+  });
   form.note = '';
   form.expires = 48;
   quoteOpen.value = true;
@@ -32,8 +36,8 @@ function openQuote(request: CustomRequest) {
 async function sendQuote() {
   if (!selected.value) return;
   if (totalKobo.value <= 0) return toast.error('Add at least a service price.');
-  if (!form.date || !form.time) return toast.error('Choose the appointment date and time.');
-  const startAt = new Date(`${form.date}T${form.time}:00`).toISOString();
+  const slots = form.slots.filter((slot) => slot.date && slot.time).map((slot) => new Date(`${slot.date}T${slot.time}:00`).toISOString());
+  if (!slots.length) return toast.error('Choose at least one appointment date and time.');
   saving.value = true;
   try {
     const itemsPayload = [
@@ -43,7 +47,7 @@ async function sendQuote() {
     ].filter((item) => item.amountKobo > 0);
     await customRequestsApi.quote(selected.value.id, {
       items: itemsPayload, durationMinutes: Number(form.duration) || 120,
-      depositKobo: Math.min(nairaToKobo(form.deposit), totalKobo.value), startAt,
+      depositKobo: Math.min(nairaToKobo(form.deposit), totalKobo.value), slots,
       note: form.note, expiresInHours: Number(form.expires) || 48,
       serviceKobo: nairaToKobo(form.service), hairKobo: nairaToKobo(form.hair), addOnKobo: nairaToKobo(form.addOn),
     });
@@ -56,7 +60,7 @@ async function sendQuote() {
 async function sendMessage() {
   if (!selected.value || !message.value.trim()) return;
   sending.value = true;
-  try { await customRequestsApi.message(selected.value.id, message.value.trim()); message.value = ''; await load(); }
+  try { const updated = await customRequestsApi.message(selected.value.id, message.value.trim()); message.value = ''; await load(); if (updated.lastMessageRedacted) toast.info('Phone numbers and external links are hidden to keep this conversation inside Ojaly.'); }
   catch (error) { toast.error((error as Error).message); }
   finally { sending.value = false; }
 }
@@ -92,8 +96,9 @@ onMounted(load);
           <div class="flex flex-wrap items-start justify-between gap-3"><div><p class="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-600">Request from {{ selected.customerName }}</p><h2 class="mt-1 font-display text-2xl font-bold">{{ selected.style || selected.serviceName }}</h2><p class="mt-1 text-xs text-muted">{{ selected.length || 'Length not specified' }} · hair: {{ selected.hairOption.replace('_', ' ') }}</p></div><div class="flex gap-2"><BaseButton v-if="selected.status !== 'booked'" size="sm" @click="openQuote(selected)"><Check class="h-3.5 w-3.5" /> {{ selected.quote ? 'Update quote' : 'Send quote' }}</BaseButton><a :href="`/request/${selected.publicToken}`" target="_blank" rel="noopener" class="inline-flex min-h-[36px] items-center rounded-lg border border-line px-3 text-[11px] font-bold">Customer view <ArrowUpRight class="h-3 w-3" /></a></div></div>
           <div class="mt-4 grid gap-3 sm:grid-cols-2"><div class="rounded-xl bg-raised/60 p-3"><p class="text-[9px] uppercase tracking-wider text-muted">Contact</p><p class="mt-1 text-xs font-semibold">{{ selected.customerPhone }}</p><p class="text-[10px] text-muted">{{ selected.customerEmail || 'No email' }}</p></div><div class="rounded-xl bg-raised/60 p-3"><p class="text-[9px] uppercase tracking-wider text-muted">Preferred</p><p class="mt-1 text-xs font-semibold">{{ selected.preferredDate || 'Flexible' }} {{ selected.preferredTime }}</p><p class="text-[10px] text-muted">Budget {{ selected.budgetKobo ? formatNaira(selected.budgetKobo) : 'open' }}</p></div></div>
           <p v-if="selected.notes" class="mt-3 rounded-xl border border-line p-3 text-xs leading-relaxed text-muted">{{ selected.notes }}</p>
-          <div v-if="selected.referenceUrls.length" class="mt-2 flex flex-wrap gap-2"><a v-for="(url, i) in selected.referenceUrls" :key="url" :href="url" target="_blank" rel="noopener" class="text-[10px] font-bold text-brand-600 underline">Reference {{ i + 1 }}</a></div>
-          <div v-if="selected.quote" class="mt-4 rounded-2xl border border-success/20 bg-success/5 p-4"><div class="flex items-center justify-between"><p class="text-[10px] font-bold uppercase tracking-wider text-success">Quote sent</p><p class="font-display text-xl font-bold">{{ formatNaira(selected.quote.totalKobo) }}</p></div><div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted"><span>{{ formatDateTime(selected.quote.startAt) }}</span><span>{{ selected.quote.durationMinutes }} min</span><span>Deposit {{ formatNaira(selected.quote.depositKobo) }}</span><span>Expires {{ formatDateTime(selected.quote.expiresAt) }}</span></div></div>
+          <div v-if="selected.referenceImages.length" class="mt-3 grid grid-cols-3 gap-2"><a v-for="image in selected.referenceImages" :key="image" :href="image" target="_blank" rel="noopener" class="aspect-square overflow-hidden rounded-xl border border-line"><img :src="image" alt="Reference" class="h-full w-full object-cover"></a></div>
+          <div v-if="selected.referenceUrls.length" class="mt-2 flex flex-wrap gap-2"><a v-for="(url, i) in selected.referenceUrls" :key="url" :href="url" target="_blank" rel="noopener" class="text-[10px] font-bold text-brand-600 underline">Reference link {{ i + 1 }}</a></div>
+          <div v-if="selected.quote" class="mt-4 rounded-2xl border border-success/20 bg-success/5 p-4"><div class="flex items-center justify-between"><p class="text-[10px] font-bold uppercase tracking-wider text-success">Quote sent</p><p class="font-display text-xl font-bold">{{ formatNaira(selected.quote.totalKobo) }}</p></div><div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted"><span v-for="slot in (selected.quote.slots?.length ? selected.quote.slots : [selected.quote.startAt])" :key="slot">{{ formatDateTime(slot) }}</span><span>{{ selected.quote.durationMinutes }} min</span><span>Deposit {{ formatNaira(selected.quote.depositKobo) }}</span><span>Expires {{ formatDateTime(selected.quote.expiresAt) }}</span></div></div>
           <div class="mt-4 flex flex-wrap gap-2"><BaseButton v-if="selected.status === 'new' || selected.status === 'quoted'" size="sm" variant="outline" @click="openQuote(selected)">Build quote</BaseButton><BaseButton v-if="selected.status !== 'booked' && selected.status !== 'declined'" size="sm" variant="ghost" class="!text-danger" @click="decline(selected)"><X class="h-3.5 w-3.5" /> Decline</BaseButton></div>
         </BaseCard>
 
@@ -109,7 +114,7 @@ onMounted(load);
 
     <BaseModal v-model:open="quoteOpen" :title="`Quote for ${selected?.customerName || 'customer'}`" description="Price the service, hair and extras. The customer accepts and pays the deposit inside Ojaly." size="md">
       <form class="space-y-4" @submit.prevent="sendQuote">
-        <div class="grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.service" label="Service price" prefix="₦" inputmode="decimal" required /><BaseInput v-model="form.hair" label="Hair / sourcing" prefix="₦" inputmode="decimal" /><BaseInput v-model="form.addOn" label="Add-on" prefix="₦" inputmode="decimal" /><BaseInput v-model="form.duration" label="Duration (minutes)" type="number" min="15" required /><BaseInput v-model="form.date" label="Appointment date" type="date" required /><BaseInput v-model="form.time" label="Appointment time" type="time" required /><BaseInput v-model="form.deposit" label="Deposit" prefix="₦" inputmode="decimal" /><BaseInput v-model="form.expires" label="Quote expires (hours)" type="number" min="1" max="168" /></div>
+        <div class="grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.service" label="Service price" prefix="₦" inputmode="decimal" required /><BaseInput v-model="form.hair" label="Hair / sourcing" prefix="₦" inputmode="decimal" /><BaseInput v-model="form.addOn" label="Add-on" prefix="₦" inputmode="decimal" /><BaseInput v-model="form.duration" label="Duration (minutes)" type="number" min="15" required /><div class="sm:col-span-2"><div class="mb-2 flex items-center justify-between"><p class="text-[11px] font-bold">Offer up to 3 appointment times</p><span class="text-[9px] text-muted">Customer picks one</span></div><div class="space-y-2"><div v-for="(slot, i) in form.slots" :key="i" class="grid grid-cols-[1fr_110px] gap-2"><input v-model="slot.date" type="date" class="min-h-[42px] rounded-xl border border-line bg-surface px-3 text-xs"><input v-model="slot.time" type="time" class="min-h-[42px] rounded-xl border border-line bg-surface px-3 text-xs"></div></div></div><BaseInput v-model="form.deposit" label="Deposit" prefix="₦" inputmode="decimal" /><BaseInput v-model="form.expires" label="Quote expires (hours)" type="number" min="1" max="168" /></div>
         <BaseTextarea v-model="form.note" label="Note to customer" placeholder="Hair arrives Friday. Bring your own hair for ₦X less." />
         <div class="flex items-center justify-between rounded-xl bg-raised/60 p-3"><span class="text-xs font-semibold text-muted">Quote total</span><span class="font-display text-2xl font-bold">{{ formatNaira(totalKobo) }}</span></div>
         <div class="flex justify-end gap-2"><BaseButton type="button" variant="ghost" @click="quoteOpen = false">Cancel</BaseButton><BaseButton type="submit" :loading="saving"><Check class="h-4 w-4" /> Send quote</BaseButton></div>

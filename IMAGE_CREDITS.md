@@ -9,5 +9,10 @@ Marketing photography is sourced from [Unsplash](https://unsplash.com) under the
 | `website-founder.webp` | [Unsplash photo 1573497019418](https://images.unsplash.com/photo-1573497019418-b400bb3ab074) |
 | `food-founder.webp` | [Unsplash photo 1613187868376](https://images.unsplash.com/photo-1613187868376-4e0c2e7048b7) |
 | `baker.webp` | [Unsplash photo 1610896016272](https://images.unsplash.com/photo-1610896016272-fbebe83f5215) |
+| `campus-food.jpg` | Campus street food vendor and student customer at UNILAG, Lagos |
+| `campus-braids.jpg` | Student hair braider styling knotless braids in campus hostel, Lagos |
+| `campus-pancakes.jpg` | "Perfect Pancakes" student treat entrepreneur at CMUL, Lagos |
+| `campus-barber.jpg` | Student hostel barber giving a fresh fade at UNILAG New Hall, Lagos |
+| `campus-drinks.jpg` | "Joy Giver Drinks" student mixologist pouring signature iced drink, Lagos |
 
 If Ojaly replaces these with commissioned photography, update this file at the same time.

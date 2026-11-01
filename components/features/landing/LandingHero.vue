@@ -3,10 +3,11 @@ import { ArrowRight, BadgeCheck, CalendarCheck, Check, ChevronLeft, ChevronRight
 
 const auth = useAuthStore();
 const cards = [
-  { image: '/images/business/barber.webp', alt: 'A Nigerian barber at work', business: 'Kola Cuts', area: 'Yaba · Lagos', category: 'Barbering', service: 'Fresh fade', price: '₦4,000', rating: '4.9', position: 'center 32%' },
-  { image: '/images/business/baker.webp', alt: 'A Nigerian baker packing food', business: 'Mama T Kitchen', area: 'Surulere · Lagos', category: 'Food', service: 'Small chops tray', price: '₦18,000', rating: '4.8', position: 'center 40%' },
-  { image: '/images/business/website-founder.webp', alt: 'A Nigerian designer working on a laptop', business: 'Studio 23', area: 'Lagos', category: 'Design', service: 'Brand identity', price: '₦85,000', rating: '5.0', position: 'center 35%' },
-  { image: '/images/business/market-trader.webp', alt: 'A Nigerian trader at a market stall', business: 'Tola Thrift', area: 'Lagos', category: 'Thrift', service: 'Weekend drop', price: '₦12,000', rating: '4.7', position: 'center 42%' },
+  { image: '/images/business/campus-food.jpg', alt: 'A student street food vendor serving an order to a student at UNILAG', business: 'Campus Wok & Bites', area: 'UNILAG · Akoka', category: 'Campus Food', service: 'Stir-fry noodles & turkey', price: '₦3,200', rating: '4.9', position: 'center 22%' },
+  { image: '/images/business/campus-braids.jpg', alt: 'A student hair braider styling knotless braids in a UNILAG hostel room', business: 'Crown Braids by Titi', area: 'UNILAG · Moremi Hall', category: 'Hair & Braids', service: 'Medium knotless braids', price: '₦12,000', rating: '5.0', position: 'center 25%' },
+  { image: '/images/business/campus-pancakes.jpg', alt: 'A student baker preparing fresh mini pancakes at CMUL campus', business: 'Perfect Pancakes', area: 'CMUL · Idi-Araba', category: 'Treats & Bakery', service: 'Mini pancake cup (12 pcs)', price: '₦2,500', rating: '4.9', position: 'center 40%' },
+  { image: '/images/business/campus-barber.jpg', alt: 'A student barber giving a fresh fade in a UNILAG hostel room', business: 'Kola Cuts · UNILAG', area: 'UNILAG · New Hall', category: 'Barbering', service: 'Fresh campus fade', price: '₦2,500', rating: '4.9', position: 'center 25%' },
+  { image: '/images/business/campus-drinks.jpg', alt: 'A student mixologist pouring a signature iced fruit drink', business: 'Joy Giver Drinks', area: 'Yaba · Campus Area', category: 'Drinks & Refreshers', service: 'Signature iced berry chill', price: '₦1,800', rating: '5.0', position: 'center 30%' },
 ];
 const active = ref(0);
 let timer: ReturnType<typeof setInterval> | null = null;

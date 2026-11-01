@@ -9,7 +9,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 });
 useHead({
-  link: [{ rel: 'canonical', href: 'https://ojaly.org' }, { rel: 'preload', as: 'image', href: '/images/business/market-trader.webp', fetchpriority: 'high' }],
+  link: [{ rel: 'canonical', href: 'https://ojaly.org' }, { rel: 'preload', as: 'image', href: '/images/business/campus-food.jpg', fetchpriority: 'high' }],
   script: [{
     type: 'application/ld+json',
     innerHTML: JSON.stringify({

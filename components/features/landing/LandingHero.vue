@@ -3,11 +3,7 @@ import { ArrowRight, BadgeCheck, CalendarCheck, Check, ChevronLeft, ChevronRight
 
 const auth = useAuthStore();
 const cards = [
-  { image: '/images/business/campus-food.jpg', alt: 'A student street food vendor serving an order to a student at UNILAG', business: 'Campus Wok & Bites', area: 'UNILAG · Akoka', category: 'Campus Food', service: 'Stir-fry noodles & turkey', price: '₦3,200', rating: '4.9', position: 'center 22%' },
-  { image: '/images/business/campus-braids.jpg', alt: 'A student hair braider styling knotless braids in a UNILAG hostel room', business: 'Crown Braids by Titi', area: 'UNILAG · Moremi Hall', category: 'Hair & Braids', service: 'Medium knotless braids', price: '₦12,000', rating: '5.0', position: 'center 25%' },
-  { image: '/images/business/campus-pancakes.jpg', alt: 'A student baker preparing fresh mini pancakes at CMUL campus', business: 'Perfect Pancakes', area: 'CMUL · Idi-Araba', category: 'Treats & Bakery', service: 'Mini pancake cup (12 pcs)', price: '₦2,500', rating: '4.9', position: 'center 40%' },
-  { image: '/images/business/campus-barber.jpg', alt: 'A student barber giving a fresh fade in a UNILAG hostel room', business: 'Kola Cuts · UNILAG', area: 'UNILAG · New Hall', category: 'Barbering', service: 'Fresh campus fade', price: '₦2,500', rating: '4.9', position: 'center 25%' },
-  { image: '/images/business/campus-drinks.jpg', alt: 'A student mixologist pouring a signature iced fruit drink', business: 'Joy Giver Drinks', area: 'Yaba · Campus Area', category: 'Drinks & Refreshers', service: 'Signature iced berry chill', price: '₦1,800', rating: '5.0', position: 'center 30%' },
+  { image: '/images/business/just-steam-it-logo.jpg', alt: 'Just Steam It bedbug steam treatment business in Lagos', business: 'Just Steam It', area: 'UNILAG · Lagos', category: 'Home & Pest Care', service: 'Bedbug steam treatment', price: 'from ₦5,000', rating: '5.0', position: 'center' },
 ];
 const active = ref(0);
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -17,7 +13,7 @@ function go(index: number) { active.value = (index + cards.length) % cards.lengt
 function next() { go(active.value + 1); }
 function previous() { go(active.value - 1); }
 onMounted(() => {
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  if (cards.length < 2 || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
   timer = setInterval(() => { if (!paused.value) next(); }, 4600);
 });
 onBeforeUnmount(() => { if (timer) clearInterval(timer); });
@@ -47,7 +43,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         <div class="mt-7 flex max-w-xl items-center gap-3 rounded-2xl border border-line bg-white p-2.5 text-forest-900 shadow-sm">
           <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-raised"><Transition name="hero-thumb" mode="out-in"><img :key="current.image" :src="current.image" :alt="current.alt" class="h-full w-full object-cover" :style="{ objectPosition: current.position }"></Transition></div>
           <div class="min-w-0 flex-1"><p class="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-600">Now on Ojaly</p><Transition name="hero-text" mode="out-in"><div :key="current.business"><p class="truncate text-xs font-bold">{{ current.business }} · {{ current.category }}</p><p class="truncate text-[10px] text-forest-900/60">{{ current.service }} · {{ current.price }} · {{ current.area }}</p></div></Transition></div>
-          <div class="flex items-center gap-1"><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Previous featured business" @click="previous"><ChevronLeft class="h-3.5 w-3.5" /></button><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Next featured business" @click="next"><ChevronRight class="h-3.5 w-3.5" /></button></div>
+          <div v-if="cards.length > 1" class="flex items-center gap-1"><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Previous featured business" @click="previous"><ChevronLeft class="h-3.5 w-3.5" /></button><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Next featured business" @click="next"><ChevronRight class="h-3.5 w-3.5" /></button></div>
         </div>
         <p class="mt-4 max-w-xl text-[11px] leading-relaxed text-muted">Ojaly is for trusted local service businesses — campus or not. Every booking becomes a customer, deposit, receipt and review.</p>
       </div>
@@ -56,8 +52,8 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         <div class="absolute -inset-2 rotate-2 rounded-[2.2rem] border-2 border-ink bg-brand-500" />
         <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] border-2 border-ink bg-surface shadow-[8px_8px_0_0_#06231A]">
           <div v-for="(card, index) in cards" :key="card.image" class="hero-card absolute inset-0 transition-all duration-700 ease-[cubic-bezier(.2,.8,.2,1)] [backface-visibility:hidden]" :class="{ 'hero-card-active': index === active }" :style="{ opacity: index === active ? 1 : index === (active + 1) % cards.length ? 0.45 : 0, transform: index === active ? 'rotateY(0deg) scale(1)' : index === (active + 1) % cards.length ? 'rotateY(10deg) scale(.96) translateX(18px)' : 'rotateY(-18deg) scale(.9) translateX(-22px)', zIndex: index === active ? 3 : index === (active + 1) % cards.length ? 2 : 1 }">
-            <img :src="card.image" :alt="card.alt" class="h-full w-full object-cover" :style="{ objectPosition: card.position }">
-            <div class="absolute inset-0 bg-gradient-to-t from-forest-900/65 via-transparent to-transparent" />
+            <img :src="card.image" :alt="card.alt" class="h-full w-full bg-white object-contain p-6" :style="{ objectPosition: card.position }">
+            <div class="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-forest-900/55 via-transparent to-transparent" />
             <div class="absolute left-3 top-3 flex gap-1.5"><span class="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Verified</span><span class="inline-flex items-center gap-1 rounded-full bg-forest-900/70 px-2.5 py-1 text-[9px] font-bold text-white"><Star class="h-3 w-3 fill-brand-300 text-brand-300" /> {{ card.rating }}</span></div>
             <div class="absolute inset-x-3 bottom-3 rounded-xl bg-white p-3 text-forest-900 shadow-lg">
               <div class="flex items-center justify-between gap-2"><div class="min-w-0"><p class="truncate text-xs font-bold text-forest-900">{{ card.business }}</p><p class="truncate text-[9px] text-forest-900/60">{{ card.category }} · {{ card.area }}</p></div><p class="shrink-0 text-[10px] font-bold text-brand-600">{{ card.price }}</p></div>
@@ -66,7 +62,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
             </div>
           </div>
         </div>
-        <div class="absolute -bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 rounded-full border border-line bg-surface px-2 py-1.5 shadow-sm"><button v-for="(card, index) in cards" :key="card.business" type="button" class="h-1.5 rounded-full transition-all" :class="index === active ? 'w-5 bg-brand-500' : 'w-1.5 bg-line'" :aria-label="`Show ${card.business}`" @click="go(index)" /></div>
+        <div v-if="cards.length > 1" class="absolute -bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 rounded-full border border-line bg-surface px-2 py-1.5 shadow-sm"><button v-for="(card, index) in cards" :key="card.business" type="button" class="h-1.5 rounded-full transition-all" :class="index === active ? 'w-5 bg-brand-500' : 'w-1.5 bg-line'" :aria-label="`Show ${card.business}`" @click="go(index)" /></div>
       </div>
     </div>
     <div class="border-t border-line bg-forest-900 py-2.5 text-white"><div class="flex w-max gap-8 text-[10px] font-bold uppercase tracking-[0.18em] text-white/60"><span v-for="i in 2" :key="i" class="flex gap-8"><span>Verified local providers</span><span>·</span><span>Book &amp; pay in one flow</span><span>·</span><span>Deposits</span><span>·</span><span>Receipts</span><span>·</span><span>Reviews</span><span>·</span><span>Rebook</span><span>·</span><span>Lagos</span><span>·</span></span></div></div>

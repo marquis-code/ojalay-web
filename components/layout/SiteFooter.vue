@@ -34,8 +34,8 @@ const year = new Date().getFullYear();
       </div>
       <div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#7C9989] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p>© 2026 ERRANDERS COMPANY LIMITED. All rights reserved.</p>
-          <p class="mt-1 text-[11px] text-[#A8C0B4]">Erranders is owned and operated by ERRANDERS COMPANY LIMITED.</p>
+          <p>© 2026 Erranders Company Limited. All rights reserved.</p>
+          <p class="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] text-[#A8C0B4]">Ojaly is a product of Erranders Company Limited.</p>
         </div>
         <p>Naira first. WhatsApp native. Trusted local providers.</p>
       </div>

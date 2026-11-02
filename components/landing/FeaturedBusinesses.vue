@@ -5,7 +5,7 @@ import { formatNaira } from '~/utils/money';
 import type { DemoBusiness } from '~/types';
 const items = ref<DemoBusiness[]>([]);
 onMounted(async () => {
-  try { items.value = await publicApi.demoBusinesses(); } catch { items.value = []; }
+  try { items.value = await publicApi.featuredBusinesses(); } catch { items.value = []; }
 });
 </script>
 
@@ -14,9 +14,9 @@ onMounted(async () => {
     <div class="shell">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p class="eyebrow">Live demo storefronts</p>
-          <h2 class="mt-2 font-display text-3xl font-bold tracking-[-0.04em] sm:text-4xl">See both sides of Ojaly.</h2>
-          <p class="mt-2 max-w-xl text-sm leading-relaxed text-muted">Real seeded businesses. Shop a product storefront or book a service, then log in as the owner to see the other side.</p>
+          <p class="eyebrow">Verified on Ojaly</p>
+          <h2 class="mt-2 font-display text-3xl font-bold tracking-[-0.04em] sm:text-4xl">A real local business.</h2>
+          <p class="mt-2 max-w-xl text-sm leading-relaxed text-muted">Verified providers you can book right now — real services, real availability and a real record behind every appointment.</p>
         </div>
         <NuxtLink to="/marketplace" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600">Explore the marketplace <ArrowRight class="h-3.5 w-3.5" /></NuxtLink>
       </div>
@@ -25,7 +25,7 @@ onMounted(async () => {
           <div class="relative h-32 overflow-hidden bg-forest-900">
             <img v-if="business.bannerUrl || business.logoUrl" :src="business.bannerUrl || business.logoUrl || ''" :alt="business.name" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105">
             <div v-else class="flex h-full items-center justify-center"><Store class="h-8 w-8 text-white/25" /></div>
-            <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Demo</span>
+            <span class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Verified</span>
             <span class="absolute right-3 top-3 rounded-full bg-forest-900/80 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white">{{ business.mode === 'services' ? 'Services' : 'Products' }}</span>
           </div>
           <div class="p-4">

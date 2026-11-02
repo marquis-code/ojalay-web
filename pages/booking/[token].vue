@@ -65,7 +65,7 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
           <div v-if="notice" class="rounded-2xl bg-success/10 p-3 text-xs font-semibold text-success">{{ notice }}</div>
           <div v-if="actionError" class="rounded-2xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ actionError }}</div>
           <div v-if="booking.paymentStatus !== 'paid' && booking.status !== 'cancelled'" class="rounded-2xl bg-warning/10 p-4">
-            <p class="flex items-center gap-2 text-xs font-bold text-warning"><ShieldCheck class="h-4 w-4" /> {{ booking.amountPaidKobo ? 'Balance due' : booking.depositKobo ? 'Deposit due' : 'Payment due' }}</p>
+            <p class="flex items-center gap-2 text-xs font-bold text-warning"><ShieldCheck class="h-4 w-4" /> {{ booking.amountPaidKobo ? 'Balance due' : booking.depositKobo && booking.depositKobo < booking.priceKobo ? 'Commitment fee due' : 'Full payment due' }}</p>
             <p class="mt-1 text-xs text-muted">{{ formatNaira(booking.amountPaidKobo) }} paid of {{ formatNaira(booking.priceKobo) }}</p>
             <BaseButton class="mt-3" size="sm" :loading="busy" @click="doPay">Pay securely</BaseButton>
           </div>

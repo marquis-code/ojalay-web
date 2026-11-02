@@ -28,7 +28,9 @@ const serviceCharge = computed(() => {
   return Math.round((subtotal.value * Math.max(0, props.business.serviceChargePercent || 0)) / 100);
 });
 const total = computed(() => subtotal.value + serviceCharge.value);
+const collectFull = computed(() => props.business.bookingSettings?.paymentCollection === 'full');
 const deposit = computed(() => {
+  if (collectFull.value) return total.value;
   if (!props.service.requiresDeposit) return 0;
   const base = props.service.depositKobo || Math.round(subtotal.value * ((props.business.bookingSettings?.depositPercent || 0) / 100));
   return base > 0 ? base + serviceCharge.value : 0;
@@ -136,9 +138,9 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <BaseTextarea v-model="notes" label="Anything we should know?" placeholder="Allergies, preferences, parking…" />
           <BaseInput v-model="packageCode" label="Package code (optional)" placeholder="Enter your prepaid code" />
           <div class="space-y-1.5 border-t pt-3 text-xs" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }"><div class="flex items-center justify-between" :style="{ color: template.colors.muted }"><span>Subtotal</span><span>{{ formatNaira(subtotal) }}</span></div><div v-if="serviceCharge" class="flex items-center justify-between" :style="{ color: template.colors.muted }"><span>Service charge</span><span>{{ formatNaira(serviceCharge) }}</span></div><div class="flex items-center justify-between pt-1 text-sm font-semibold" :style="{ color: template.colors.ink }"><span>Total</span><span class="font-display text-xl font-bold">{{ formatNaira(total) }}</span></div></div>
-          <div v-if="deposit" class="flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs text-warning"><span class="inline-flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> Deposit to secure</span><span class="font-bold">{{ formatNaira(deposit) }}</span></div>
+          <div v-if="deposit" class="flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs text-warning"><span class="inline-flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> {{ collectFull ? 'Full payment at booking' : 'Commitment fee to secure' }}</span><span class="font-bold">{{ formatNaira(deposit) }}</span></div>
           <p v-if="error" class="rounded-xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ error }}</p>
-          <BaseButton type="submit" block size="lg" :loading="submitting">{{ deposit ? `Pay ${formatNaira(deposit)} deposit` : 'Confirm booking' }} <ArrowRight class="h-4 w-4" /></BaseButton>
+          <BaseButton type="submit" block size="lg" :loading="submitting">{{ deposit ? `Pay ${formatNaira(deposit)} ${collectFull ? 'now' : 'deposit'}` : 'Confirm booking' }} <ArrowRight class="h-4 w-4" /></BaseButton>
           <p class="text-center text-[10px]" :style="{ color: template.colors.muted }">You’ll get a confirmation and can change the appointment from your booking page.</p>
         </form>
       </div>

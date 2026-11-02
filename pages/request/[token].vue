@@ -30,7 +30,7 @@ const serviceCharge = computed(() => {
   return Math.round((quote.totalKobo * Math.max(0, business.serviceChargePercent || 0)) / 100);
 });
 const payableTotal = computed(() => (request.value?.quote?.totalKobo || 0) + serviceCharge.value);
-const payableDeposit = computed(() => (request.value?.quote?.depositKobo || 0) + serviceCharge.value);
+const payableDeposit = computed(() => request.value?.business?.bookingSettings?.paymentCollection === 'full' ? payableTotal.value : (request.value?.quote?.depositKobo || 0) + serviceCharge.value);
 const canAccept = computed(() => request.value?.status === 'quoted' && Boolean(request.value.quote) && Boolean(selectedSlot.value));
 async function sendMessage() {
   if (!message.value.trim()) return;

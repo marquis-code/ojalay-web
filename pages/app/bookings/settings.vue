@@ -15,7 +15,7 @@ const mode = ref<'products' | 'services' | 'hybrid'>('products');
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const form = reactive<BookingSettings>({
   enabled: false, autoConfirm: true, leadTimeMinutes: 120, windowDays: 60, slotIntervalMinutes: 30,
-  cancellationWindowHours: 24, depositPercent: 0, reminderHoursBefore: 24,
+  cancellationWindowHours: 24, depositPercent: 0, paymentCollection: 'deposit', reminderHoursBefore: 24,
   weeklyHours: Array.from({ length: 7 }, (_, day) => ({ day, isOpen: day !== 0, start: '09:00', end: '18:00' })),
   closedDates: [], policy: 'Please arrive 5 minutes early. Cancellations within 24 hours may lose the deposit.',
 });
@@ -83,6 +83,18 @@ onMounted(async () => {
         <BaseInput v-model="form.reminderHoursBefore" label="Reminder (hours before)" type="number" min="0" />
       </div>
       <label class="flex items-center gap-2 text-sm font-semibold"><input v-model="form.autoConfirm" type="checkbox" class="h-4 w-4"> Automatically confirm bookings without a deposit</label>
+      <div class="border-t border-line pt-4">
+        <p class="text-sm font-bold">What should customers pay when they book?</p>
+        <p class="mt-1 text-xs text-muted">This controls the checkout flow for every service booked with this business.</p>
+        <div class="mt-3 grid gap-2 sm:grid-cols-2">
+          <button type="button" class="rounded-2xl border p-4 text-left" :class="form.paymentCollection === 'deposit' ? 'border-brand-500 bg-brand-50/60' : 'border-line'" @click="form.paymentCollection = 'deposit'">
+            <p class="text-sm font-bold">Commitment fee at booking</p><p class="mt-1 text-[11px] leading-relaxed text-muted">Collect the service deposit or deposit percentage now, and the balance after the appointment.</p>
+          </button>
+          <button type="button" class="rounded-2xl border p-4 text-left" :class="form.paymentCollection === 'full' ? 'border-brand-500 bg-brand-50/60' : 'border-line'" @click="form.paymentCollection = 'full'">
+            <p class="text-sm font-bold">Full booking amount</p><p class="mt-1 text-[11px] leading-relaxed text-muted">Collect the complete service subtotal plus the customer service charge at checkout.</p>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card p-5">

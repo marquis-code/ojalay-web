@@ -229,6 +229,7 @@ export interface BookingSettings {
   slotIntervalMinutes: number;
   cancellationWindowHours: number;
   depositPercent: number;
+  paymentCollection: 'deposit' | 'full';
   reminderHoursBefore: number;
   weeklyHours: WeeklyHours[];
   closedDates: string[];
@@ -329,6 +330,8 @@ export interface Booking {
   subtotalKobo?: number;
   serviceChargeKobo?: number;
   serviceChargePercent?: number;
+  providerFeeKobo?: number;
+  providerNetKobo?: number;
   priceKobo: number;
   depositKobo: number;
   amountPaidKobo: number;
@@ -497,7 +500,7 @@ export interface CustomRequest {
   preferredDate: string; preferredTime: string; budgetKobo: number; notes: string;
   referenceUrls: string[]; referenceImages: string[]; status: 'new' | 'quoted' | 'accepted' | 'booked' | 'declined' | 'expired';
   quote?: CustomRequestQuote | null; messages: CustomRequestMessage[]; lastMessageRedacted?: boolean; bookingId?: string | null; bookingPublicToken?: string | null; createdAt?: string;
-  business?: { name: string; slug: string; logoUrl?: string | null; bannerUrl?: string | null; tagline: string; address: string; whatsappNumber?: string | null; serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number } | null;
+  business?: { name: string; slug: string; logoUrl?: string | null; bannerUrl?: string | null; tagline: string; address: string; whatsappNumber?: string | null; serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number; bookingSettings?: BookingSettings | null } | null;
 }
 export interface CustomRequestPayload {
   serviceId: string; customerName: string; customerPhone: string; customerEmail?: string;

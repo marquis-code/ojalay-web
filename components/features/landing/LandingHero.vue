@@ -26,17 +26,17 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
 <template>
   <section class="relative overflow-hidden border-b border-line bg-canvas">
     <div class="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-200/50 blur-3xl" />
-    <div class="shell relative grid gap-10 py-12 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-20">
-      <div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-600"><span class="h-1.5 w-1.5 rounded-full bg-brand-500" /> Lagos · local service businesses</span>
+    <div class="shell relative grid grid-cols-1 gap-10 py-12 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-20">
+      <div class="min-w-0">
+        <div class="flex max-w-full flex-wrap items-center gap-2">
+          <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-600 sm:tracking-[0.16em]"><span class="h-1.5 w-1.5 rounded-full bg-brand-500" /> Lagos · local service businesses</span>
           <span class="inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1.5 text-[10px] font-bold text-white"><BadgeCheck class="h-3 w-3" /> Verified providers</span>
         </div>
         <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.9rem,7vw,5.8rem)] font-bold leading-[0.91] tracking-[-0.06em] text-ink">The trusted way to book local services.</h1>
         <p class="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">Discover verified hair, food, nails, printing, laundry, design and repair businesses across Lagos — book a real time and pay securely. No DMs. No transfer screenshots. No guessing.</p>
-        <div class="mt-7 flex flex-col gap-2 sm:flex-row">
-          <BaseButton to="/marketplace" size="lg">Browse the marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
-          <BaseButton :to="auth.isAuthenticated ? '/app' : '/register'" variant="secondary" size="lg">{{ auth.isAuthenticated ? 'Open dashboard' : 'List your service free' }}</BaseButton>
+        <div class="mt-7 flex w-full flex-col gap-2 sm:flex-row">
+          <BaseButton to="/marketplace" size="lg" class="w-full sm:w-auto">Browse the marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
+          <BaseButton :to="auth.isAuthenticated ? '/app' : '/register'" variant="secondary" size="lg" class="w-full sm:w-auto">{{ auth.isAuthenticated ? 'Open dashboard' : 'List your service free' }}</BaseButton>
         </div>
         <div class="mt-6 grid max-w-xl grid-cols-2 gap-2 text-[11px] font-semibold text-muted sm:grid-cols-4">
           <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Verified providers</span>
@@ -52,7 +52,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         <p class="mt-4 max-w-xl text-[11px] leading-relaxed text-muted">Ojaly is for trusted local service businesses — campus or not. Every booking becomes a customer, deposit, receipt and review.</p>
       </div>
 
-      <div class="relative mx-auto w-full max-w-md [perspective:1200px] lg:max-w-none" @mouseenter="paused = true" @mouseleave="paused = false">
+      <div class="relative mx-auto w-full min-w-0 max-w-md [perspective:1200px] lg:max-w-none" @mouseenter="paused = true" @mouseleave="paused = false">
         <div class="absolute -inset-2 rotate-2 rounded-[2.2rem] border-2 border-ink bg-brand-500" />
         <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] border-2 border-ink bg-surface shadow-[8px_8px_0_0_#06231A]">
           <div v-for="(card, index) in cards" :key="card.image" class="hero-card absolute inset-0 transition-all duration-700 ease-[cubic-bezier(.2,.8,.2,1)] [backface-visibility:hidden]" :class="{ 'hero-card-active': index === active }" :style="{ opacity: index === active ? 1 : index === (active + 1) % cards.length ? 0.45 : 0, transform: index === active ? 'rotateY(0deg) scale(1)' : index === (active + 1) % cards.length ? 'rotateY(10deg) scale(.96) translateX(18px)' : 'rotateY(-18deg) scale(.9) translateX(-22px)', zIndex: index === active ? 3 : index === (active + 1) % cards.length ? 2 : 1 }">

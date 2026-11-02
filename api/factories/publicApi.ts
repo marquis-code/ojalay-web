@@ -67,6 +67,7 @@ class PublicApi extends BaseApi {
   payInvoice(token: string, email?: string): Promise<{ reference: string; authorizationUrl: string; amountKobo: number }> {
     return this.request('post', `public/payments/invoice/${token}`, { email });
   }
+  lookupBooking(customerPhone: string, bookingNumber: string): Promise<Array<{ bookingNumber: string; publicToken: string; serviceName: string; startAt: string; status: string; paymentStatus: string; businessName: string; businessSlug: string; timezone: string }>> { return this.request('post', 'public/bookings/lookup', { customerPhone, bookingNumber }); }
   verifyPayment(reference: string): Promise<{ status: string; payment: Record<string, unknown> }> {
     return this.request('get', `payments/verify/${reference}`);
   }

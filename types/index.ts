@@ -126,6 +126,7 @@ export interface StorefrontBusiness {
   email?: string | null; address: string; about: string; seoTitle: string; seoDescription: string; currency: string;
   businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null;
   campusCode?: string | null; campusName?: string | null; campusVerified?: boolean;
+  serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number;
 }
 export interface StorefrontProductVariant { id: string; name: string; attributes: Record<string, string>; priceKobo: number; imageUrl?: string | null; inStock: boolean; lowStock: boolean; }
 export interface StorefrontProduct {
@@ -325,6 +326,9 @@ export interface Booking {
   status: BookingStatus;
   source: string;
   notes: string;
+  subtotalKobo?: number;
+  serviceChargeKobo?: number;
+  serviceChargePercent?: number;
   priceKobo: number;
   depositKobo: number;
   amountPaidKobo: number;
@@ -493,7 +497,7 @@ export interface CustomRequest {
   preferredDate: string; preferredTime: string; budgetKobo: number; notes: string;
   referenceUrls: string[]; referenceImages: string[]; status: 'new' | 'quoted' | 'accepted' | 'booked' | 'declined' | 'expired';
   quote?: CustomRequestQuote | null; messages: CustomRequestMessage[]; lastMessageRedacted?: boolean; bookingId?: string | null; bookingPublicToken?: string | null; createdAt?: string;
-  business?: { name: string; slug: string; logoUrl?: string | null; bannerUrl?: string | null; tagline: string; address: string; whatsappNumber?: string | null } | null;
+  business?: { name: string; slug: string; logoUrl?: string | null; bannerUrl?: string | null; tagline: string; address: string; whatsappNumber?: string | null; serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number } | null;
 }
 export interface CustomRequestPayload {
   serviceId: string; customerName: string; customerPhone: string; customerEmail?: string;

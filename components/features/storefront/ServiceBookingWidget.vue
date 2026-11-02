@@ -21,10 +21,17 @@ const waitlistEmail = ref('');
 const packageCode = ref('');
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...props.providers.map((p) => ({ value: p.id, label: p.name }))]);
 const addOns = computed(() => props.service.addOns.filter((a) => addOnNames.value.includes(a.name)));
-const total = computed(() => props.service.priceKobo + addOns.value.reduce((sum, a) => sum + a.priceKobo, 0));
+const subtotal = computed(() => props.service.priceKobo + addOns.value.reduce((sum, a) => sum + a.priceKobo, 0));
+const serviceCharge = computed(() => {
+  if (!props.business.serviceChargeEnabled) return 0;
+  if (props.business.serviceChargeType === 'fixed') return Math.max(0, props.business.serviceChargeFixedKobo || 0);
+  return Math.round((subtotal.value * Math.max(0, props.business.serviceChargePercent || 0)) / 100);
+});
+const total = computed(() => subtotal.value + serviceCharge.value);
 const deposit = computed(() => {
   if (!props.service.requiresDeposit) return 0;
-  return props.service.depositKobo || Math.round(total.value * ((props.business.bookingSettings?.depositPercent || 0) / 100));
+  const base = props.service.depositKobo || Math.round(subtotal.value * ((props.business.bookingSettings?.depositPercent || 0) / 100));
+  return base > 0 ? base + serviceCharge.value : 0;
 });
 const eligibleProviders = computed(() => props.providers.filter((p) => !props.service.providerIds.length || props.service.providerIds.includes(p.id)));
 const nextDays = computed(() => Array.from({ length: 7 }, (_, i) => {
@@ -128,7 +135,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <BaseInput v-model="customerEmail" label="Email" type="email" placeholder="For your confirmation" />
           <BaseTextarea v-model="notes" label="Anything we should know?" placeholder="Allergies, preferences, parking…" />
           <BaseInput v-model="packageCode" label="Package code (optional)" placeholder="Enter your prepaid code" />
-          <div class="flex items-center justify-between border-t pt-3 text-sm" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }"><span>Total</span><span class="font-display text-xl font-bold">{{ formatNaira(total) }}</span></div>
+          <div class="space-y-1.5 border-t pt-3 text-xs" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }"><div class="flex items-center justify-between" :style="{ color: template.colors.muted }"><span>Subtotal</span><span>{{ formatNaira(subtotal) }}</span></div><div v-if="serviceCharge" class="flex items-center justify-between" :style="{ color: template.colors.muted }"><span>Service charge</span><span>{{ formatNaira(serviceCharge) }}</span></div><div class="flex items-center justify-between pt-1 text-sm font-semibold" :style="{ color: template.colors.ink }"><span>Total</span><span class="font-display text-xl font-bold">{{ formatNaira(total) }}</span></div></div>
           <div v-if="deposit" class="flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs text-warning"><span class="inline-flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> Deposit to secure</span><span class="font-bold">{{ formatNaira(deposit) }}</span></div>
           <p v-if="error" class="rounded-xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ error }}</p>
           <BaseButton type="submit" block size="lg" :loading="submitting">{{ deposit ? `Pay ${formatNaira(deposit)} deposit` : 'Confirm booking' }} <ArrowRight class="h-4 w-4" /></BaseButton>

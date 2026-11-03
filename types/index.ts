@@ -291,6 +291,17 @@ export interface Provider {
   isActive: boolean;
   sortOrder: number;
   upcomingBookings?: number;
+  completedBookings?: number;
+  assignedBookings?: number;
+  completionRate?: number;
+  salaryEnabled?: boolean;
+  monthlySalaryKobo?: number;
+  salaryStartDate?: string | null;
+  bankName?: string | null;
+  bankCode?: string | null;
+  accountName?: string | null;
+  bankAccountLast4?: string | null;
+  hasBankDetails?: boolean;
 }
 export interface PublicProvider {
   id: string; name: string; title: string; bio: string; avatarUrl?: string | null; color: string;
@@ -506,4 +517,16 @@ export interface CustomRequestPayload {
   serviceId: string; customerName: string; customerPhone: string; customerEmail?: string;
   style?: string; length?: string; hairOption?: 'vendor' | 'client' | 'not_sure';
   preferredDate?: string; preferredTime?: string; budgetKobo?: number; notes?: string; referenceUrls?: string[];
+}
+
+export type PayrollStatus = 'draft' | 'approved' | 'processing' | 'paid' | 'partially_paid' | 'cancelled';
+export interface PayrollItem {
+  providerId: string; providerName: string; monthlySalaryKobo: number; completedJobs: number;
+  assignedJobs: number; completionRate: number; adjustmentKobo: number; deductionKobo: number;
+  note: string; netKobo: number; status: 'pending' | 'processing' | 'paid' | 'failed';
+  transferReference?: string | null; transferCode?: string | null; paidAt?: string | null; failureReason?: string | null;
+}
+export interface PayrollRun {
+  id: string; period: string; status: PayrollStatus; items: PayrollItem[]; totalKobo: number;
+  createdBy?: string | null; approvedBy?: string | null; approvedAt?: string | null; paidAt?: string | null; createdAt?: string;
 }

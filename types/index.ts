@@ -295,6 +295,8 @@ export interface Provider {
   assignedBookings?: number;
   completionRate?: number;
   salaryEnabled?: boolean;
+  payFrequency?: 'daily' | 'weekly' | 'monthly' | 'per_service';
+  payRateKobo?: number;
   monthlySalaryKobo?: number;
   salaryStartDate?: string | null;
   bankName?: string | null;
@@ -521,12 +523,12 @@ export interface CustomRequestPayload {
 
 export type PayrollStatus = 'draft' | 'approved' | 'processing' | 'paid' | 'partially_paid' | 'cancelled';
 export interface PayrollItem {
-  providerId: string; providerName: string; monthlySalaryKobo: number; completedJobs: number;
+  providerId: string; providerName: string; monthlySalaryKobo: number; payFrequency?: 'daily' | 'weekly' | 'monthly' | 'per_service'; payRateKobo?: number; units?: number; grossKobo?: number; completedJobs: number;
   assignedJobs: number; completionRate: number; adjustmentKobo: number; deductionKobo: number;
   note: string; netKobo: number; status: 'pending' | 'processing' | 'paid' | 'failed';
   transferReference?: string | null; transferCode?: string | null; paidAt?: string | null; failureReason?: string | null;
 }
 export interface PayrollRun {
-  id: string; period: string; status: PayrollStatus; items: PayrollItem[]; totalKobo: number;
+  id: string; period: string; frequency?: 'daily' | 'weekly' | 'monthly' | 'per_service'; periodStart?: string; periodEnd?: string; status: PayrollStatus; items: PayrollItem[]; totalKobo: number;
   createdBy?: string | null; approvedBy?: string | null; approvedAt?: string | null; paidAt?: string | null; createdAt?: string;
 }

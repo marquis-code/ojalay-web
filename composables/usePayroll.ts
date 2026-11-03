@@ -11,9 +11,9 @@ export function usePayroll() {
     try { runs.value = await payrollApi.runs(); if (!selected.value && runs.value[0]) selected.value = runs.value[0]; }
     finally { loading.value = false; }
   }
-  async function generate(period: string) {
+  async function generate(frequency: 'daily' | 'weekly' | 'monthly' | 'per_service', period: string) {
     saving.value = true;
-    try { const run = await payrollApi.generate(period); await load(); selected.value = run; return run; }
+    try { const run = await payrollApi.generate(frequency, period); await load(); selected.value = run; return run; }
     finally { saving.value = false; }
   }
   async function updateItem(runId: string, providerId: string, payload: { adjustmentKobo?: number; deductionKobo?: number; note?: string }) {

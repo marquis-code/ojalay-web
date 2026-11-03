@@ -16,13 +16,13 @@ const form = reactive({
   name: '', title: '', bio: '', email: '', phone: '', avatarUrl: '', color: '#FF5A1F',
   isBookable: true, isActive: true, weeklySchedule: defaultHours() as { day: number; isWorking: boolean; start: string; end: string; breakStart: string; breakEnd: string }[],
   timeOff: [] as { startAt: string; endAt: string; reason: string }[],
-  salaryEnabled: false, monthlySalary: '', salaryStartDate: '', bankName: '', bankCode: '', accountNumber: '', accountName: '',
+  salaryEnabled: false, payFrequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'per_service', payRate: '', salaryStartDate: '', bankName: '', bankCode: '', accountNumber: '', accountName: '',
 });
 const activeCount = computed(() => items.value.filter((p) => p.isActive).length);
 const bookableCount = computed(() => items.value.filter((p) => p.isBookable && p.isActive).length);
 
 function reset() {
-  Object.assign(form, { name: '', title: '', bio: '', email: '', phone: '', avatarUrl: '', color: '#FF5A1F', isBookable: true, isActive: true, weeklySchedule: defaultHours(), timeOff: [], salaryEnabled: false, monthlySalary: '', salaryStartDate: '', bankName: '', bankCode: '', accountNumber: '', accountName: '' });
+  Object.assign(form, { name: '', title: '', bio: '', email: '', phone: '', avatarUrl: '', color: '#FF5A1F', isBookable: true, isActive: true, weeklySchedule: defaultHours(), timeOff: [], salaryEnabled: false, payFrequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'per_service', payRate: '', salaryStartDate: '', bankName: '', bankCode: '', accountNumber: '', accountName: '' });
   editing.value = null;
 }
 function openCreate() { reset(); open.value = true; }
@@ -37,7 +37,7 @@ function openEdit(provider: Provider) {
     phone: provider.phone || '', avatarUrl: provider.avatarUrl || '', color: provider.color,
     isBookable: provider.isBookable, isActive: provider.isActive, weeklySchedule: schedule,
     timeOff: provider.timeOff.map((t) => ({ startAt: t.startAt.slice(0, 10), endAt: t.endAt.slice(0, 10), reason: t.reason })),
-    salaryEnabled: Boolean(provider.salaryEnabled), monthlySalary: provider.monthlySalaryKobo ? String(provider.monthlySalaryKobo / 100) : '',
+    salaryEnabled: Boolean(provider.salaryEnabled), payFrequency: provider.payFrequency || 'monthly', payRate: (provider.payRateKobo || provider.monthlySalaryKobo) ? String((provider.payRateKobo || provider.monthlySalaryKobo || 0) / 100) : '',
     salaryStartDate: provider.salaryStartDate || '', bankName: provider.bankName || '', bankCode: provider.bankCode || '',
     accountNumber: '', accountName: provider.accountName || '',
   });
@@ -54,7 +54,7 @@ async function save() {
       color: form.color, isBookable: form.isBookable, isActive: form.isActive,
       weeklySchedule: form.weeklySchedule.map((d) => ({ day: d.day, isWorking: d.isWorking, start: d.start, end: d.end, breaks: d.breakStart && d.breakEnd ? [{ start: d.breakStart, end: d.breakEnd }] : [] })),
       timeOff: form.timeOff.filter((t) => t.startAt && t.endAt).map((t) => ({ startAt: `${t.startAt}T00:00:00+01:00`, endAt: `${t.endAt}T23:59:59+01:00`, reason: t.reason })),
-      salaryEnabled: form.salaryEnabled, monthlySalaryKobo: Math.round(Number(form.monthlySalary.replace(/[^0-9.]/g, '')) * 100),
+      salaryEnabled: form.salaryEnabled, payFrequency: form.payFrequency, payRateKobo: Math.round(Number(form.payRate.replace(/[^0-9.]/g, '')) * 100),
       salaryStartDate: form.salaryStartDate || null, bankName: form.bankName || null, bankCode: form.bankCode || null,
       accountName: form.accountName || null, ...(form.accountNumber ? { accountNumber: form.accountNumber } : {}),
     };
@@ -107,7 +107,7 @@ onMounted(load);
         <div class="mt-4 space-y-2 border-t border-line pt-3 text-[11px]">
           <p class="flex items-center gap-2 text-muted"><Clock3 class="h-3.5 w-3.5" /> {{ hoursFor(provider) }}</p>
           <p class="flex items-center gap-2 text-muted"><CalendarDays class="h-3.5 w-3.5" /> {{ provider.upcomingBookings || 0 }} upcoming · {{ provider.completedBookings || 0 }} completed</p>
-          <p v-if="provider.salaryEnabled" class="flex items-center gap-2 text-muted"><Banknote class="h-3.5 w-3.5" /> {{ formatNaira(provider.monthlySalaryKobo || 0) }}/month</p>
+          <p v-if="provider.salaryEnabled" class="flex items-center gap-2 text-muted"><Banknote class="h-3.5 w-3.5" /> {{ formatNaira(provider.payRateKobo || provider.monthlySalaryKobo || 0) }} / {{ provider.payFrequency === 'per_service' ? 'completed service' : provider.payFrequency || 'month' }}</p>
         </div>
         <div class="mt-4 flex gap-1 border-t border-line pt-3"><NuxtLink :to="`/app/team/${provider.id}`" class="flex-1 rounded-xl py-2 text-center text-[11px] font-bold text-brand-600 hover:bg-raised">Performance</NuxtLink><button class="rounded-xl px-3 py-2 text-[11px] font-bold text-muted hover:bg-raised" @click="openEdit(provider)">Edit</button><button class="rounded-xl px-3 py-2 text-[11px] font-bold text-danger hover:bg-danger/5" @click="removing = provider">Hide</button></div>
       </article>
@@ -145,7 +145,7 @@ onMounted(load);
         </div>
         <div class="rounded-2xl border border-line p-4">
           <div class="flex items-center justify-between gap-3"><div><p class="text-sm font-bold">Payroll</p><p class="mt-1 text-[11px] text-muted">Optional monthly salary paid through Ojaly after owner approval.</p></div><label class="flex items-center gap-2 text-sm font-semibold"><input v-model="form.salaryEnabled" type="checkbox" class="h-4 w-4"> Enable</label></div>
-          <div v-if="form.salaryEnabled" class="mt-4 grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.monthlySalary" label="Monthly salary" prefix="₦" inputmode="decimal" /><BaseDatePicker v-model="form.salaryStartDate" label="Salary start date" /><BaseInput v-model="form.bankName" label="Bank name" placeholder="GTBank" /><BaseInput v-model="form.bankCode" label="Bank code" placeholder="058" /><BaseInput v-model="form.accountNumber" :label="editing?.bankAccountLast4 ? 'Account number (leave blank to keep)' : 'Account number'" placeholder="0123456789" /><BaseInput v-model="form.accountName" label="Account name" placeholder="As it appears on the bank account" /></div>
+          <div v-if="form.salaryEnabled" class="mt-4 grid gap-3 sm:grid-cols-2"><BaseSelect v-model="form.payFrequency" label="Pay frequency" :options="[{ value: 'daily', label: 'Daily' }, { value: 'weekly', label: 'Weekly' }, { value: 'monthly', label: 'Monthly' }, { value: 'per_service', label: 'Per completed service' }]" /><BaseInput v-model="form.payRate" :label="form.payFrequency === 'per_service' ? 'Rate per completed service' : form.payFrequency === 'daily' ? 'Daily rate' : form.payFrequency === 'weekly' ? 'Weekly rate' : 'Monthly salary'" prefix="₦" inputmode="decimal" /><BaseDatePicker v-model="form.salaryStartDate" label="Salary start date" /><BaseInput v-model="form.bankName" label="Bank name" placeholder="GTBank" /><BaseInput v-model="form.bankCode" label="Bank code" placeholder="058" /><BaseInput v-model="form.accountNumber" :label="editing?.bankAccountLast4 ? 'Account number (leave blank to keep)' : 'Account number'" placeholder="0123456789" /><BaseInput v-model="form.accountName" label="Account name" placeholder="As it appears on the bank account" /></div>
         </div>
         <div>
           <div class="flex items-center justify-between"><p class="label-base mb-0">Time off</p><button type="button" class="text-xs font-bold text-brand-600" @click="addTimeOff">+ Add time off</button></div>

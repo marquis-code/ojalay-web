@@ -65,7 +65,10 @@ const settlementBanks = ref<{ name: string; code: string }[]>([]);
 const settlementBank = ref('');
 const settlementAccountNumber = ref('');
 const settlementResolvedName = ref('');
+const settlementResolving = ref(false);
+const settlementError = ref('');
 const settlementBusy = ref(false);
+let settlementTimer: ReturnType<typeof setTimeout> | null = null;
 const settlementBanksLoading = ref(false);
 const currentPlan = computed(() => businessStore.plan);
 const subscription = computed(() => businessStore.subscription);
@@ -106,13 +109,20 @@ async function loadSettlementBanks() {
   finally { settlementBanksLoading.value = false; }
 }
 async function resolveSettlementAccount() {
-  settlementResolvedName.value = '';
-  if (!settlementBank.value || !/^\d{10}$/.test(settlementAccountNumber.value)) { toast.error('Choose a bank and enter a 10-digit account number.'); return; }
-  settlementBusy.value = true;
+  settlementResolvedName.value = ''; settlementError.value = '';
+  if (!settlementBank.value || !/^\d{10}$/.test(settlementAccountNumber.value)) return;
+  settlementResolving.value = true;
   try { const result = await businessesApi.resolveSettlementAccount({ bankCode: settlementBank.value, accountNumber: settlementAccountNumber.value }); settlementResolvedName.value = result.accountName; }
-  catch (error) { toast.error((error as Error).message); }
-  finally { settlementBusy.value = false; }
+  catch (error) { settlementError.value = (error as Error).message; }
+  finally { settlementResolving.value = false; }
 }
+watch([settlementBank, settlementAccountNumber], ([bank, account]) => {
+  settlementResolvedName.value = ''; settlementError.value = '';
+  if (settlementTimer) clearTimeout(settlementTimer);
+  if (!bank || !/^\d{10}$/.test(account)) return;
+  settlementTimer = setTimeout(() => { void resolveSettlementAccount(); }, 400);
+});
+onBeforeUnmount(() => { if (settlementTimer) clearTimeout(settlementTimer); })
 async function addSettlementAccount() {
   if (!settlementResolvedName.value) { toast.error('Resolve the account number first.'); return; }
   settlementBusy.value = true;
@@ -227,7 +237,7 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
     </div>
 
     <div v-if="activeTab === 'business'" class="grid gap-5 xl:grid-cols-[1.4fr_0.6fr]">
-      <BaseCard>
+      <BaseCard class="xl:order-1">
         <h2 class="font-display text-xl font-bold">Business details</h2><p class="mt-1 text-xs text-muted">Shown on receipts, invoices and your storefront.</p>
         <div class="mt-5 grid gap-4 sm:grid-cols-2">
           <BaseInput v-model="businessForm.name" label="Business name" />
@@ -242,27 +252,32 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
         </div>
         <BaseButton class="mt-5" :loading="businessStore.loading" @click="saveBusiness">Save business details</BaseButton>
       </BaseCard>
-      <BaseCard v-if="isOwner">
+      <BaseCard v-if="isOwner" class="xl:order-3 xl:col-span-2">
         <h2 class="font-display text-xl font-bold">Settlement accounts</h2>
-        <p class="mt-1 text-xs leading-relaxed text-muted">Where Ojaly should pay your business. Bank names and account names are verified through Paystack.</p>
-        <div v-if="settlementAccounts.length" class="mt-4 space-y-2">
-          <div v-for="account in settlementAccounts" :key="account.id" class="rounded-2xl border p-3" :class="settlementPrimaryId === account.id ? 'border-brand-400 bg-brand-50/40' : 'border-line'">
-            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="text-sm font-bold">{{ account.bankName }}</p><p class="mt-0.5 text-xs text-muted">{{ account.accountName }}</p><p class="mt-1 font-mono text-[10px] text-muted">•••• {{ account.accountNumber.slice(-4) }}</p></div><BaseBadge v-if="settlementPrimaryId === account.id" variant="success">Primary</BaseBadge></div>
-            <div class="mt-2 flex gap-2"><button v-if="settlementPrimaryId !== account.id" type="button" class="text-[10px] font-bold text-brand-600" :disabled="settlementBusy" @click="setPrimarySettlement(account.id)">Make primary</button><button type="button" class="text-[10px] font-bold text-danger" :disabled="settlementBusy" @click="removeSettlement(account.id)">Remove</button></div>
+        <p class="mt-1 max-w-2xl text-xs leading-relaxed text-muted">Where Ojaly should pay your business. Bank names and account names are verified through Paystack.</p>
+        <div v-if="settlementAccounts.length" class="mt-5 grid gap-3 sm:grid-cols-2">
+          <div v-for="account in settlementAccounts" :key="account.id" class="rounded-2xl border p-4" :class="settlementPrimaryId === account.id ? 'border-brand-400 bg-brand-50/40' : 'border-line'">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="text-sm font-bold">{{ account.bankName }}</p><p class="mt-0.5 truncate text-xs text-muted">{{ account.accountName }}</p><p class="mt-1 font-mono text-[10px] text-muted">•••• {{ account.accountNumber.slice(-4) }}</p></div><BaseBadge v-if="settlementPrimaryId === account.id" variant="success">Primary</BaseBadge></div>
+            <div class="mt-3 flex gap-3 border-t border-line pt-2"><button v-if="settlementPrimaryId !== account.id" type="button" class="text-[10px] font-bold text-brand-600" :disabled="settlementBusy" @click="setPrimarySettlement(account.id)">Make primary</button><button type="button" class="ml-auto text-[10px] font-bold text-danger" :disabled="settlementBusy" @click="removeSettlement(account.id)">Remove</button></div>
           </div>
         </div>
-        <p v-else class="mt-4 rounded-xl border border-dashed border-line p-4 text-xs text-muted">No settlement account yet. Add one below.</p>
-        <div class="mt-5 rounded-2xl border border-line p-4">
-          <p class="text-sm font-bold">Add a settlement account</p>
-          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        <div v-else class="mt-5 rounded-2xl border border-dashed border-line p-5 text-sm text-muted">No settlement account yet. Add your first account below.</div>
+        <div class="mt-5 rounded-2xl border border-line bg-raised/20 p-4 sm:p-5">
+          <div class="flex items-start gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><ShieldCheck class="h-4 w-4" /></div><div><p class="text-sm font-bold">Add a settlement account</p><p class="mt-0.5 text-[11px] text-muted">Select your bank and enter the 10-digit account number. We verify the name automatically.</p></div></div>
+          <div class="mt-4 grid gap-3 md:grid-cols-2">
             <BaseSelect v-model="settlementBank" label="Bank" :options="[{ value: '', label: settlementBanksLoading ? 'Loading banks…' : 'Choose your bank' }, ...settlementBanks.map((bank) => ({ value: bank.code, label: bank.name }))]" :disabled="settlementBanksLoading" />
-            <BaseInput v-model="settlementAccountNumber" label="Account number" inputmode="numeric" :maxlength="10" placeholder="10-digit NUBAN" @update:model-value="settlementResolvedName = ''" />
+            <BaseInput v-model="settlementAccountNumber" label="Account number" inputmode="numeric" :maxlength="10" placeholder="10-digit NUBAN" />
           </div>
-          <div class="mt-3 flex flex-wrap items-center gap-2"><BaseButton variant="outline" :loading="settlementBusy" @click="resolveSettlementAccount">Resolve account</BaseButton><BaseButton :loading="settlementBusy" :disabled="!settlementResolvedName" @click="addSettlementAccount">Add account</BaseButton><p v-if="settlementResolvedName" class="text-xs font-semibold text-success">{{ settlementResolvedName }}</p></div>
-          <p class="mt-3 text-[10px] leading-relaxed text-muted">Paystack resolves the account name before it is saved. The primary account is used for settlement.</p>
+          <div class="mt-3 min-h-[46px]" aria-live="polite">
+            <div v-if="settlementResolving" class="flex items-center gap-2 rounded-xl bg-brand-50 px-3 py-3 text-xs font-semibold text-brand-700"><Loader2 class="h-4 w-4 animate-spin" /> Verifying account with Paystack…</div>
+            <div v-else-if="settlementError" class="rounded-xl bg-danger/10 px-3 py-3 text-xs font-medium text-danger">{{ settlementError }}</div>
+            <div v-else-if="settlementResolvedName" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-success/20 bg-success/5 px-3 py-2.5"><div><p class="text-[10px] font-bold uppercase tracking-wider text-success">Verified account</p><p class="mt-0.5 text-sm font-bold">{{ settlementResolvedName }}</p></div><BaseButton :loading="settlementBusy" @click="addSettlementAccount">Add account</BaseButton></div>
+            <p v-else class="text-[10px] leading-relaxed text-muted">The account name appears here automatically when both the bank and a complete account number are entered.</p>
+          </div>
+          <p class="mt-3 text-[10px] leading-relaxed text-muted">The primary account is used for settlement. You can add up to 5 accounts.</p>
         </div>
       </BaseCard>
-      <div class="space-y-4">
+      <div class="space-y-4 xl:order-2">
         <BaseCard><h3 class="font-display text-lg font-bold">Storefront</h3><p class="mt-1 text-xs text-muted">Design and publish from the website builder.</p><NuxtLink to="/app/website" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-300">Open website builder <ChevronRight class="h-3.5 w-3.5" /></NuxtLink></BaseCard>
         <BaseCard><h3 class="font-display text-lg font-bold">Brand</h3><p class="mt-1 text-xs text-muted">Logo and banner uploads are in the builder design tab.</p><NuxtLink to="/app/website" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-300">Edit brand <ChevronRight class="h-3.5 w-3.5" /></NuxtLink></BaseCard>
       </div>

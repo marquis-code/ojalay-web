@@ -16,6 +16,7 @@ const customerPhone = ref('');
 const customerEmail = ref('');
 const notes = ref('');
 const location = ref('');
+const locationError = ref('');
 const waitlistName = ref('');
 const waitlistPhone = ref('');
 const waitlistEmail = ref('');
@@ -61,7 +62,8 @@ async function submit() {
   if (!startAt.value) return;
   if (customerName.value.trim().length < 2) return;
   if (customerPhone.value.trim().length < 7) return;
-  if (props.business.bookingSettings?.locations?.length && !location.value) { return; }
+  if (props.business.bookingSettings?.locations?.length && !location.value) { locationError.value = 'Choose where you are booking from.'; return; }
+  locationError.value = '';
   try {
     const result = await book({
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
@@ -135,7 +137,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
         <form v-else-if="step === 3" class="space-y-3" @submit.prevent="submit">
           <button type="button" class="inline-flex items-center gap-1 text-[11px] font-bold" :style="{ color: template.colors.muted }" @click="step = 1"><ChevronLeft class="h-3.5 w-3.5" /> Change time</button>
           <div class="rounded-xl p-3 text-xs" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 10%, transparent)`, color: template.colors.ink }"><p class="font-bold">{{ service.name }}</p><p class="mt-0.5">{{ new Date(startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(startAt) }}</p></div>
-          <BaseSelect v-if="business.bookingSettings?.locations?.length" v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required />
+          <div v-if="business.bookingSettings?.locations?.length"><BaseSelect v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required /><p v-if="locationError" class="mt-1 text-[10px] font-semibold text-danger">{{ locationError }}</p></div>
           <BaseInput v-model="customerName" label="Your name" placeholder="First and last name" required />
           <BaseInput v-model="customerPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" required />
           <BaseInput v-model="customerEmail" label="Email" type="email" placeholder="For your confirmation" />

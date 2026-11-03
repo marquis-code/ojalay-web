@@ -25,11 +25,12 @@ export interface Subscription {
   trialEndsAt?: string | null; trialMilestoneOrders?: number; milestoneReachedAt?: string | null;
   currentPeriodEnd?: string | null; billingInterval?: 'monthly' | 'yearly'; couponCode?: string | null;
 }
+export interface SettlementAccount { id: string; bankName: string; bankCode: string; accountNumber: string; accountName: string; }
 export interface Business {
   id: string; name: string; slug: string; ownerId: string; category: string; description: string;
   logoUrl?: string | null; bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; brandColor: string; templateKey: string;
   sections: string[]; socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
-  email?: string | null; settlementBankName?: string | null; settlementBankCode?: string | null; settlementAccountNumber?: string | null; settlementAccountName?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
+  email?: string | null; settlementBankName?: string | null; settlementBankCode?: string | null; settlementAccountNumber?: string | null; settlementAccountName?: string | null; settlementAccounts?: SettlementAccount[]; settlementPrimaryAccountId?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
   seoTitle: string; seoDescription: string; customDomain?: string | null; customDomainVerified: boolean;
   summarySettings: { dailyEnabled: boolean; weeklyEnabled: boolean; sendTime: string; weeklyDay: number; channels: { whatsapp: boolean; email: boolean } };
   alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; campusCode?: string | null; campusName?: string | null; campusVerified?: boolean; campusAmbassadorCode?: string | null; marketplaceFeePercent?: number; verificationRequestedAt?: string | null; isSuspended?: boolean; createdAt?: string;

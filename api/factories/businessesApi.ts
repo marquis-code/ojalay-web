@@ -1,11 +1,16 @@
 import { BaseApi } from '~/api/base/BaseApi';
-import type { Business, BusinessContext, Onboarding, StaffMember } from '~/types';
+import type { Business, BusinessContext, Onboarding, SettlementAccount, StaffMember } from '~/types';
 
 class BusinessesApi extends BaseApi {
   constructor() { super('/businesses'); }
   current(): Promise<BusinessContext> { return this.request('get', '/current'); }
   categories(): Promise<{ key: string; label: string }[]> { return this.request('get', '/categories'); }
   updateBusiness(payload: Partial<Business>): Promise<Business> { return this.request('patch', '/current', payload); }
+  settlementBanks(): Promise<{ name: string; code: string }[]> { return this.request('get', '/current/settlement-banks'); }
+  resolveSettlementAccount(payload: { bankCode: string; accountNumber: string }): Promise<{ accountName: string; accountNumber: string }> { return this.request('post', '/current/settlement-accounts/resolve', payload); }
+  addSettlementAccount(payload: { bankCode: string; accountNumber: string }): Promise<{ accounts: SettlementAccount[]; primaryAccountId: string | null }> { return this.request('post', '/current/settlement-accounts', payload); }
+  setPrimarySettlementAccount(accountId: string): Promise<{ accounts: SettlementAccount[]; primaryAccountId: string | null }> { return this.request('patch', `/current/settlement-accounts/${accountId}/primary`); }
+  removeSettlementAccount(accountId: string): Promise<{ accounts: SettlementAccount[]; primaryAccountId: string | null }> { return this.request('delete', `/current/settlement-accounts/${accountId}`); }
   onboarding(): Promise<Onboarding> { return this.request('get', '/current/onboarding'); }
   markOnboardingStep(step: string): Promise<Onboarding> { return this.request('post', `/current/onboarding/${step}`); }
   staff(): Promise<StaffMember[]> { return this.request('get', '/current/staff'); }

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { rememberPayment } from '~/utils/pending-payment';
+import { businessesApi } from '~/api/factories/businessesApi';
+import type { SettlementAccount } from '~/types';
 import {
   Bell, Building2, Check, ChevronRight, Copy, CreditCard, Crown, Globe2, KeyRound, Link2, Loader2,
   Mail, MessageCircle, Plus, RefreshCw, ShieldCheck, Smartphone, Sparkles, Trash2, UserRound, Users,
@@ -57,6 +59,14 @@ const summaryPeriod = ref<'daily' | 'weekly'>('daily');
 const yearly = ref(false);
 const coupon = ref('');
 const domainInput = ref('');
+const settlementAccounts = ref<SettlementAccount[]>([]);
+const settlementPrimaryId = ref<string | null>(null);
+const settlementBanks = ref<{ name: string; code: string }[]>([]);
+const settlementBank = ref('');
+const settlementAccountNumber = ref('');
+const settlementResolvedName = ref('');
+const settlementBusy = ref(false);
+const settlementBanksLoading = ref(false);
 const currentPlan = computed(() => businessStore.plan);
 const subscription = computed(() => businessStore.subscription);
 const entitlements = computed(() => businessStore.entitlements);
@@ -77,6 +87,8 @@ function hydrate() {
   if (s) Object.assign(summaryForm, { dailyEnabled: s.dailyEnabled, weeklyEnabled: s.weeklyEnabled, sendTime: s.sendTime, weeklyDay: s.weeklyDay, whatsapp: s.channels?.whatsapp !== false, email: s.channels?.email !== false });
   if (auth.user) Object.assign(profileForm, { name: auth.user.name, phone: auth.user.phone || '', avatarUrl: auth.user.avatarUrl || '' });
   domainInput.value = b?.customDomain || '';
+  settlementAccounts.value = b?.settlementAccounts || [];
+  settlementPrimaryId.value = b?.settlementPrimaryAccountId || null;
 }
 watch(activeTab, async (tab) => {
   if (tab === 'staff' && isOwner.value) await staffApi.load().catch(() => undefined);
@@ -86,6 +98,40 @@ watch(activeTab, async (tab) => {
   if (tab === 'summaries') await summaries.load(summaryPeriod.value).catch(() => undefined);
 });
 watch(summaryPeriod, (period) => summaries.load(period).catch(() => undefined));
+async function loadSettlementBanks() {
+  if (!isOwner.value || settlementBanks.value.length) return;
+  settlementBanksLoading.value = true;
+  try { settlementBanks.value = await businessesApi.settlementBanks(); }
+  catch (error) { toast.error((error as Error).message); }
+  finally { settlementBanksLoading.value = false; }
+}
+async function resolveSettlementAccount() {
+  settlementResolvedName.value = '';
+  if (!settlementBank.value || !/^\d{10}$/.test(settlementAccountNumber.value)) { toast.error('Choose a bank and enter a 10-digit account number.'); return; }
+  settlementBusy.value = true;
+  try { const result = await businessesApi.resolveSettlementAccount({ bankCode: settlementBank.value, accountNumber: settlementAccountNumber.value }); settlementResolvedName.value = result.accountName; }
+  catch (error) { toast.error((error as Error).message); }
+  finally { settlementBusy.value = false; }
+}
+async function addSettlementAccount() {
+  if (!settlementResolvedName.value) { toast.error('Resolve the account number first.'); return; }
+  settlementBusy.value = true;
+  try { const result = await businessesApi.addSettlementAccount({ bankCode: settlementBank.value, accountNumber: settlementAccountNumber.value }); settlementAccounts.value = result.accounts; settlementPrimaryId.value = result.primaryAccountId; settlementBank.value = ''; settlementAccountNumber.value = ''; settlementResolvedName.value = ''; toast.success('Settlement account added.'); }
+  catch (error) { toast.error((error as Error).message); }
+  finally { settlementBusy.value = false; }
+}
+async function setPrimarySettlement(accountId: string) {
+  settlementBusy.value = true;
+  try { const result = await businessesApi.setPrimarySettlementAccount(accountId); settlementAccounts.value = result.accounts; settlementPrimaryId.value = result.primaryAccountId; toast.success('Primary settlement account updated.'); }
+  catch (error) { toast.error((error as Error).message); }
+  finally { settlementBusy.value = false; }
+}
+async function removeSettlement(accountId: string) {
+  settlementBusy.value = true;
+  try { const result = await businessesApi.removeSettlementAccount(accountId); settlementAccounts.value = result.accounts; settlementPrimaryId.value = result.primaryAccountId; toast.success('Settlement account removed.'); }
+  catch (error) { toast.error((error as Error).message); }
+  finally { settlementBusy.value = false; }
+}
 async function saveBusiness() {
   try { await businessStore.update({ ...businessForm, email: businessForm.email || null, logoUrl: businessStore.business?.logoUrl || null }); toast.success('Business details saved.'); }
   catch (error) { toast.error((error as Error).message); }
@@ -169,7 +215,7 @@ async function removeDomain() {
   catch (error) { toast.error((error as Error).message); }
 }
 function copy(value: string) { void navigator.clipboard.writeText(value); toast.success('Copied.'); }
-onMounted(async () => { if (!businessStore.context) await businessStore.load(); hydrate(); if (activeTab.value === 'billing') await billing.load().catch(() => undefined); if (activeTab.value === 'staff' && isOwner.value) await staffApi.load().catch(() => undefined); if (activeTab.value === 'whatsapp') await whatsapp.load().catch(() => undefined);
+onMounted(async () => { if (!businessStore.context) await businessStore.load(); hydrate(); if (isOwner.value) void loadSettlementBanks(); if (activeTab.value === 'billing') await billing.load().catch(() => undefined); if (activeTab.value === 'staff' && isOwner.value) await staffApi.load().catch(() => undefined); if (activeTab.value === 'whatsapp') await whatsapp.load().catch(() => undefined);
   if (activeTab.value === 'calendar') await calendar.load().catch(() => undefined); if (activeTab.value === 'summaries') await summaries.load(summaryPeriod.value).catch(() => undefined); });
 </script>
 
@@ -197,10 +243,24 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
         <BaseButton class="mt-5" :loading="businessStore.loading" @click="saveBusiness">Save business details</BaseButton>
       </BaseCard>
       <BaseCard v-if="isOwner">
-        <h2 class="font-display text-xl font-bold">Settlement account</h2>
-        <p class="mt-1 text-xs leading-relaxed text-muted">Where Ojaly should pay your business. This is private and never shown to customers.</p>
-        <div class="mt-4 grid gap-4 sm:grid-cols-2"><BaseInput v-model="businessForm.settlementBankName" label="Bank name" placeholder="GTBank" /><BaseInput v-model="businessForm.settlementBankCode" label="Bank code" placeholder="058" /><BaseInput v-model="businessForm.settlementAccountNumber" label="Account number" inputmode="numeric" placeholder="0123456789" /><BaseInput v-model="businessForm.settlementAccountName" label="Account name" placeholder="As it appears on the bank account" /></div>
-        <p class="mt-3 rounded-xl bg-raised/60 p-3 text-[10px] leading-relaxed text-muted">Use the account that should receive settlements. Changes are saved with the business details above.</p>
+        <h2 class="font-display text-xl font-bold">Settlement accounts</h2>
+        <p class="mt-1 text-xs leading-relaxed text-muted">Where Ojaly should pay your business. Bank names and account names are verified through Paystack.</p>
+        <div v-if="settlementAccounts.length" class="mt-4 space-y-2">
+          <div v-for="account in settlementAccounts" :key="account.id" class="rounded-2xl border p-3" :class="settlementPrimaryId === account.id ? 'border-brand-400 bg-brand-50/40' : 'border-line'">
+            <div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="text-sm font-bold">{{ account.bankName }}</p><p class="mt-0.5 text-xs text-muted">{{ account.accountName }}</p><p class="mt-1 font-mono text-[10px] text-muted">•••• {{ account.accountNumber.slice(-4) }}</p></div><BaseBadge v-if="settlementPrimaryId === account.id" variant="success">Primary</BaseBadge></div>
+            <div class="mt-2 flex gap-2"><button v-if="settlementPrimaryId !== account.id" type="button" class="text-[10px] font-bold text-brand-600" :disabled="settlementBusy" @click="setPrimarySettlement(account.id)">Make primary</button><button type="button" class="text-[10px] font-bold text-danger" :disabled="settlementBusy" @click="removeSettlement(account.id)">Remove</button></div>
+          </div>
+        </div>
+        <p v-else class="mt-4 rounded-xl border border-dashed border-line p-4 text-xs text-muted">No settlement account yet. Add one below.</p>
+        <div class="mt-5 rounded-2xl border border-line p-4">
+          <p class="text-sm font-bold">Add a settlement account</p>
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <BaseSelect v-model="settlementBank" label="Bank" :options="[{ value: '', label: settlementBanksLoading ? 'Loading banks…' : 'Choose your bank' }, ...settlementBanks.map((bank) => ({ value: bank.code, label: bank.name }))]" :disabled="settlementBanksLoading" />
+            <BaseInput v-model="settlementAccountNumber" label="Account number" inputmode="numeric" :maxlength="10" placeholder="10-digit NUBAN" @update:model-value="settlementResolvedName = ''" />
+          </div>
+          <div class="mt-3 flex flex-wrap items-center gap-2"><BaseButton variant="outline" :loading="settlementBusy" @click="resolveSettlementAccount">Resolve account</BaseButton><BaseButton :loading="settlementBusy" :disabled="!settlementResolvedName" @click="addSettlementAccount">Add account</BaseButton><p v-if="settlementResolvedName" class="text-xs font-semibold text-success">{{ settlementResolvedName }}</p></div>
+          <p class="mt-3 text-[10px] leading-relaxed text-muted">Paystack resolves the account name before it is saved. The primary account is used for settlement.</p>
+        </div>
       </BaseCard>
       <div class="space-y-4">
         <BaseCard><h3 class="font-display text-lg font-bold">Storefront</h3><p class="mt-1 text-xs text-muted">Design and publish from the website builder.</p><NuxtLink to="/app/website" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-300">Open website builder <ChevronRight class="h-3.5 w-3.5" /></NuxtLink></BaseCard>

@@ -26,7 +26,7 @@ class PublicApi extends BaseApi {
   availability(slug: string, params: { serviceId: string; date: string; providerId?: string; durationMinutes?: number }): Promise<AvailabilityResponse> {
     return this.request('get', `storefront/${slug}/availability`, undefined, params as Record<string, unknown>);
   }
-  book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; addOnNames?: string[]; packageCode?: string; marketplaceCampus?: string }): Promise<{ booking: Booking; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
+  book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; location?: string; addOnNames?: string[]; packageCode?: string; marketplaceCampus?: string }): Promise<{ booking: Booking; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
     return this.request('post', `storefront/${slug}/bookings`, payload);
   }
   featuredBusinesses(): Promise<DemoBusiness[]> { return this.request('get', 'marketplace/featured'); }

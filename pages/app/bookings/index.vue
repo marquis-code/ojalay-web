@@ -159,6 +159,7 @@ onMounted(async () => {
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">When</p><p class="mt-1 font-bold">{{ new Date(selected.startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(selected.startAt) }}</p></div>
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Team</p><p class="mt-1 font-bold">{{ selected.providerName }}</p></div>
+          <div v-if="selected.location" class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Location</p><p class="mt-1 font-bold">{{ selected.location }}</p></div>
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Client</p><p class="mt-1 font-bold">{{ selected.customerPhone }}</p></div>
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Payment</p><p class="mt-1 font-bold">{{ formatNaira(selected.amountPaidKobo) }} / {{ formatNaira(selected.priceKobo) }}</p></div>
         </div>

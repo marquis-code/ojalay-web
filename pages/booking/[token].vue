@@ -60,7 +60,7 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
             <div class="rounded-2xl bg-raised/60 p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Total</p><p class="mt-1 text-sm font-bold">{{ formatNaira(booking.priceKobo) }}</p><p v-if="booking.serviceChargeKobo" class="mt-1 text-[9px] text-muted">{{ formatNaira(booking.subtotalKobo || 0) }} service + {{ formatNaira(booking.serviceChargeKobo) }} service charge</p></div>
             <div class="rounded-2xl bg-raised/60 p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Status</p><p class="mt-1 text-sm font-bold capitalize">{{ booking.status.replace('_', ' ') }} · {{ booking.paymentStatus.replace('_', ' ') }}</p></div>
           </div>
-          <p v-if="business?.address" class="flex items-start gap-2 text-xs text-muted"><MapPin class="mt-0.5 h-4 w-4 shrink-0" /> {{ business.address }}</p>
+          <p v-if="booking.location || business?.address" class="flex items-start gap-2 text-xs text-muted"><MapPin class="mt-0.5 h-4 w-4 shrink-0" /> {{ booking.location || business?.address }}</p>
           <p v-if="business?.bookingSettings?.policy" class="rounded-2xl border border-line p-4 text-xs leading-relaxed text-muted">{{ business.bookingSettings.policy }}</p>
           <div v-if="notice" class="rounded-2xl bg-success/10 p-3 text-xs font-semibold text-success">{{ notice }}</div>
           <div v-if="actionError" class="rounded-2xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ actionError }}</div>

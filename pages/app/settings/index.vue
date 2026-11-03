@@ -42,7 +42,7 @@ const tabs = [
   { key: 'summaries', label: 'Summaries' }, { key: 'whatsapp', label: 'WhatsApp' }, { key: 'calendar', label: 'Calendar sync' }, { key: 'staff', label: 'Staff' },
   { key: 'billing', label: 'Billing' }, { key: 'domain', label: 'Domain' },
 ];
-const businessForm = reactive({ name: '', category: '', tagline: '', description: '', about: '', address: '', email: '', publicPhone: '', whatsappNumber: '', brandColor: '#FF5A1F' });
+const businessForm = reactive({ name: '', category: '', tagline: '', description: '', about: '', address: '', email: '', publicPhone: '', whatsappNumber: '', brandColor: '#FF5A1F', settlementBankName: '', settlementBankCode: '', settlementAccountNumber: '', settlementAccountName: '' });
 const profileForm = reactive({ name: '', phone: '', avatarUrl: '' });
 const passwordForm = reactive({ current: '', next: '', confirm: '' });
 const alerts = reactive({ lowStockInApp: true, lowStockEmail: true, lowStockWhatsapp: true, debtReminders: true, reminderDaysBefore: 2, repeatOverdueEveryDays: 7 });
@@ -67,7 +67,7 @@ const pendingInvitePlanBlocks = computed(() => (businessStore.usage?.staff || 0)
 function setTab(tab: string) { activeTab.value = tab; void router.replace({ query: { tab } }); }
 function hydrate() {
   const b = businessStore.business;
-  if (b) Object.assign(businessForm, { name: b.name, category: b.category, tagline: b.tagline, description: b.description, about: b.about, address: b.address, email: b.email || '', publicPhone: b.publicPhone || '', whatsappNumber: b.whatsappNumber || '', brandColor: b.brandColor });
+  if (b) Object.assign(businessForm, { name: b.name, category: b.category, tagline: b.tagline, description: b.description, about: b.about, address: b.address, email: b.email || '', publicPhone: b.publicPhone || '', whatsappNumber: b.whatsappNumber || '', brandColor: b.brandColor, settlementBankName: b.settlementBankName || '', settlementBankCode: b.settlementBankCode || '', settlementAccountNumber: b.settlementAccountNumber || '', settlementAccountName: b.settlementAccountName || '' });
   const a = (b?.alertSettings || {}) as Record<string, unknown>;
   Object.assign(alerts, {
     lowStockInApp: a.lowStockInApp !== false, lowStockEmail: a.lowStockEmail !== false, lowStockWhatsapp: a.lowStockWhatsapp !== false,
@@ -195,6 +195,12 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
           <BaseInput v-model="businessForm.address" label="Address" />
         </div>
         <BaseButton class="mt-5" :loading="businessStore.loading" @click="saveBusiness">Save business details</BaseButton>
+      </BaseCard>
+      <BaseCard v-if="isOwner">
+        <h2 class="font-display text-xl font-bold">Settlement account</h2>
+        <p class="mt-1 text-xs leading-relaxed text-muted">Where Ojaly should pay your business. This is private and never shown to customers.</p>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2"><BaseInput v-model="businessForm.settlementBankName" label="Bank name" placeholder="GTBank" /><BaseInput v-model="businessForm.settlementBankCode" label="Bank code" placeholder="058" /><BaseInput v-model="businessForm.settlementAccountNumber" label="Account number" inputmode="numeric" placeholder="0123456789" /><BaseInput v-model="businessForm.settlementAccountName" label="Account name" placeholder="As it appears on the bank account" /></div>
+        <p class="mt-3 rounded-xl bg-raised/60 p-3 text-[10px] leading-relaxed text-muted">Use the account that should receive settlements. Changes are saved with the business details above.</p>
       </BaseCard>
       <div class="space-y-4">
         <BaseCard><h3 class="font-display text-lg font-bold">Storefront</h3><p class="mt-1 text-xs text-muted">Design and publish from the website builder.</p><NuxtLink to="/app/website" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-300">Open website builder <ChevronRight class="h-3.5 w-3.5" /></NuxtLink></BaseCard>

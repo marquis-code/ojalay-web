@@ -17,9 +17,10 @@ const form = reactive<BookingSettings>({
   enabled: false, autoConfirm: true, leadTimeMinutes: 120, windowDays: 60, slotIntervalMinutes: 30,
   cancellationWindowHours: 24, depositPercent: 0, paymentCollection: 'deposit', reminderHoursBefore: 24,
   weeklyHours: Array.from({ length: 7 }, (_, day) => ({ day, isOpen: day !== 0, start: '09:00', end: '18:00' })),
-  closedDates: [], policy: 'Please arrive 5 minutes early. Cancellations within 24 hours may lose the deposit.',
+  closedDates: [], locations: [], policy: 'Please arrive 5 minutes early. Cancellations within 24 hours may lose the deposit.',
 });
 const closedDatesInput = ref('');
+const locationsInput = ref('');
 watchEffect(() => {
   if (!business.value) return;
   mode.value = business.value.businessMode || 'products';
@@ -27,6 +28,7 @@ watchEffect(() => {
     Object.assign(form, business.value.bookingSettings);
     form.weeklyHours = business.value.bookingSettings.weeklyHours?.length ? business.value.bookingSettings.weeklyHours : form.weeklyHours;
     closedDatesInput.value = (business.value.bookingSettings.closedDates || []).join(', ');
+    locationsInput.value = (business.value.bookingSettings.locations || []).join(', ');
   }
 });
 async function save() {
@@ -38,6 +40,7 @@ async function save() {
         ...form,
         weeklyHours: form.weeklyHours,
         closedDates: closedDatesInput.value.split(',').map((d) => d.trim()).filter(Boolean),
+        locations: locationsInput.value.split(',').map((d) => d.trim()).filter(Boolean),
       },
     } as never);
     toast.success('Booking settings saved.');
@@ -58,7 +61,7 @@ onMounted(async () => {
 <template>
   <div class="mx-auto max-w-4xl space-y-5">
     <NuxtLink to="/app/bookings" class="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink"><ArrowLeft class="h-4 w-4" /> Back to appointments</NuxtLink>
-    <PageHeader title="Booking settings" subtitle="Turn your business into a bookable service business without losing the product side." eyebrow="Bookings">
+    <PageHeader title="Availability & booking settings" subtitle="When customers can book, where they can book, and how payment is collected." eyebrow="Bookings">
       <template #actions><BaseButton :loading="saving" @click="save"><Save class="h-4 w-4" /> Save settings</BaseButton></template>
     </PageHeader>
 
@@ -109,6 +112,7 @@ onMounted(async () => {
         </div>
       </div>
       <div class="mt-4"><BaseInput v-model="closedDatesInput" label="Closed dates" placeholder="2026-12-25, 2026-12-26" hint="Comma-separated YYYY-MM-DD dates." /></div>
+      <div class="mt-4"><BaseInput v-model="locationsInput" label="Booking locations" placeholder="Block Boys Hostel, Block Girls Hostel, OPH Girls Hostel" hint="Optional. Customers will choose one of these when booking. Comma-separated." /></div>
     </div>
 
     <div class="card space-y-3 p-5">

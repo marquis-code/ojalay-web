@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 import {
-  ArrowUpRight, Banknote, BarChart3, Boxes, Building2, CalendarDays, CircleDollarSign, CircleHelp, Gift, Globe2, LayoutDashboard,
+  ArrowUpRight, Banknote, BarChart3, Boxes, Clock3, Building2, CalendarDays, CircleDollarSign, CircleHelp, Gift, Globe2, LayoutDashboard,
   MessageSquare, Package, QrCode, Scissors, Store, Settings, ShoppingBag, Sparkles, Star, Ticket, Users, UserRoundCog, WalletCards, X, ReceiptText,
 } from 'lucide-vue-next';
 
@@ -19,6 +19,7 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
     links: [
       { to: '/app', label: 'Overview', icon: LayoutDashboard, exact: true },
       { to: '/app/bookings', label: 'Appointments', icon: CalendarDays, modes: ['services', 'hybrid'] },
+      { to: '/app/bookings/settings', label: 'Availability', icon: Clock3, modes: ['services', 'hybrid'] },
       { to: '/app/requests', label: 'Custom requests', icon: MessageSquare, modes: ['services', 'hybrid'] },
       { to: '/app/orders', label: 'Orders', icon: ShoppingBag, modes: ['products', 'hybrid'] },
       { to: '/app/sales', label: 'Sales', icon: CircleDollarSign, modes: ['products', 'hybrid'] },

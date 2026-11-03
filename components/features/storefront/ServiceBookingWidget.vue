@@ -15,6 +15,7 @@ const customerName = ref('');
 const customerPhone = ref('');
 const customerEmail = ref('');
 const notes = ref('');
+const location = ref('');
 const waitlistName = ref('');
 const waitlistPhone = ref('');
 const waitlistEmail = ref('');
@@ -60,11 +61,12 @@ async function submit() {
   if (!startAt.value) return;
   if (customerName.value.trim().length < 2) return;
   if (customerPhone.value.trim().length < 7) return;
+  if (props.business.bookingSettings?.locations?.length && !location.value) { return; }
   try {
     const result = await book({
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
       customerName: customerName.value.trim(), customerPhone: customerPhone.value.trim(),
-      customerEmail: customerEmail.value || undefined, notes: notes.value || undefined, packageCode: packageCode.value || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
+      customerEmail: customerEmail.value || undefined, notes: notes.value || undefined, location: location.value || undefined, packageCode: packageCode.value || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
       addOnNames: addOnNames.value,
     });
     if (result.payment?.authorizationUrl) {
@@ -98,6 +100,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
       <h3 class="mt-4 font-display text-2xl font-bold" :style="{ color: template.colors.ink }">You’re booked.</h3>
       <p class="mt-2 text-sm" :style="{ color: template.colors.muted }">{{ confirmed.booking.bookingNumber }} · {{ confirmed.booking.serviceName }}</p>
       <p class="mt-1 text-sm font-semibold" :style="{ color: template.colors.ink }">{{ new Date(confirmed.booking.startAt).toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long' }) }} at {{ time(confirmed.booking.startAt) }}</p>
+      <p v-if="confirmed.booking.location" class="mt-1 text-xs" :style="{ color: template.colors.muted }">{{ confirmed.booking.location }}</p>
       <div class="mt-5 flex flex-col gap-2">
         <NuxtLink :to="`/booking/${confirmed.booking.publicToken}`" class="inline-flex min-h-[48px] items-center justify-center rounded-full px-5 text-sm font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">View booking</NuxtLink>
         <a v-if="confirmed.whatsappUrl" :href="confirmed.whatsappUrl" target="_blank" rel="noopener" class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border text-sm font-bold" :style="{ borderColor: template.colors.ink, color: template.colors.ink }"><MessageCircle class="h-4 w-4" /> Message the business</a>
@@ -132,6 +135,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
         <form v-else-if="step === 3" class="space-y-3" @submit.prevent="submit">
           <button type="button" class="inline-flex items-center gap-1 text-[11px] font-bold" :style="{ color: template.colors.muted }" @click="step = 1"><ChevronLeft class="h-3.5 w-3.5" /> Change time</button>
           <div class="rounded-xl p-3 text-xs" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 10%, transparent)`, color: template.colors.ink }"><p class="font-bold">{{ service.name }}</p><p class="mt-0.5">{{ new Date(startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(startAt) }}</p></div>
+          <BaseSelect v-if="business.bookingSettings?.locations?.length" v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required />
           <BaseInput v-model="customerName" label="Your name" placeholder="First and last name" required />
           <BaseInput v-model="customerPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" required />
           <BaseInput v-model="customerEmail" label="Email" type="email" placeholder="For your confirmation" />

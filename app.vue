@@ -1,5 +1,11 @@
 <script setup lang="ts">
-useHead({ titleTemplate: (title) => title ? `${title} · Ojaly` : 'Ojaly — sell products, offer services, get paid.' });
+useHead({
+  titleTemplate: (title) => {
+    const value = title?.trim();
+    if (!value) return 'Ojaly — sell products, offer services, get paid.';
+    return /(^|[\s—·|-])ojaly($|[\s—·|-])/i.test(value) ? value : `${value} · Ojaly`;
+  },
+});
 </script>
 
 <template>

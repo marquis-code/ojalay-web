@@ -54,11 +54,11 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
     <div class="shell relative grid grid-cols-1 gap-10 py-12 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-20">
       <div class="min-w-0">
         <div class="flex max-w-full flex-wrap items-center gap-2">
-          <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-600 sm:tracking-[0.16em]"><span class="h-1.5 w-1.5 rounded-full bg-brand-500" /> Lagos · local service businesses</span>
+          <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-600 sm:tracking-[0.16em]"><span class="h-1.5 w-1.5 rounded-full bg-brand-500" /> Lagos · local businesses</span>
           <span class="inline-flex items-center gap-1.5 rounded-full bg-forest-900 px-3 py-1.5 text-[10px] font-bold text-white"><BadgeCheck class="h-3 w-3" /> Verified providers</span>
         </div>
-        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.9rem,7vw,5.8rem)] font-bold leading-[0.91] tracking-[-0.06em] text-ink">The trusted way to book local services.</h1>
-        <p class="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">Discover verified hair, food, nails, printing, laundry, design and repair businesses across Lagos — book a real time and pay securely. No DMs. No transfer screenshots. No guessing.</p>
+        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.9rem,7vw,5.8rem)] font-bold leading-[0.91] tracking-[-0.06em] text-ink">The trusted way to run local business.</h1>
+        <p class="mt-5 max-w-xl text-sm leading-relaxed text-muted sm:text-base">Discover verified local businesses across Lagos — shop cakes, fashion, food, beauty and more, or book a real appointment and pay securely. No DMs. No transfer screenshots. No guessing.</p>
         <div class="mt-7 flex w-full flex-col gap-2 sm:flex-row">
           <BaseButton to="/marketplace" size="lg" class="w-full sm:w-auto">Browse the marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
           <BaseButton :to="auth.isAuthenticated ? '/app' : '/register'" variant="secondary" size="lg" class="w-full sm:w-auto">{{ auth.isAuthenticated ? 'Open dashboard' : 'List your service free' }}</BaseButton>
@@ -66,15 +66,15 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         <div class="mt-6 grid max-w-xl grid-cols-2 gap-2 text-[11px] font-semibold text-muted sm:grid-cols-4">
           <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Verified providers</span>
           <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Real availability</span>
-          <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Paystack deposits</span>
-          <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Reviews after every visit</span>
+          <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Orders + bookings</span>
+          <span class="inline-flex items-start gap-1.5"><Check class="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" /> Reviews after every order</span>
         </div>
         <div class="mt-7 flex max-w-xl items-center gap-3 rounded-2xl border border-line bg-white p-2.5 text-forest-900 shadow-sm">
           <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-raised"><Transition name="hero-thumb" mode="out-in"><img :key="current.image" :src="current.image" :alt="current.alt" class="h-full w-full object-cover" :style="{ objectPosition: current.position }"></Transition></div>
           <div class="min-w-0 flex-1"><p class="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-600">Now on Ojaly</p><Transition name="hero-text" mode="out-in"><div :key="current.business"><p class="truncate text-xs font-bold">{{ current.business }} · {{ current.category }}</p><p class="truncate text-[10px] text-forest-900/60">{{ current.service }} · {{ current.price }} · {{ current.area }}</p></div></Transition></div>
           <div v-if="cards.length > 1" class="flex items-center gap-1"><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Previous featured business" @click="previous"><ChevronLeft class="h-3.5 w-3.5" /></button><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Next featured business" @click="next"><ChevronRight class="h-3.5 w-3.5" /></button></div>
         </div>
-        <p class="mt-4 max-w-xl text-[11px] leading-relaxed text-muted">Ojaly is for trusted local service businesses — campus or not. Every booking becomes a customer, deposit, receipt and review.</p>
+        <p class="mt-4 max-w-xl text-[11px] leading-relaxed text-muted">Ojaly is for trusted local service businesses — campus or not. Every order and booking becomes a customer, payment, receipt and review.</p>
       </div>
 
       <div class="relative mx-auto w-full min-w-0 max-w-md [perspective:1200px] lg:max-w-none" @mouseenter="paused = true" @mouseleave="paused = false">

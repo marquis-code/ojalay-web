@@ -1,9 +1,9 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Ojaly — book trusted local service businesses in Lagos',
-  description: 'Discover verified local service businesses across Lagos — campus and non-campus. Book a real time, pay securely and get a receipt. For service businesses: demand, deposits and a trusted booking record.',
-  ogTitle: 'Ojaly — book trusted local service businesses.',
-  ogDescription: 'A verified local marketplace and booking record for service businesses in Lagos — campus and non-campus.',
+  title: 'Ojaly — sell products, offer services, get paid.',
+  description: 'Ojaly is the business platform for local businesses. Sell products, offer services, take bookings and payments, issue receipts and keep your customers and records in one place.',
+  ogTitle: 'Ojaly — sell products, offer services, get paid.',
+  ogDescription: 'Sell products, offer services, take bookings and get paid with one connected business record.',
   ogType: 'website',
   ogUrl: 'https://ojaly.org',
   twitterCard: 'summary_large_image',

@@ -5,6 +5,9 @@ useCustomerTheme();
 import { ref, computed } from 'vue';
 import { CalendarDays, CalendarPlus, MapPin, MessageCircle, ShieldCheck, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
+import { publicBookingMessagesApi } from '~/api/factories/bookingMessagesApi';
+import { uploadsApi } from '~/api/factories/uploadsApi';
+import type { BookingMessage, BookingMessageThread } from '~/types';
 const route = useRoute();
 const token = computed(() => String(route.params.token));
 const { data, error: bookingError, refresh } = await usePublicBooking(token);
@@ -19,6 +22,12 @@ const newStart = ref('');
 const slots = ref<{ startAt: string; time: string; providers: { id: string }[] }[]>([]);
 const loadingSlots = ref(false);
 const notice = ref('');
+const chat = ref<BookingMessageThread | null>(null);
+const chatDraft = ref('');
+const chatAttachment = ref<{ url: string; optimizedUrl: string } | null>(null);
+const chatSending = ref(false);
+const chatUploading = ref(false);
+const chatError = ref('');
 const booking = computed(() => data.value?.booking);
 const business = computed(() => data.value?.business as Record<string, any> | null);
 const timezone = computed(() => booking.value?.timezone || 'Africa/Lagos');
@@ -39,7 +48,25 @@ async function doReschedule() {
 async function doPay() {
   try { const result = await pay(booking.value?.customerEmail || undefined); rememberPayment(result.reference, window.location.pathname); window.location.href = result.authorizationUrl; } catch { /* error */ }
 }
-onMounted(() => { const d = new Date(); d.setDate(d.getDate() + 1); newDate.value = d.toISOString().slice(0, 10); });
+async function loadChat() { try { chat.value = await publicBookingMessagesApi.thread(token.value); } catch { /* booking messages are optional */ } }
+async function sendChat() {
+  if (!chatDraft.value.trim() && !chatAttachment.value) return;
+  chatSending.value = true; chatError.value = '';
+  try {
+    await publicBookingMessagesApi.send(token.value, { body: chatDraft.value.trim() || undefined, attachments: chatAttachment.value ? [chatAttachment.value.url] : undefined });
+    chatDraft.value = ''; chatAttachment.value = null; await loadChat();
+  } catch (error) { chatError.value = (error as Error).message; }
+  finally { chatSending.value = false; }
+}
+async function addChatAttachment(event: Event) {
+  const input = event.target as HTMLInputElement; const file = input.files?.[0]; input.value = '';
+  if (!file) return;
+  chatUploading.value = true; chatError.value = '';
+  try { chatAttachment.value = await uploadsApi.uploadPublicRequestImage(file); }
+  catch (error) { chatError.value = (error as Error).message; }
+  finally { chatUploading.value = false; }
+}
+onMounted(() => { const d = new Date(); d.setDate(d.getDate() + 1); newDate.value = d.toISOString().slice(0, 10); void loadChat(); });
 watch(showReschedule, (open) => { if (open) void loadSlots(); });
 </script>
 
@@ -79,6 +106,25 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
           </div>
         </div>
       </div>
+
+      <BaseCard class="mt-4 flex flex-col p-0">
+        <div class="flex items-center gap-2 border-b border-line p-4"><MessageCircle class="h-4 w-4 text-brand-600" /><div><p class="text-sm font-bold">Messages</p><p class="text-[10px] text-muted">Conversation with {{ business?.name }}</p></div></div>
+        <div v-if="chat" class="max-h-[420px] space-y-3 overflow-y-auto p-4">
+          <div v-for="message in chat.messages" :key="message.id" class="max-w-[88%]">
+            <div class="rounded-2xl px-3 py-2 text-xs leading-relaxed" :class="message.sender === 'customer' ? 'ml-auto bg-forest-900 text-white' : 'bg-raised text-ink'"><p v-if="message.body" class="whitespace-pre-line">{{ message.body }}</p><a v-for="image in message.attachments" :key="image" :href="image" target="_blank" rel="noopener" class="mt-2 block overflow-hidden rounded-xl"><img :src="image" alt="Attachment" class="max-h-48 w-full object-cover"></a></div>
+            <p class="mt-1 text-[9px] text-muted" :class="message.sender === 'customer' ? 'text-right' : ''">{{ message.sender === 'business' ? business?.name : 'You' }} · {{ when(message.createdAt) }}<span v-if="message.sender === 'customer' && message.seen"> · Seen</span></p>
+          </div>
+          <p v-if="!chat.messages.length" class="py-8 text-center text-xs text-muted">No messages yet. Ask about your appointment here.</p>
+        </div>
+        <div v-else class="p-4 text-center text-xs text-muted">Loading conversation…</div>
+        <div class="border-t border-line p-3">
+          <div v-if="chatAttachment" class="mb-2 flex items-center gap-2 rounded-xl bg-raised/60 p-2"><img :src="chatAttachment.optimizedUrl" alt="Attachment preview" class="h-10 w-10 rounded-lg object-cover"><button type="button" class="ml-auto text-muted" aria-label="Remove attachment" @click="chatAttachment = null"><X class="h-4 w-4" /></button></div>
+          <div class="flex gap-2"><label class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line text-muted hover:bg-raised" aria-label="Attach photo"><MessageCircle class="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" :disabled="chatUploading" @change="addChatAttachment"></label><input v-model="chatDraft" type="text" placeholder="Message the business…" class="min-h-[44px] min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-xs" @keyup.enter="sendChat"><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white disabled:opacity-50" :disabled="chatSending || chatUploading || (!chatDraft.trim() && !chatAttachment)" aria-label="Send message" @click="sendChat"><MessageCircle class="h-4 w-4" /></button></div>
+          <p v-if="chatError" class="mt-2 text-[10px] text-danger">{{ chatError }}</p>
+          <p class="mt-2 text-[9px] text-muted">Keep the conversation here so it stays with your booking record.</p>
+        </div>
+      </BaseCard>
+
       <BaseModal v-model:open="showCancel" title="Cancel this appointment?" description="This cannot be undone. If you are inside the cancellation window, please message the business." size="sm">
         <div class="flex gap-2"><BaseButton variant="ghost" block @click="showCancel = false">Keep it</BaseButton><BaseButton variant="danger" block :loading="busy" @click="doCancel">Cancel appointment</BaseButton></div>
       </BaseModal>

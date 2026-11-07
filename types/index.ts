@@ -537,3 +537,16 @@ export interface PayrollRun {
   id: string; period: string; frequency?: 'daily' | 'weekly' | 'monthly' | 'per_service'; periodStart?: string; periodEnd?: string; status: PayrollStatus; items: PayrollItem[]; totalKobo: number;
   createdBy?: string | null; approvedBy?: string | null; approvedAt?: string | null; paidAt?: string | null; createdAt?: string;
 }
+
+export interface BookingMessage {
+  id: string; sender: 'customer' | 'business'; senderName: string; body: string;
+  attachments: string[]; redacted?: boolean; seen?: boolean; createdAt: string;
+}
+export interface BookingMessageThread {
+  booking: { id: string; bookingNumber: string; publicToken: string; serviceName: string; customerName: string; startAt: string; status: string; location?: string };
+  messages: BookingMessage[];
+}
+export interface BookingMessageInboxItem {
+  bookingId: string; bookingNumber: string; customerName: string; serviceName: string; startAt: string;
+  status: string; location?: string; lastMessage: string; lastMessageAt?: string | null; lastSender?: string | null; unread: number;
+}

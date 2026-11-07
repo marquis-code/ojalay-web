@@ -6,5 +6,6 @@ class SupportApi extends BaseApi {
   start(payload: { name: string; email: string; phone: string }): Promise<SupportThread> { return this.request('post', '', payload); }
   thread(token: string): Promise<SupportThread> { return this.request('get', `/${token}`); }
   send(token: string, body: string, attachments?: SupportAttachment[]): Promise<SupportChatMessage> { return this.request('post', `/${token}/messages`, { body, attachments }); }
+  typing(token: string): Promise<{ typing: boolean }> { return this.request('post', `/${token}/typing`); }
 }
 export const supportApi = new SupportApi();

@@ -18,6 +18,8 @@ const started = ref(false);
 const attachment = ref<SupportAttachment | null>(null);
 const uploading = ref(false);
 const recording = ref(false);
+const adminTyping = ref(false);
+let lastTypingSent = 0;
 let recorder: MediaRecorder | null = null;
 let recordingStream: MediaStream | null = null;
 let poll: ReturnType<typeof setInterval> | null = null;
@@ -30,6 +32,7 @@ async function loadThread() {
     const result = await supportApi.thread(token.value);
     conversationId.value = result.conversation.id;
     messages.value = result.messages;
+    adminTyping.value = Boolean(result.typing?.admin);
     step.value = 'chat';
     scrollToBottom();
   } catch {
@@ -48,6 +51,7 @@ async function startChat() {
     if (token.value) localStorage.setItem(STORAGE_KEY, token.value);
     conversationId.value = result.conversation.id;
     messages.value = result.messages || [];
+    adminTyping.value = Boolean(result.typing?.admin);
     step.value = 'chat';
     started.value = true;
     scrollToBottom();
@@ -91,12 +95,19 @@ async function toggleRecording() {
     recording.value = true;
   } catch { error.value = 'Allow microphone access to record a voice note.'; }
 }
+function notifyTyping() {
+  if (!token.value) return;
+  const now = Date.now();
+  if (now - lastTypingSent < 1800) return;
+  lastTypingSent = now;
+  void supportApi.typing(token.value).catch(() => undefined);
+}
 function toggle() {
   open.value = !open.value;
   if (open.value) {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) { token.value = saved; void loadThread(); }
-    if (!poll) poll = setInterval(() => { if (open.value && token.value) void loadThread(); }, 6000);
+    if (!poll) poll = setInterval(() => { if (open.value && token.value) void loadThread(); }, 3000);
   }
 }
 onMounted(() => { const saved = localStorage.getItem(STORAGE_KEY); if (saved) { token.value = saved; void loadThread(); } });
@@ -133,8 +144,9 @@ function when(value: string) { return new Date(value).toLocaleTimeString('en-NG'
             <div v-if="!messages.length" class="py-10 text-center text-xs text-muted">Send your first message below.</div>
           </div>
           <div class="border-t border-line p-3">
+            <p v-if="adminTyping" class="mb-2 text-[10px] font-semibold text-brand-600 animate-pulse">Ojaly support is typing…</p>
             <div v-if="attachment" class="mb-2 flex items-center gap-2 rounded-xl bg-raised/60 p-2"><img v-if="attachment.type === 'image'" :src="attachment.url" alt="Attachment preview" class="h-10 w-10 rounded-lg object-cover"><audio v-else :src="attachment.url" controls class="h-9 min-w-0 flex-1"></audio><button type="button" class="ml-auto text-muted" aria-label="Remove attachment" @click="attachment = null"><X class="h-4 w-4" /></button></div>
-            <div class="flex gap-1.5"><label class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line text-muted hover:bg-raised" aria-label="Attach image"><ImagePlus class="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" :disabled="uploading" @change="addImage"></label><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line" :class="recording ? 'bg-danger text-white' : 'text-muted hover:bg-raised'" :disabled="uploading" :aria-label="recording ? 'Stop recording' : 'Record voice note'" @click="toggleRecording"><Square v-if="recording" class="h-4 w-4" /><Mic v-else class="h-4 w-4" /></button><input v-model="draft" type="text" placeholder="Write a message…" class="min-h-[44px] min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-xs" @keyup.enter="send"><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white disabled:opacity-50" :disabled="sending || uploading || (!draft.trim() && !attachment)" aria-label="Send message" @click="send"><Send class="h-4 w-4" /></button></div>
+            <div class="flex gap-1.5"><label class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line text-muted hover:bg-raised" aria-label="Attach image"><ImagePlus class="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" :disabled="uploading" @change="addImage"></label><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line" :class="recording ? 'bg-danger text-white' : 'text-muted hover:bg-raised'" :disabled="uploading" :aria-label="recording ? 'Stop recording' : 'Record voice note'" @click="toggleRecording"><Square v-if="recording" class="h-4 w-4" /><Mic v-else class="h-4 w-4" /></button><input v-model="draft" type="text" placeholder="Write a message…" class="min-h-[44px] min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-xs" @input="notifyTyping" @keyup.enter="send"><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white disabled:opacity-50" :disabled="sending || uploading || (!draft.trim() && !attachment)" aria-label="Send message" @click="send"><Send class="h-4 w-4" /></button></div>
             <p v-if="recording" class="mt-2 text-[10px] font-semibold text-danger">Recording… tap the square to attach the voice note.</p>
             <p v-if="error" class="mt-2 text-[10px] text-danger">{{ error }}</p><p class="mt-2 text-[9px] text-muted">Replies arrive here. Images and voice notes are supported.</p>
           </div>

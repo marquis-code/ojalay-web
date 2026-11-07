@@ -3,10 +3,10 @@ import { ArrowRight, Check, MapPin, Search, ShieldCheck, Star } from 'lucide-vue
 import { formatNaira } from '~/utils/money';
 definePageMeta({ layout: 'default' });
 useSeoMeta({
-  title: 'Book trusted local service businesses in Lagos',
-  description: 'Discover verified local service businesses across Lagos. Book a real time, pay securely and get a receipt.',
-  ogTitle: 'Ojaly — book trusted local services',
-  ogDescription: 'A verified Lagos marketplace for local service businesses. Book and pay inside Ojaly.',
+  title: 'Shop products and book local businesses in Lagos',
+  description: 'Discover verified local businesses across Lagos. Shop products, book a service, pay securely and get a receipt.',
+  ogTitle: 'Ojaly — shop products and book local businesses',
+  ogDescription: 'A verified Lagos marketplace for products and services. Shop, book and pay inside Ojaly.',
   ogUrl: 'https://ojaly.org/marketplace',
 });
 useHead({ link: [{ rel: 'canonical', href: 'https://ojaly.org/marketplace' }] });
@@ -63,7 +63,7 @@ onMounted(marketplace.load);
       <div v-else class="mt-5 rounded-3xl border border-dashed border-line bg-surface p-10 text-center">
         <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700"><ShieldCheck class="h-7 w-7" /></div>
         <h2 class="mt-4 font-display text-2xl font-bold">The first verified businesses are coming.</h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">We are reviewing Lagos service businesses now. If you run one, get listed first and get your booking link in front of customers.</p>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">We are reviewing Lagos businesses now. If you sell products or offer services, get listed first and put your storefront in front of customers.</p>
         <div class="mt-5 flex flex-wrap justify-center gap-2"><NuxtLink to="/register" class="inline-flex min-h-[44px] items-center rounded-xl bg-brand-500 px-5 text-xs font-bold text-white">List my service</NuxtLink><NuxtLink to="/register" class="inline-flex min-h-[44px] items-center rounded-xl border border-line px-5 text-xs font-bold">Sell products too</NuxtLink></div>
       </div>
     </section>

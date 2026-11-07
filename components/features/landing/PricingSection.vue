@@ -20,7 +20,7 @@ import { ArrowRight, Check, ShieldCheck, Sparkles, Users } from 'lucide-vue-next
           <BaseButton to="/marketplace" variant="outline" block class="mt-6">Browse marketplace <ArrowRight class="h-4 w-4" /></BaseButton>
         </div>
         <div class="relative flex flex-col rounded-3xl border-2 border-ink bg-forest-900 p-6 text-white shadow-[8px_8px_0_0_#FF5A1F] sm:p-7">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Built for service businesses</div>
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Built for local businesses</div>
           <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-brand-300"><ShieldCheck class="h-5 w-5" /></div>
           <h3 class="mt-5 font-display text-2xl font-bold">Service business</h3>
           <p class="mt-1 text-xs leading-relaxed text-[#A8C0B4]">Get discovered and fill your calendar.</p>

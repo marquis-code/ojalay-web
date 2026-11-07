@@ -77,9 +77,9 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Ojaly — book local services',
+      name: 'Ojaly — sell products, offer services',
       short_name: 'Ojaly',
-      description: 'Verified local service marketplace and booking record for providers in Lagos.',
+      description: 'The business platform for local businesses: products, services, bookings, payments and receipts in one record.',
       theme_color: '#06231A',
       background_color: '#FBF7EF',
       display: 'standalone',

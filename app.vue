@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ titleTemplate: (title) => title ? `${title} · Ojaly` : 'Ojaly — book trusted local services.' });
+useHead({ titleTemplate: (title) => title ? `${title} · Ojaly` : 'Ojaly — sell products, offer services, get paid.' });
 </script>
 
 <template>

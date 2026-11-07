@@ -18,7 +18,7 @@ useHead({
       name: 'Ojaly',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
-      description: 'Local service marketplace and booking record for verified providers in Lagos.',
+      description: 'Business platform for local businesses: sell products, offer services, take bookings, get paid and keep one connected record.',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     }),
   }],

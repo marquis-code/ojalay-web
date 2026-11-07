@@ -9,7 +9,7 @@ const year = new Date().getFullYear();
       <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <LogoMark dark />
-          <p class="mt-4 max-w-xs text-sm leading-relaxed text-[#A8C0B4]">The trusted booking and payment layer for local service businesses. Lagos first — campus and community.</p>
+          <p class="mt-4 max-w-xs text-sm leading-relaxed text-[#A8C0B4]">The trusted business platform for local businesses. Lagos first — products, services and community.</p>
           <div class="mt-5 flex flex-wrap gap-2"><a href="https://wa.me/2348052854256" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-bold text-white"><MessageCircle class="h-4 w-4" /> Chat on WhatsApp</a><a href="https://www.instagram.com/ojalyhq?vrfl=MTMwcHN5ajBicTdseQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Ojaly on Instagram" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-bold text-[#E8EFE9] hover:bg-white/10"><Instagram class="h-4 w-4" /> Instagram</a></div>
         </div>
         <div>

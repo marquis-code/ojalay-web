@@ -74,7 +74,7 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
           <div class="min-w-0 flex-1"><p class="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-600">Now on Ojaly</p><Transition name="hero-text" mode="out-in"><div :key="current.business"><p class="truncate text-xs font-bold">{{ current.business }} · {{ current.category }}</p><p class="truncate text-[10px] text-forest-900/60">{{ current.service }} · {{ current.price }} · {{ current.area }}</p></div></Transition></div>
           <div v-if="cards.length > 1" class="flex items-center gap-1"><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Previous featured business" @click="previous"><ChevronLeft class="h-3.5 w-3.5" /></button><button type="button" class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted hover:bg-raised" aria-label="Next featured business" @click="next"><ChevronRight class="h-3.5 w-3.5" /></button></div>
         </div>
-        <p class="mt-4 max-w-xl text-[11px] leading-relaxed text-muted">Ojaly is for trusted local service businesses — campus or not. Every order and booking becomes a customer, payment, receipt and review.</p>
+        <p class="mt-4 max-w-xl text-[11px] leading-relaxed text-muted">Ojaly is for trusted local businesses — products, services or both. Every order and booking becomes a customer, payment, receipt and review.</p>
       </div>
 
       <div class="relative mx-auto w-full min-w-0 max-w-md [perspective:1200px] lg:max-w-none" @mouseenter="paused = true" @mouseleave="paused = false">

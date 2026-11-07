@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Plus } from 'lucide-vue-next';
 const faqs = [
-  { q: 'What is Ojaly now?', a: 'Ojaly is a local service marketplace and booking record. Customers discover verified service businesses across Lagos, book a real time and pay securely. The business gets the customer, deposit, receipt and review in the same transaction.' },
+  { q: 'What is Ojaly now?', a: 'Ojaly is a business platform for local businesses. Customers discover verified businesses across Lagos, shop products, book services and pay securely. The business gets the customer, payment, receipt and review in one connected record.' },
   { q: 'Who is it for?', a: 'Anyone who wants trusted hair, food, nails, printing, laundry, design, repair and tutoring services. Service businesses that want demand and a booking system — campus and community. Product sellers can still use Ojaly, but the marketplace is built for services first.' },
   { q: 'How do I know the businesses are real?', a: 'A business must be reviewed by the Ojaly team before it appears. Verified listings show a badge, reviews only come from completed appointments, and every payment gets a receipt.' },
   { q: 'How does payment work?', a: 'Payments go through Paystack directly to the business. Ojaly records the booking, deposit, receipt and remaining balance. We do not hold your money.' },

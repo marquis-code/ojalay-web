@@ -30,6 +30,7 @@ definePageMeta({ layout: 'default' });
   <div>
     <LandingHero />
     <FeaturedBusinesses />
+    <SupportChatWidget />
     <PainPoints />
     <HowItWorks />
     <FeatureGrid />

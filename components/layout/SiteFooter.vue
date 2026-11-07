@@ -10,7 +10,7 @@ const year = new Date().getFullYear();
         <div>
           <LogoMark dark />
           <p class="mt-4 max-w-xs text-sm leading-relaxed text-[#A8C0B4]">The trusted booking and payment layer for local service businesses. Lagos first — campus and community.</p>
-          <div class="mt-5 flex flex-wrap gap-2"><a href="https://wa.me/2348000000000" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-bold text-white"><MessageCircle class="h-4 w-4" /> Chat on WhatsApp</a><a href="https://www.instagram.com/ojalyhq?vrfl=MTMwcHN5ajBicTdseQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Ojaly on Instagram" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-bold text-[#E8EFE9] hover:bg-white/10"><Instagram class="h-4 w-4" /> Instagram</a></div>
+          <div class="mt-5 flex flex-wrap gap-2"><a href="https://wa.me/2348052854256" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-bold text-white"><MessageCircle class="h-4 w-4" /> Chat on WhatsApp</a><a href="https://www.instagram.com/ojalyhq?vrfl=MTMwcHN5ajBicTdseQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Ojaly on Instagram" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-bold text-[#E8EFE9] hover:bg-white/10"><Instagram class="h-4 w-4" /> Instagram</a></div>
         </div>
         <div>
           <p class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#7C9989]">Product</p>

@@ -550,3 +550,10 @@ export interface BookingMessageInboxItem {
   bookingId: string; bookingNumber: string; customerName: string; serviceName: string; startAt: string;
   status: string; location?: string; lastMessage: string; lastMessageAt?: string | null; lastSender?: string | null; unread: number;
 }
+
+export interface SupportChatMessage { id: string; sender: 'visitor' | 'admin'; senderName: string; body: string; createdAt: string; seen?: boolean; }
+export interface SupportConversationSummary {
+  id: string; token?: string; name: string; email: string; phone: string; status: 'open' | 'closed';
+  unreadAdmin: number; unreadVisitor: number; lastMessage?: string; lastSender?: string | null; lastMessageAt?: string | null;
+}
+export interface SupportThread { token?: string; conversation: SupportConversationSummary; messages: SupportChatMessage[]; }

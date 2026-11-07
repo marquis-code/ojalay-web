@@ -14,7 +14,7 @@ const { data: home } = await useStorefrontHome(slug);
 if (error.value || !data.value) throw createError({ statusCode: 404, statusMessage: 'Storefront not found', fatal: true });
 const business = computed(() => data.value!.business);
 const template = computed(() => data.value!.template);
-const ogImage = computed(() => business.value.bannerUrl || business.value.logoUrl || `${config.public.appUrl}/pwa-512.png`);
+const ogImage = computed(() => business.value.logoUrl || business.value.bannerUrl || `${config.public.appUrl}/og/ojaly-og.jpg?v=2`);
 useSeoMeta({
   title: computed(() => `Shop — ${business.value.name}`),
   description: computed(() => `Browse ${data.value?.meta.total || 0} products from ${business.value.name}. ${business.value.tagline}`),

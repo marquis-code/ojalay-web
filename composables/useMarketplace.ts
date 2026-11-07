@@ -16,7 +16,7 @@ export function useMarketplace() {
   }
   function open(business: MarketplaceBusiness) {
     const campusCode = business.campusCode || campus.value || 'LAGOS';
-    return `/s/${business.slug}/services?marketplace=1&campus=${campusCode}`;
+    return `/s/${business.slug}/services?marketplace=1`;
   }
   return { data, loading, error, campus, category, query, load, open };
 }

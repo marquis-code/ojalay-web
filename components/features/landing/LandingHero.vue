@@ -1,21 +1,50 @@
 <script setup lang="ts">
 import { ArrowRight, BadgeCheck, CalendarCheck, Check, ChevronLeft, ChevronRight, Receipt, Star } from 'lucide-vue-next';
+import { publicApi } from '~/api/factories/publicApi';
+import { formatNaira } from '~/utils/money';
+import type { DemoBusiness } from '~/types';
 
 const auth = useAuthStore();
-const cards = [
-  { image: '/images/business/just-steam-it-logo.jpg', alt: 'Just Steam It bedbug steam treatment business in Lagos', business: 'Just Steam It', area: 'Lagos, Nigeria', category: 'Home & Pest Care', service: 'Bedbug steam treatment', price: 'from ₦5,000', rating: '5.0', position: 'center' },
+type HeroCard = { image: string; alt: string; business: string; area: string; category: string; service: string; price: string; rating?: string; position: string; imageClass: string };
+const fallbackCards: HeroCard[] = [
+  { image: '/images/business/just-steam-it-logo.jpg', alt: 'Just Steam It bedbug steam treatment business in Lagos', business: 'Just Steam It', area: 'Lagos, Nigeria', category: 'Home & Pest Care', service: 'Bedbug steam treatment', price: 'from ₦5,000', rating: '5.0', position: 'center', imageClass: 'object-contain p-6' },
 ];
+const cards = ref<HeroCard[]>(fallbackCards);
+function mapFeatured(business: DemoBusiness): HeroCard {
+  return {
+    image: business.bannerUrl || business.logoUrl || '/images/business/just-steam-it-logo.jpg',
+    alt: business.name,
+    business: business.name,
+    area: business.address || 'Lagos, Nigeria',
+    category: business.mode === 'services' ? 'Services' : business.mode === 'hybrid' ? 'Cakes & services' : 'Products',
+    service: business.mode === 'services' ? `${business.serviceCount || 0} services` : business.mode === 'hybrid' ? `${business.productCount || 0} products · ${business.serviceCount || 0} services` : `${business.productCount || 0} products`,
+    price: business.startingPriceKobo ? `from ${formatNaira(business.startingPriceKobo)}` : '',
+    rating: business.slug === 'just-steam-it' ? '5.0' : undefined,
+    position: 'center',
+    imageClass: business.bannerUrl ? 'object-cover' : 'object-contain p-6',
+  };
+}
+async function loadFeatured() {
+  try {
+    const data = await publicApi.featuredBusinesses();
+    if (data?.length) cards.value = data.map(mapFeatured);
+  } catch { /* keep the fallback */ }
+  startTimer();
+}
+function startTimer() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  if (cards.value.length < 2 || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  timer = setInterval(() => { if (!paused.value) next(); }, 4600);
+}
 const active = ref(0);
 let timer: ReturnType<typeof setInterval> | null = null;
 const paused = ref(false);
-const current = computed(() => cards[active.value]);
-function go(index: number) { active.value = (index + cards.length) % cards.length; }
+const current = computed(() => cards.value[active.value] || cards.value[0]);
+function go(index: number) { active.value = (index + cards.value.length) % cards.value.length; }
 function next() { go(active.value + 1); }
 function previous() { go(active.value - 1); }
-onMounted(() => {
-  if (cards.length < 2 || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-  timer = setInterval(() => { if (!paused.value) next(); }, 4600);
-});
+onMounted(() => { void loadFeatured(); });
 onBeforeUnmount(() => { if (timer) clearInterval(timer); });
 </script>
 
@@ -52,9 +81,9 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         <div class="absolute -inset-2 rotate-2 rounded-[2.2rem] border-2 border-ink bg-brand-500" />
         <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] border-2 border-ink bg-surface shadow-[8px_8px_0_0_#06231A]">
           <div v-for="(card, index) in cards" :key="card.image" class="hero-card absolute inset-0 transition-all duration-700 ease-[cubic-bezier(.2,.8,.2,1)] [backface-visibility:hidden]" :class="{ 'hero-card-active': index === active }" :style="{ opacity: index === active ? 1 : index === (active + 1) % cards.length ? 0.45 : 0, transform: index === active ? 'rotateY(0deg) scale(1)' : index === (active + 1) % cards.length ? 'rotateY(10deg) scale(.96) translateX(18px)' : 'rotateY(-18deg) scale(.9) translateX(-22px)', zIndex: index === active ? 3 : index === (active + 1) % cards.length ? 2 : 1 }">
-            <img :src="card.image" :alt="card.alt" class="h-full w-full bg-white object-contain p-6" :style="{ objectPosition: card.position }">
+            <img :src="card.image" :alt="card.alt" class="h-full w-full bg-white" :class="card.imageClass" :style="{ objectPosition: card.position }">
             <div class="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-forest-900/55 via-transparent to-transparent" />
-            <div class="absolute left-3 top-3 flex gap-1.5"><span class="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Verified</span><span class="inline-flex items-center gap-1 rounded-full bg-forest-900/70 px-2.5 py-1 text-[9px] font-bold text-white"><Star class="h-3 w-3 fill-brand-300 text-brand-300" /> {{ card.rating }}</span></div>
+            <div class="absolute left-3 top-3 flex gap-1.5"><span class="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-900"><BadgeCheck class="h-3 w-3 text-success" /> Verified</span><span v-if="card.rating" class="inline-flex items-center gap-1 rounded-full bg-forest-900/70 px-2.5 py-1 text-[9px] font-bold text-white"><Star class="h-3 w-3 fill-brand-300 text-brand-300" /> {{ card.rating }}</span></div>
             <div class="absolute inset-x-3 bottom-3 rounded-xl bg-white p-3 text-forest-900 shadow-lg">
               <div class="flex items-center justify-between gap-2"><div class="min-w-0"><p class="truncate text-xs font-bold text-forest-900">{{ card.business }}</p><p class="truncate text-[9px] text-forest-900/60">{{ card.category }} · {{ card.area }}</p></div><p class="shrink-0 text-[10px] font-bold text-brand-600">{{ card.price }}</p></div>
               <div class="mt-2 flex items-center gap-1.5 rounded-lg bg-forest-900/5 px-2 py-1.5 text-[9px] font-semibold text-forest-900/60"><CalendarCheck class="h-3 w-3 text-success" /> {{ card.service }} · real slot</div>

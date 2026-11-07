@@ -36,7 +36,7 @@ function hydrate() {
   if (!b) return;
   Object.assign(draft, {
     name: b.name, tagline: b.tagline, description: b.description, about: b.about, logoUrl: b.logoUrl,
-    bannerUrl: b.bannerUrl, heroVideoUrl: b.heroVideoUrl, storyImageUrl: b.storyImageUrl, lookbookTitle: b.lookbookTitle || 'The lookbook', lookbook: [...(b.lookbook || [])], brandColor: b.brandColor, templateKey: b.templateKey, sections: [...(b.sections || [])],
+    bannerUrl: b.bannerUrl, heroVideoUrl: b.heroVideoUrl, storyImageUrl: b.storyImageUrl, lookbookTitle: b.lookbookTitle || 'The lookbook', lookbook: [...(b.lookbook || [])], brandColor: b.brandColor, templateKey: b.templateKey, sections: b.sections?.length ? [...b.sections] : ['hero', 'featured', 'story', 'categories', 'products', 'testimonials', 'contact'],
     socialLinks: { ...(b.socialLinks || {}) }, publicPhone: b.publicPhone, whatsappNumber: b.whatsappNumber,
     email: b.email, address: b.address, seoTitle: b.seoTitle, seoDescription: b.seoDescription,
   });

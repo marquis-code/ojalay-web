@@ -274,7 +274,7 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
         <div class="mt-5 rounded-2xl border border-line bg-raised/20 p-4 sm:p-5">
           <div class="flex items-start gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><ShieldCheck class="h-4 w-4" /></div><div><p class="text-sm font-bold">Add a settlement account</p><p class="mt-0.5 text-[11px] text-muted">Select your bank and enter the 10-digit account number. We verify the name automatically.</p></div></div>
           <div class="mt-4 grid gap-3 md:grid-cols-2">
-            <BaseSelect v-model="settlementBank" label="Bank" :options="[{ value: '', label: settlementBanksLoading ? 'Loading banks…' : 'Choose your bank' }, ...settlementBanks.map((bank) => ({ value: bank.code, label: bank.name }))]" :disabled="settlementBanksLoading" />
+            <SearchableSelect v-model="settlementBank" label="Bank" :options="settlementBanks.map((bank) => ({ value: bank.code, label: bank.name }))" :placeholder="settlementBanksLoading ? 'Loading banks…' : 'Search for your bank'" :disabled="settlementBanksLoading" />
             <BaseInput v-model="settlementAccountNumber" label="Account number" inputmode="numeric" :maxlength="10" placeholder="10-digit NUBAN" />
           </div>
           <div class="mt-3 min-h-[46px]" aria-live="polite">

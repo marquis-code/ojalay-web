@@ -11,7 +11,7 @@ const mappedBusiness = computed<StorefrontBusiness>(() => ({
   heroVideoUrl: props.business.heroVideoUrl || null, storyImageUrl: props.business.storyImageUrl || null,
   lookbookTitle: props.business.lookbookTitle || 'The lookbook', lookbook: props.business.lookbook || [],
   tagline: props.business.tagline || 'Your tagline goes here', brandColor: props.business.brandColor || '#FF5A1F',
-  templateKey: props.template.key, sections: props.business.sections || [], socialLinks: props.business.socialLinks || {},
+  templateKey: props.template.key, sections: props.business.sections?.length ? props.business.sections : ['hero', 'featured', 'story', 'categories', 'products', 'testimonials', 'contact'], socialLinks: props.business.socialLinks || {},
   publicPhone: props.business.publicPhone || null, whatsappNumber: props.business.whatsappNumber || null,
   email: props.business.email || null, address: props.business.address || '', about: props.business.about || '',
   seoTitle: props.business.seoTitle || '', seoDescription: props.business.seoDescription || '', currency: 'NGN',

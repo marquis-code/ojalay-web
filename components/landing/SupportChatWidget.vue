@@ -128,7 +128,7 @@ function when(value: string) { return new Date(value).toLocaleTimeString('en-NG'
 <template>
   <div class="fixed bottom-5 right-4 z-[90] flex flex-col items-end gap-2 sm:bottom-6 sm:right-6">
     <Transition name="chat-pop">
-      <div v-if="open" class="mb-1 flex h-[min(620px,78vh)] w-[min(390px,calc(100vw-32px))] flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-2xl max-sm:fixed max-sm:inset-0 max-sm:z-[100] max-sm:mb-0 max-sm:h-[100dvh] max-sm:w-screen max-sm:max-w-none max-sm:rounded-none max-sm:border-0">
+      <div v-if="open" class="mb-1 flex h-[min(620px,78vh)] w-[min(390px,calc(100vw-32px))] flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-2xl max-sm:fixed max-sm:inset-0 max-sm:z-[100] max-sm:mb-0 max-sm:h-[100dvh] max-sm:w-full max-sm:max-w-none max-sm:rounded-none max-sm:border-0">
         <header class="flex items-center justify-between bg-forest-900 px-4 py-3 text-white">
           <div class="flex items-center gap-2.5"><div class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500"><MessageCircle class="h-4 w-4" /></div><div><p class="text-xs font-bold">Ojaly support</p><p class="text-[9px] text-white/55">We usually reply in a few minutes</p></div></div>
           <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10" aria-label="Close chat" @click="open = false"><X class="h-4 w-4" /></button>

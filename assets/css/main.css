@@ -23,14 +23,16 @@
     color-scheme: dark;
   }
   * { @apply border-line; }
-  html, body { max-width: 100%; overflow-x: hidden; }
+  html, body { max-width: 100%; overflow-x: hidden; overscroll-behavior-x: none; }
 @supports (overflow: clip) { html, body { overflow-x: clip; } }
 
-html { @apply scroll-smooth; -webkit-tap-highlight-color: transparent; }
+html { @apply scroll-smooth; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
     @apply bg-canvas font-sans text-ink antialiased;
     text-rendering: optimizeLegibility;
+    overflow-wrap: break-word;
   }
+  img, video, canvas, svg, iframe { max-width: 100%; }
   h1, h2, h3, h4, h5 { @apply font-display; }
   button, a, input, textarea, select { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-canvas; }
   button, [role='button'] { touch-action: manipulation; }
@@ -66,6 +68,23 @@ html { @apply scroll-smooth; -webkit-tap-highlight-color: transparent; }
   .skeleton { @apply animate-pulse rounded-xl bg-raised; }
   .prose-ojaly p { @apply mb-4 leading-relaxed; }
   .prose-ojaly a { @apply text-brand underline underline-offset-4; }
+}
+
+@media (max-width: 640px) {
+  /* iOS zooms any focused form control below 16px. Keeping controls at 16px
+     gives the storefront a stable, app-like feel instead of expanding the page. */
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    font-size: 16px !important;
+    line-height: 1.4;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .input-base { font-size: 16px !important; }
+  .storefront, #__nuxt, main { max-width: 100%; overflow-x: clip; }
+  [class*='overflow-x-auto'] { scrollbar-width: none; -ms-overflow-style: none; }
+  [class*='overflow-x-auto']::-webkit-scrollbar { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

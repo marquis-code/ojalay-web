@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'en-NG' },
       title: 'Ojaly — book trusted local service businesses.',
       meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content' },
         { name: 'theme-color', content: '#06231A' },
         { name: 'description', content: 'Ojaly is the trusted booking and payment layer for local service businesses. Discover verified providers, book a real time and pay securely.' },
         { property: 'og:site_name', content: 'Ojaly' },

@@ -24,6 +24,7 @@ const whatsapp = useWhatsApp();
 const calendar = useCalendar();
 const summaries = useSummaries();
 const billing = useBilling();
+const checkingOutPlan = ref('');
 const domainApi = useDomain();
 const { data: categoryOptions } = await useBusinessCategories();
 const whatsappReadyLabels: Record<string, string> = {
@@ -205,11 +206,14 @@ async function removeStaff(id: string) {
   catch (error) { toast.error((error as Error).message); }
 }
 async function upgrade(planKey: string) {
+  if (billing.checkingOut.value) return;
+  checkingOutPlan.value = planKey;
   try {
     const result = await billing.checkout(planKey, yearly.value ? 'yearly' : 'monthly', coupon.value || undefined);
     if (result.reference) rememberPayment(result.reference, window.location.pathname);
     window.location.href = result.authorizationUrl;
   } catch (error) { toast.error((error as Error).message); }
+  finally { checkingOutPlan.value = ''; }
 }
 async function setDomain() {
   if (!domainInput.value) return;
@@ -419,7 +423,7 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
           <p class="mt-1 text-[11px]" :class="plan.key === currentPlan?.key ? 'text-[#A8C0B4]' : 'text-muted'">{{ plan.description }}</p>
           <p class="mt-4 font-display text-3xl font-bold">{{ plan.priceMonthlyKobo === 0 ? 'Free' : formatNaira(yearly ? plan.priceYearlyKobo : plan.priceMonthlyKobo) }}<span v-if="plan.priceMonthlyKobo" class="text-[10px] font-normal">/{{ yearly ? 'yr' : 'mo' }}</span></p>
           <ul class="mt-3 flex-1 space-y-1.5 text-[11px]"><li v-for="feature in plan.marketingFeatures" :key="feature" class="flex gap-1.5"><Check class="mt-0.5 h-3 w-3 shrink-0" :class="plan.key === currentPlan?.key ? 'text-accent' : 'text-success'" />{{ feature }}</li></ul>
-          <BaseButton class="mt-4" size="sm" :variant="plan.key === currentPlan?.key ? 'secondary' : 'outline'" :disabled="plan.key === currentPlan?.key || plan.priceMonthlyKobo === 0 || plan.key === 'free'" :loading="billing.checkingOut.value" @click="upgrade(plan.key)">{{ plan.key === currentPlan?.key ? 'Current plan' : plan.priceMonthlyKobo === 0 ? 'Free tier' : 'Choose plan' }}</BaseButton>
+          <BaseButton class="mt-4" size="sm" :variant="plan.key === currentPlan?.key ? 'secondary' : 'outline'" :disabled="billing.checkingOut.value || plan.key === currentPlan?.key || plan.priceMonthlyKobo === 0 || plan.key === 'free'" :loading="billing.checkingOut.value && checkingOutPlan === plan.key" @click="upgrade(plan.key)">{{ plan.key === currentPlan?.key ? 'Current plan' : plan.priceMonthlyKobo === 0 ? 'Free tier' : 'Choose plan' }}</BaseButton>
         </div>
       </div>
       <BaseCard><h3 class="font-display text-lg font-bold">Have a coupon?</h3><div class="mt-2 flex flex-col gap-2 sm:flex-row"><input v-model="coupon" class="input-base sm:flex-1" placeholder="STUDENT20" aria-label="Coupon code"><p class="text-[10px] text-muted sm:max-w-xs">Apply at checkout after choosing a plan. Coupons are issued by the Ojaly team.</p></div></BaseCard>

@@ -29,7 +29,7 @@ const year = new Date().getFullYear();
         </div>
         <div>
           <p class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#7C9989]">For businesses</p>
-          <p class="text-sm leading-relaxed text-[#C7D8CE]">Free to start.<br>No card needed.<br>Built for Nigerian data.</p>
+          <p class="text-sm leading-relaxed text-[#C7D8CE]">30 days free.<br>Then choose a plan.<br>Built for Nigerian data.</p>
         </div>
       </div>
       <div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#7C9989] sm:flex-row sm:items-center sm:justify-between">

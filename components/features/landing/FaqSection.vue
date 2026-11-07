@@ -9,7 +9,7 @@ const faqs = [
   { q: 'Do I need the WhatsApp API?', a: 'No. Ojaly works with shareable WhatsApp links, email and SMS fallback. WhatsApp automation is optional. Cloud API review will never block you from booking or getting paid.' },
   { q: 'What if a day is fully booked?', a: 'Join the waitlist. If a customer cancels or reschedules, Ojaly offers the opening to waiting customers by email and WhatsApp.' },
   { q: 'Can I reschedule or cancel?', a: 'Yes. Every booking has a private management link. Reschedule or cancel within the business policy window; deposits and cancellation rules are shown upfront.' },
-  { q: 'Is it free?', a: 'Students browse and book for free. Service businesses start free and can upgrade when they need more staff, packages or advanced tools. No card is required to start.' },
+  { q: 'Is it free?', a: 'Customers browse and book for free. Every business gets a full 30-day free trial with no card required. After the month, choose a monthly or yearly plan to continue using Ojaly.' },
   { q: 'Where is Ojaly available?', a: 'Lagos first, expanding across Nigeria. Any trusted local service provider can apply for verification.' },
 ];
 const open = ref<number | null>(0);

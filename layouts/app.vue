@@ -6,6 +6,8 @@ const offline = useOfflineStore();
 const sidebarOpen = ref(false);
 const loadError = ref<string | null>(null);
 const config = useRuntimeConfig();
+const subscriptionPromptOpen = ref(false);
+const subscriptionExpired = computed(() => businessStore.subscription?.status === 'expired' || (businessStore.subscription?.status === 'trialing' && businessStore.trialDaysLeft === 0));
 function exitImpersonation() {
   const businessId = auth.exitImpersonation();
   window.location.href = businessId ? `${config.public.adminUrl}/businesses/${businessId}` : `${config.public.adminUrl}/businesses`;
@@ -15,6 +17,7 @@ async function loadBusiness() {
   try {
     loadError.value = null;
     await businessStore.load();
+    if (subscriptionExpired.value && !subscriptionPromptOpen.value) subscriptionPromptOpen.value = true;
   } catch (error) {
     loadError.value = (error as Error).message;
   }
@@ -40,6 +43,8 @@ onMounted(loadBusiness);
           <NuxtLink to="/app/offline" class="inline-flex items-center gap-1 font-bold text-warning">Open queue <ArrowRight class="h-3 w-3" /></NuxtLink>
         </div>
       </div>
+
+      <div v-if="subscriptionExpired" class="border-b border-danger/20 bg-danger/5 px-4 py-3 text-xs sm:px-8"><div class="flex flex-wrap items-center justify-between gap-2"><span class="inline-flex items-center gap-2 font-semibold text-danger"><AlertTriangle class="h-4 w-4" /> Your free month has ended. Choose a plan to keep your business growing.</span><NuxtLink to="/app/settings?tab=billing" class="rounded-lg bg-danger px-3 py-1.5 text-[10px] font-bold text-white">Choose a plan</NuxtLink></div></div>
 
       <div v-if="businessStore.isTrial" class="border-b border-brand-200 bg-brand-50 px-4 py-2.5 text-xs dark:border-brand-500/30 dark:bg-brand-500/10 sm:px-8">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -69,5 +74,9 @@ onMounted(loadBusiness);
     <MobileNav />
     <SupportChatWidget :show-whatsapp="false" />
     <TourOverlay />
+    <BaseModal v-model:open="subscriptionPromptOpen" title="Your 30-day free trial has ended" description="Choose a plan to keep using Ojaly. Your data is safe and waiting for you." size="sm">
+      <div class="space-y-3 text-sm text-muted"><p>Your business had one full month free. Subscribe now to continue managing sales, bookings, customers, payments and your team in one place.</p><div class="rounded-xl bg-raised p-3 text-xs"><p class="font-bold text-ink">Plans start from ₦2,500/month</p><p class="mt-1">Monthly or yearly billing. No setup fee.</p></div></div>
+      <div class="mt-5 flex gap-2"><BaseButton block to="/app/settings?tab=billing">Choose a plan</BaseButton><BaseButton variant="ghost" @click="subscriptionPromptOpen = false">Later</BaseButton></div>
+    </BaseModal>
   </div>
 </template>

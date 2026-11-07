@@ -560,4 +560,4 @@ export interface SupportConversationSummary {
   id: string; token?: string; name: string; email: string; phone: string; status: 'open' | 'closed';
   unreadAdmin: number; unreadVisitor: number; lastMessage?: string; lastSender?: string | null; lastMessageAt?: string | null;
 }
-export interface SupportThread { token?: string; conversation: SupportConversationSummary; messages: SupportChatMessage[]; }
+export interface SupportThread { token?: string; conversation: SupportConversationSummary; messages: SupportChatMessage[]; typing?: { visitor: boolean; admin: boolean }; }

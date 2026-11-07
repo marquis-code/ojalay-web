@@ -3,10 +3,12 @@ import { ArrowRight, CalendarDays, Check, ChevronLeft, Clock3, Loader2, MessageC
 import type { PublicProvider, Service, StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { formatNaira } from '~/utils/money';
 import { rememberPayment } from '~/utils/pending-payment';
+import { publicApi } from '~/api/factories/publicApi';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; service: Service; providers: PublicProvider[]; marketplaceCampus?: string }>();
 const { availability, loading, submitting, waitlistLoading, waitlistJoined, error, confirmed, loadAvailability, joinWaitlist, book } = usePublicBookingFlow(props.business.slug);
 
 const step = ref(1);
+const promoPercent = ref(0);
 const providerId = ref('');
 const date = ref('');
 const startAt = ref('');
@@ -92,7 +94,7 @@ async function submitWaitlist() {
     });
   } catch { /* error shown */ }
 }
-onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10); void refreshSlots(); });
+onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10); void refreshSlots(); publicApi.newCustomerPromotion().then((promo) => { promoPercent.value = promo.enabled ? promo.percentOff : 0; }).catch(() => undefined); });
 </script>
 
 <template>
@@ -135,6 +137,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <div v-if="error" class="rounded-xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ error }}</div>
         </div>
         <form v-else-if="step === 3" class="space-y-3" @submit.prevent="submit">
+          <div v-if="promoPercent" class="rounded-xl border border-brand-200 bg-brand-50 p-3 text-xs font-semibold text-brand-700">New customer? Your first booking gets {{ promoPercent }}% off automatically.</div>
           <button type="button" class="inline-flex items-center gap-1 text-[11px] font-bold" :style="{ color: template.colors.muted }" @click="step = 1"><ChevronLeft class="h-3.5 w-3.5" /> Change time</button>
           <div class="rounded-xl p-3 text-xs" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 10%, transparent)`, color: template.colors.ink }"><p class="font-bold">{{ service.name }}</p><p class="mt-0.5">{{ new Date(startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(startAt) }}</p></div>
           <div v-if="business.bookingSettings?.locations?.length"><BaseSelect v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required /><p v-if="locationError" class="mt-1 text-[10px] font-semibold text-danger">{{ locationError }}</p></div>

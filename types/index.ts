@@ -343,6 +343,8 @@ export interface Booking {
   source: string;
   notes: string;
   location?: string;
+  discountKobo?: number;
+  promotionLabel?: string | null;
   subtotalKobo?: number;
   serviceChargeKobo?: number;
   serviceChargePercent?: number;

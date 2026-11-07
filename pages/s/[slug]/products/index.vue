@@ -14,14 +14,19 @@ const { data: home } = await useStorefrontHome(slug);
 if (error.value || !data.value) throw createError({ statusCode: 404, statusMessage: 'Storefront not found', fatal: true });
 const business = computed(() => data.value!.business);
 const template = computed(() => data.value!.template);
-const ogImage = computed(() => business.value.logoUrl || business.value.bannerUrl || `${config.public.appUrl}/og/ojaly-og.jpg?v=2`);
+const ogImage = computed(() => {
+  const raw = business.value.logoUrl || business.value.bannerUrl || `${config.public.appUrl}/og/ojaly-og.jpg`;
+  return `${raw}${raw.includes('?') ? '&' : '?'}v=20261107`;
+});
 useSeoMeta({
   title: computed(() => `Shop — ${business.value.name}`),
   description: computed(() => `Browse ${data.value?.meta.total || 0} products from ${business.value.name}. ${business.value.tagline}`),
   ogTitle: computed(() => `Shop ${business.value.name}`),
   ogDescription: computed(() => business.value.seoDescription || business.value.tagline),
   ogImage: computed(() => ogImage.value),
+  ogImageAlt: computed(() => `${business.value.name} logo`),
   twitterCard: 'summary_large_image',
+  twitterImage: computed(() => ogImage.value),
 });
 useHead({ titleTemplate: '%s' });
 let timer: ReturnType<typeof setTimeout> | null = null;

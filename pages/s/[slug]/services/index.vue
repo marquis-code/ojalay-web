@@ -11,9 +11,16 @@ if (error.value || !data.value || !data.value.items?.length) {
 useSeoMeta({
   title: computed(() => data.value ? `Services — ${data.value.business.name}` : 'Services'),
   description: computed(() => data.value?.business.seoDescription || data.value?.business.description || 'Book an appointment.'),
-  ogImage: computed(() => data.value?.business.logoUrl || data.value?.business.bannerUrl || 'https://ojaly.org/og/ojaly-og.jpg?v=2'),
+  ogImage: computed(() => {
+    const raw = data.value?.business.logoUrl || data.value?.business.bannerUrl || 'https://ojaly.org/og/ojaly-og.jpg';
+    return `${raw}${raw.includes('?') ? '&' : '?'}v=20261107`;
+  }),
+  ogImageAlt: computed(() => data.value ? `${data.value.business.name} logo` : 'Ojaly'),
   twitterCard: 'summary_large_image',
-  twitterImage: computed(() => data.value?.business.logoUrl || data.value?.business.bannerUrl || 'https://ojaly.org/og/ojaly-og.jpg?v=2'),
+  twitterImage: computed(() => {
+    const raw = data.value?.business.logoUrl || data.value?.business.bannerUrl || 'https://ojaly.org/og/ojaly-og.jpg';
+    return `${raw}${raw.includes('?') ? '&' : '?'}v=20261107`;
+  }),
 });
 </script>
 

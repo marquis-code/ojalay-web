@@ -59,6 +59,7 @@ function clearStorefrontTheme() {
   THEME_KEYS.forEach((key) => root.style.removeProperty(key));
   root.style.removeProperty('color-scheme');
 }
+useHead(() => ({ link: props.business.logoUrl ? [{ rel: 'icon', href: props.business.logoUrl }] : [] }));
 onMounted(applyStorefrontTheme);
 watch(() => props.template, applyStorefrontTheme, { deep: true });
 onBeforeUnmount(clearStorefrontTheme);

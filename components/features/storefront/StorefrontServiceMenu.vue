@@ -3,15 +3,6 @@ import { ArrowRight, CalendarDays, Clock3, MapPin, Sparkles, Star } from 'lucide
 import type { PublicProvider, Service, StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { formatNaira } from '~/utils/money';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; services: Service[]; providers: PublicProvider[] }>();
-const grouped = computed(() => {
-  const map = new Map<string, Service[]>();
-  for (const service of props.services) {
-    const list = map.get(service.category) || [];
-    list.push(service);
-    map.set(service.category, list);
-  }
-  return [...map.entries()];
-});
 const wa = computed(() => props.business.whatsappNumber || props.business.publicPhone);
 </script>
 
@@ -49,15 +40,13 @@ const wa = computed(() => props.business.whatsappNumber || props.business.public
 
     <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <div class="flex items-end justify-between gap-4"><div><p class="text-[10px] font-bold uppercase tracking-[0.18em]" :style="{ color: template.colors.primary }">The menu</p><h2 class="mt-1 font-display text-3xl font-bold tracking-tight sm:text-4xl" :style="{ color: template.colors.ink }">Choose your service</h2></div><NuxtLink :to="`/s/${business.slug}/services`" class="text-xs font-bold" :style="{ color: template.colors.primary }">View full menu →</NuxtLink></div>
-      <div v-for="[category, list] in grouped" :key="category" class="mt-8">
-        <p class="text-[10px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.muted }">{{ category }}</p>
-        <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <NuxtLink v-for="service in list" :key="service.id" :to="`/s/${business.slug}/services/${service.id}`" class="group flex flex-col rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-lg" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 12%, transparent)`, background: template.colors.surface }">
-            <div class="flex items-start justify-between gap-2"><p class="font-display text-lg font-bold leading-tight" :style="{ color: template.colors.ink }">{{ service.name }}</p><p class="shrink-0 text-sm font-bold" :style="{ color: template.colors.primary }">{{ formatNaira(service.priceKobo) }}</p></div>
-            <p class="mt-1 line-clamp-2 text-xs leading-relaxed" :style="{ color: template.colors.muted }">{{ service.description || 'A considered appointment, made for you.' }}</p>
-            <div class="mt-auto flex items-center justify-between gap-2 pt-4"><span class="inline-flex items-center gap-1 text-[10px] font-semibold" :style="{ color: template.colors.muted }"><Clock3 class="h-3 w-3" /> {{ service.durationMinutes }} min</span><span class="inline-flex items-center gap-1 text-[10px] font-bold" :style="{ color: template.colors.primary }">Book <ArrowRight class="h-3 w-3 transition group-hover:translate-x-0.5" /></span></div>
-          </NuxtLink>
-        </div>
+      <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <NuxtLink v-for="service in services" :key="service.id" :to="`/s/${business.slug}/services/${service.id}`" class="group flex flex-col rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-lg" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 12%, transparent)`, background: template.colors.surface }">
+          <p class="text-[9px] font-bold uppercase tracking-[0.14em]" :style="{ color: template.colors.muted }">{{ service.category }}</p>
+          <div class="mt-1 flex items-start justify-between gap-2"><p class="font-display text-lg font-bold leading-tight" :style="{ color: template.colors.ink }">{{ service.name }}</p><p class="shrink-0 text-sm font-bold" :style="{ color: template.colors.primary }">{{ formatNaira(service.priceKobo) }}</p></div>
+          <p class="mt-1 line-clamp-2 text-xs leading-relaxed" :style="{ color: template.colors.muted }">{{ service.description || 'A considered appointment, made for you.' }}</p>
+          <div class="mt-auto flex items-center justify-between gap-2 pt-4"><span class="inline-flex items-center gap-1 text-[10px] font-semibold" :style="{ color: template.colors.muted }"><Clock3 class="h-3 w-3" /> {{ service.durationMinutes }} min</span><span class="inline-flex items-center gap-1 text-[10px] font-bold" :style="{ color: template.colors.primary }">Book <ArrowRight class="h-3 w-3 transition group-hover:translate-x-0.5" /></span></div>
+        </NuxtLink>
       </div>
     </section>
 

@@ -79,7 +79,7 @@ onMounted(load);
           <td class="px-4 py-3 text-right text-xs font-bold">{{ formatNaira(sale.totalKobo) }}</td>
           <td class="px-4 py-3 text-right text-xs font-bold" :class="sale.grossProfitKobo >= 0 ? 'text-success' : 'text-danger'">{{ formatNaira(sale.grossProfitKobo) }}</td>
           <td class="px-4 py-3"><BaseBadge :variant="statusVariant[sale.paymentStatus]" dot>{{ sale.paymentStatus }}</BaseBadge></td>
-          <td class="px-4 py-3 text-right"><button class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-bold text-brand-600 hover:bg-brand-50 dark:text-brand-300 dark:hover:bg-brand-500/10" @click="openDetail(sale)"><Eye class="h-3.5 w-3.5" /> View</button></td>
+          <td class="px-4 py-3 text-right"><div class="inline-flex items-center gap-1"><button class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-bold text-brand-600 hover:bg-brand-50 dark:text-brand-300 dark:hover:bg-brand-500/10" @click="openDetail(sale)"><Eye class="h-3.5 w-3.5" /> View</button><button class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-bold text-muted hover:bg-raised" aria-label="Chat about this sale" @click="openChat(sale.id)"><MessageCircle class="h-3.5 w-3.5" /> Chat</button></div></td>
         </tr>
         <tr v-if="!items.length && !loading"><td colspan="6"><BaseEmptyState compact title="No sales here yet" message="Record a sale, or adjust the filter to see older sales." action-label="Record a sale" @action="navigateTo('/app/sales/new')" /></td></tr>
       </template>

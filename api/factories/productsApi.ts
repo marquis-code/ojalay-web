@@ -13,7 +13,8 @@ class ProductsApi extends BaseApi {
   }
   createProduct(payload: ProductPayload): Promise<Product> { return this.request('post', '', payload); }
   updateProduct(id: string, payload: Partial<ProductPayload> & { isActive?: boolean }): Promise<Product> { return this.request('patch', `/${id}`, payload); }
-  deactivate(id: string): Promise<{ deactivated: boolean }> { return this.request('delete', `/${id}`); }
+  deleteProduct(id: string): Promise<{ deleted: boolean }> { return this.request('delete', `/${id}`); }
+  deleteProducts(ids: string[]): Promise<{ deleted: number }> { return this.request('delete', '/batch', { ids }); }
   addVariant(id: string, payload: Record<string, unknown>): Promise<Product> { return this.request('post', `/${id}/variants`, payload); }
   updateVariant(id: string, variantId: string, payload: Record<string, unknown>): Promise<Product> { return this.request('patch', `/${id}/variants/${variantId}`, payload); }
   removeVariant(id: string, variantId: string): Promise<Product> { return this.request('delete', `/${id}/variants/${variantId}`); }

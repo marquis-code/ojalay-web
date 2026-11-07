@@ -39,6 +39,7 @@ export function useProducts() {
     if (key !== 'page' && key !== 'limit') filters.page = 1;
     return load();
   }
-  async function deactivate(id: string) { await productsApi.deactivate(id); await load(); }
-  return { items, meta, loading, error, categories, lowStock, allProducts, loadingAll, filters, load, loadAll, loadExtras, setFilter, deactivate };
+  async function remove(id: string) { await productsApi.deleteProduct(id); await load(); }
+  async function removeMany(ids: string[]) { await productsApi.deleteProducts(ids); await load(); }
+  return { items, meta, loading, error, categories, lowStock, allProducts, loadingAll, filters, load, loadAll, loadExtras, setFilter, remove, removeMany };
 }

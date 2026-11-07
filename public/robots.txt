@@ -9,3 +9,4 @@ Disallow: /pay/
 Disallow: /payment/
 Disallow: /embed/
 Disallow: /api/
+Sitemap: https://ojaly.org/sitemap.xml

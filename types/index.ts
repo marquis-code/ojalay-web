@@ -142,6 +142,7 @@ export interface StorefrontHome {
 export interface BuilderData {
   business: Business; template: StorefrontTemplate; templates: StorefrontTemplate[];
   plan: { name: string; entitlements: Entitlements }; products: Product[]; productCount: number;
+  services?: Service[]; serviceCount?: number; providers?: PublicProvider[]; businessMode?: 'products' | 'services' | 'hybrid';
   urls: { path: string; subdomain: string; customDomain?: string | null; embedScript: string; orderLink: string; embedKey: string };
 }
 export interface Receipt {

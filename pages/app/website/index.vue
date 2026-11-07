@@ -219,7 +219,7 @@ onMounted(async () => { await builder.load(); hydrate(); });
         </div>
 
         <div class="xl:sticky xl:top-[84px] xl:self-start">
-          <StorefrontPreview :business="draft" :template="currentTemplate" :products="builder.data.value.products" :slug="builder.data.value.business.slug" />
+          <StorefrontPreview :business="draft" :template="currentTemplate" :products="builder.data.value.products" :services="builder.data.value.services || []" :providers="builder.data.value.providers || []" :business-mode="builder.data.value.business.businessMode" :slug="builder.data.value.business.slug" />
           <div class="mt-3 grid gap-2 sm:grid-cols-2">
             <a :href="builder.data.value.urls.path" target="_blank" class="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface py-2.5 text-[11px] font-bold"><ExternalLink class="h-3.5 w-3.5" /> Open storefront</a>
             <NuxtLink to="/app/settings?tab=domain" class="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface py-2.5 text-[11px] font-bold"><Settings class="h-3.5 w-3.5" /> Domain settings</NuxtLink>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Monitor, Smartphone } from 'lucide-vue-next';
-import type { Business, Product, StorefrontBusiness, StorefrontHome, StorefrontProduct, StorefrontTemplate } from '~/types';
+import type { Business, Product, PublicProvider, Service, StorefrontBusiness, StorefrontHome, StorefrontProduct, StorefrontTemplate } from '~/types';
 import { templateVars } from '~/utils/templates';
-const props = defineProps<{ business: Partial<Business>; template: StorefrontTemplate; products: Product[]; slug: string }>();
+const props = defineProps<{ business: Partial<Business>; template: StorefrontTemplate; products: Product[]; services?: Service[]; providers?: PublicProvider[]; businessMode?: 'products' | 'services' | 'hybrid'; slug: string }>();
 const device = ref<'desktop' | 'mobile'>('desktop');
 const mappedBusiness = computed<StorefrontBusiness>(() => ({
   id: props.business.id || 'preview', name: props.business.name || 'Your business', slug: props.slug,
@@ -24,6 +24,7 @@ const mappedProducts = computed<StorefrontProduct[]>(() => props.products.map((p
 const home = computed<StorefrontHome>(() => ({
   business: mappedBusiness.value, template: props.template, products: mappedProducts.value,
   categories: [...new Set(mappedProducts.value.map((p) => p.category))], productCount: mappedProducts.value.length,
+  services: props.services || [], serviceCount: props.services?.length || 0, providers: props.providers || [], businessMode: props.businessMode,
 }));
 </script>
 

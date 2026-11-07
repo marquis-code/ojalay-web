@@ -28,7 +28,7 @@ export interface Subscription {
 export interface SettlementAccount { id: string; bankName: string; bankCode: string; accountNumber: string; accountName: string; }
 export interface Business {
   id: string; name: string; slug: string; ownerId: string; category: string; description: string;
-  logoUrl?: string | null; bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; brandColor: string; templateKey: string;
+  logoUrl?: string | null; bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; serviceHeroTitle?: string; brandColor: string; templateKey: string;
   sections: string[]; socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
   email?: string | null; orderPolicy?: string; settlementBankName?: string | null; settlementBankCode?: string | null; settlementAccountNumber?: string | null; settlementAccountName?: string | null; settlementAccounts?: SettlementAccount[]; settlementPrimaryAccountId?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
   seoTitle: string; seoDescription: string; customDomain?: string | null; customDomainVerified: boolean;
@@ -122,7 +122,7 @@ export interface StorefrontTemplate {
 }
 export interface StorefrontBusiness {
   id: string; name: string; slug: string; category: string; description: string; logoUrl?: string | null;
-  bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; brandColor: string; templateKey: string; sections: string[];
+  bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; serviceHeroTitle?: string; brandColor: string; templateKey: string; sections: string[];
   socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
   email?: string | null; address: string; about: string; seoTitle: string; seoDescription: string; currency: string;
   businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null; orderPolicy?: string;

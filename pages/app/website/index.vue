@@ -52,7 +52,7 @@ function hydrate() {
   const b = builder.data.value?.business;
   if (!b) return;
   Object.assign(draft, {
-    name: b.name, tagline: b.tagline, description: b.description, about: b.about, logoUrl: b.logoUrl,
+    name: b.name, tagline: b.tagline, serviceHeroTitle: b.serviceHeroTitle || '', description: b.description, about: b.about, logoUrl: b.logoUrl,
     bannerUrl: b.bannerUrl, heroVideoUrl: b.heroVideoUrl, storyImageUrl: b.storyImageUrl, lookbookTitle: b.lookbookTitle || 'The lookbook', lookbook: [...(b.lookbook || [])], brandColor: b.brandColor, templateKey: b.templateKey, sections: b.sections?.length ? [...b.sections] : ['hero', 'featured', 'story', 'categories', 'products', 'testimonials', 'contact'],
     socialLinks: { ...(b.socialLinks || {}) }, publicPhone: b.publicPhone, whatsappNumber: b.whatsappNumber,
     email: b.email, address: b.address, seoTitle: b.seoTitle, seoDescription: b.seoDescription,
@@ -75,7 +75,7 @@ async function save(showToast = true) {
   savingLocal.value = true;
   try {
     await builder.update({
-      name: draft.name, tagline: draft.tagline, description: draft.description, about: draft.about,
+      name: draft.name, tagline: draft.tagline, serviceHeroTitle: draft.serviceHeroTitle, description: draft.description, about: draft.about,
       logoUrl: draft.logoUrl, bannerUrl: draft.bannerUrl, heroVideoUrl: draft.heroVideoUrl || null, storyImageUrl: draft.storyImageUrl || null, lookbookTitle: draft.lookbookTitle, lookbook: draft.lookbook, brandColor: draft.brandColor, templateKey: draft.templateKey,
       sections: draft.sections, socialLinks: draft.socialLinks, publicPhone: draft.publicPhone,
       whatsappNumber: draft.whatsappNumber, email: draft.email, address: draft.address,
@@ -163,6 +163,7 @@ onMounted(async () => { await builder.load(); hydrate(); });
             <div class="mt-3 space-y-3">
               <BaseInput v-model="draft.name" label="Business name" />
               <BaseInput v-model="draft.tagline" label="Tagline" hint="Short. Human. Shown in the hero." />
+              <BaseInput v-if="builder.data.value.business.businessMode !== 'products'" v-model="draft.serviceHeroTitle" label="Service page headline" hint="Shown at the top of your services and booking page. Leave blank for the default." placeholder="Book your next appointment." />
               <BaseTextarea v-model="draft.description" label="Short description" :rows="3" />
               <BaseTextarea v-model="draft.about" label="Your story" :rows="6" hint="Why you started, how you source, why people should care." />
             </div>

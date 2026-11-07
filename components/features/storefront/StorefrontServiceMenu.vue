@@ -21,7 +21,7 @@ const wa = computed(() => props.business.whatsappNumber || props.business.public
       <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
         <div>
           <p class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em]" :style="{ background: template.colors.accent, color: template.colors.ink }"><Sparkles class="h-3 w-3" /> {{ business.campusVerified ? 'Verified local business' : 'Appointments open' }}</p>
-          <h1 class="mt-5 max-w-xl font-display text-[clamp(2.8rem,6vw,5.2rem)] font-bold leading-[0.93] tracking-[-0.055em]">Book your next <span :style="{ color: template.colors.primary }">appointment.</span></h1>
+          <h1 class="mt-5 max-w-xl font-display text-[clamp(2.8rem,6vw,5.2rem)] font-bold leading-[0.93] tracking-[-0.055em]">{{ business.serviceHeroTitle || 'Book your next appointment.' }}</h1>
           <p class="mt-4 max-w-lg text-sm leading-relaxed sm:text-base" :style="{ color: template.colors.muted }">{{ business.description || business.tagline }}</p>
           <div class="mt-6 flex flex-wrap gap-2 text-[10px] font-semibold" :style="{ color: template.colors.muted }">
             <span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-2" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 16%, transparent)` }"><CalendarDays class="h-3.5 w-3.5" /> Live availability</span>
@@ -35,7 +35,8 @@ const wa = computed(() => props.business.whatsappNumber || props.business.public
         </div>
         <div class="relative">
           <div class="overflow-hidden rounded-[2rem]" :style="{ background: template.colors.surface }">
-            <img v-if="business.bannerUrl || business.storyImageUrl" :src="business.bannerUrl || business.storyImageUrl || ''" :alt="business.name" class="aspect-[4/3] w-full object-cover">
+            <video v-if="business.heroVideoUrl" :src="business.heroVideoUrl" :poster="business.bannerUrl || business.storyImageUrl || undefined" class="aspect-[4/3] w-full object-cover" autoplay muted loop playsinline preload="metadata"></video>
+            <img v-else-if="business.bannerUrl || business.storyImageUrl" :src="business.bannerUrl || business.storyImageUrl || ''" :alt="business.name" class="aspect-[4/3] w-full object-cover">
             <div v-else class="flex aspect-[4/3] items-center justify-center p-8 text-center" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 14%, ${template.colors.background})` }"><div><p class="font-display text-4xl font-bold">{{ business.name }}</p><p class="mt-2 text-[10px] font-bold uppercase tracking-[0.2em]" :style="{ color: template.colors.primary }">Book direct · No marketplace fee</p></div></div>
           </div>
           <div class="absolute -bottom-4 left-4 rounded-2xl border px-4 py-3 shadow-xl" :style="{ background: template.colors.background, borderColor: `color-mix(in srgb, ${template.colors.ink} 12%, transparent)` }">

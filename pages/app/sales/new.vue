@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowLeft, Check, Minus, Plus, Search, ShoppingBag, Sparkles, Trash2, UserPlus } from 'lucide-vue-next';
-import { formatNaira, nairaInput, nairaToKobo } from '~/utils/money';
+import { formatMoneyInput, formatNaira, nairaInput, nairaToKobo } from '~/utils/money';
 import { addDaysInput, todayInput } from '~/utils/date';
 import { optimizedImage } from '~/utils/cloudinary';
 import type { Product, Variant } from '~/types';
@@ -159,7 +159,7 @@ onMounted(async () => {
                 <span class="w-6 text-center text-xs font-bold">{{ line.quantity }}</span>
                 <button class="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-raised" aria-label="Increase quantity" @click="setQty(line, line.quantity + 1)"><Plus class="h-3.5 w-3.5" /></button>
               </div>
-              <input v-model="line.price" class="w-24 rounded-xl border border-line bg-surface px-2 py-2 text-right text-xs font-bold" inputmode="decimal" aria-label="Unit price">
+              <input v-model="line.price" class="w-24 rounded-xl border border-line bg-surface px-2 py-2 text-right text-xs font-bold" inputmode="decimal" aria-label="Unit price" @input="line.price = formatMoneyInput(line.price)">
               <p class="w-20 text-right text-sm font-bold">{{ formatNaira(nairaToKobo(line.price) * line.quantity) }}</p>
               <button class="text-muted hover:text-danger" aria-label="Remove" @click="setQty(line, 0)"><Trash2 class="h-4 w-4" /></button>
             </div>

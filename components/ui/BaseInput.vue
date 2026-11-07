@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useId } from 'vue';
+import { formatMoneyInput } from '~/utils/money';
 const props = withDefaults(defineProps<{
   modelValue?: string | number | null;
   label?: string;
@@ -12,6 +13,7 @@ const props = withDefaults(defineProps<{
   autocomplete?: string;
   inputmode?: 'text' | 'numeric' | 'decimal' | 'tel' | 'email' | 'search' | 'url';
   prefix?: string;
+  money?: boolean;
   maxlength?: number;
   min?: string | number;
   max?: string | number;
@@ -19,9 +21,10 @@ const props = withDefaults(defineProps<{
 }>(), { type: 'text', required: false, disabled: false });
 const emit = defineEmits<{ 'update:modelValue': [string]; blur: [FocusEvent] }>();
 const id = useId();
+const isMoney = computed(() => props.money || props.prefix === '₦');
 const value = computed({
-  get: () => props.modelValue ?? '',
-  set: (v: string) => emit('update:modelValue', v),
+  get: () => isMoney.value ? formatMoneyInput(props.modelValue) : (props.modelValue ?? ''),
+  set: (v: string) => emit('update:modelValue', isMoney.value ? formatMoneyInput(v) : v),
 });
 </script>
 
@@ -33,12 +36,12 @@ const value = computed({
       <input
         :id="id"
         v-model="value"
-        :type="type"
+        :type="isMoney ? 'text' : type"
         :placeholder="placeholder"
         :required="required"
         :disabled="disabled"
         :autocomplete="autocomplete"
-        :inputmode="inputmode"
+        :inputmode="isMoney ? 'decimal' : inputmode"
         :maxlength="maxlength"
         :min="min"
         :max="max"

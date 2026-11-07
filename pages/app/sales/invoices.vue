@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowLeft, CreditCard, ExternalLink, FileText, Link2, Mail, MessageCircle, Plus, ReceiptText, Trash2 } from 'lucide-vue-next';
-import { formatNaira, nairaToKobo } from '~/utils/money';
+import { formatMoneyInput, formatNaira, nairaToKobo } from '~/utils/money';
 import { addDaysInput, formatDate, todayInput } from '~/utils/date';
 import { whatsappLink } from '~/utils/phone';
 definePageMeta({ layout: 'app' });
@@ -70,7 +70,7 @@ onMounted(load);
 
     <BaseModal v-model:open="createOpen" title="Create an invoice" description="For bulk orders and customers who need paperwork." size="lg">
       <div class="grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.customerName" label="Customer / company" required /><BaseInput v-model="form.customerEmail" label="Email" type="email" /><BaseInput v-model="form.customerPhone" label="Phone" /><BaseInput v-model="form.customerAddress" label="Address" /><BaseDatePicker v-model="form.dueDate" label="Due date" :min="todayInput()" /><BaseInput v-model="form.notes" label="Note" /></div>
-      <div class="mt-4"><div class="mb-2 flex items-center justify-between"><p class="text-sm font-bold">Line items</p><button class="text-xs font-bold text-brand-600 dark:text-brand-300" @click="addLine"><Plus class="mr-0.5 inline h-3 w-3" /> Add line</button></div><div class="space-y-2"><div v-for="(line, index) in items" :key="index" class="flex items-center gap-2"><input v-model="line.name" placeholder="Item description" class="input-base flex-1"><input v-model.number="line.quantity" type="number" min="1" class="input-base w-20"><input v-model="line.price" placeholder="₦ price" class="input-base w-28"><button class="text-danger" aria-label="Remove line" @click="items.splice(index, 1)"><Trash2 class="h-4 w-4" /></button></div></div></div>
+      <div class="mt-4"><div class="mb-2 flex items-center justify-between"><p class="text-sm font-bold">Line items</p><button class="text-xs font-bold text-brand-600 dark:text-brand-300" @click="addLine"><Plus class="mr-0.5 inline h-3 w-3" /> Add line</button></div><div class="space-y-2"><div v-for="(line, index) in items" :key="index" class="flex items-center gap-2"><input v-model="line.name" placeholder="Item description" class="input-base flex-1"><input v-model.number="line.quantity" type="number" min="1" class="input-base w-20"><input v-model="line.price" placeholder="₦ price" class="input-base w-28" @input="line.price = formatMoneyInput(line.price)"><button class="text-danger" aria-label="Remove line" @click="items.splice(index, 1)"><Trash2 class="h-4 w-4" /></button></div></div></div>
       <div class="mt-3 grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.discount" label="Discount" prefix="₦" /><BaseInput v-model="form.delivery" label="Delivery" prefix="₦" /></div>
       <div class="mt-3 flex justify-between border-t border-line pt-3 text-sm font-bold"><span>Total</span><span>{{ formatNaira(total) }}</span></div>
       <label class="mt-3 flex items-center gap-2 text-xs"><input v-model="form.sendEmail" type="checkbox" class="rounded"> Email invoice to customer</label>

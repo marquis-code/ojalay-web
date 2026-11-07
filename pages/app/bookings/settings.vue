@@ -15,7 +15,7 @@ const mode = ref<'products' | 'services' | 'hybrid'>('products');
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const form = reactive<BookingSettings>({
   enabled: false, autoConfirm: true, leadTimeMinutes: 120, windowDays: 60, slotIntervalMinutes: 30,
-  cancellationWindowHours: 24, depositPercent: 0, paymentCollection: 'deposit', reminderHoursBefore: 24,
+  cancellationWindowHours: 24, lateCancellationPenaltyType: 'none', lateCancellationPenaltyPercent: 0, lateCancellationPenaltyKobo: 0, depositPercent: 0, paymentCollection: 'deposit', reminderHoursBefore: 24,
   weeklyHours: Array.from({ length: 7 }, (_, day) => ({ day, isOpen: day !== 0, start: '09:00', end: '18:00' })),
   closedDates: [], locations: [], policy: 'Please arrive 5 minutes early. Cancellations within 24 hours may lose the deposit.',
 });
@@ -81,7 +81,7 @@ onMounted(async () => {
         <BaseInput v-model="form.leadTimeMinutes" label="Minimum notice (minutes)" type="number" min="0" hint="120 = at least 2 hours ahead." />
         <BaseInput v-model="form.windowDays" label="Book up to (days ahead)" type="number" min="1" />
         <BaseInput v-model="form.slotIntervalMinutes" label="Slot interval (minutes)" type="number" min="5" />
-        <BaseInput v-model="form.cancellationWindowHours" label="Cancellation window (hours)" type="number" min="0" />
+        <div class="sm:col-span-2 lg:col-span-3 rounded-2xl border border-line bg-raised/30 p-4"><p class="text-sm font-bold">Cancellation policy</p><p class="mt-1 text-[11px] leading-relaxed text-muted">Customers can cancel free until the cutoff. After the cutoff, the late-cancellation penalty applies.</p><div class="mt-3 grid gap-3 sm:grid-cols-2"><BaseInput v-model="form.cancellationWindowHours" label="Free cancellation until (hours before)" type="number" min="0" hint="Example: 24 means free until 24 hours before the appointment." /><BaseSelect v-model="form.lateCancellationPenaltyType" label="Late cancellation penalty" :options="[{ value: 'none', label: 'Do not allow late cancellation online' }, { value: 'percent', label: 'Percentage of service price' }, { value: 'fixed', label: 'Fixed amount' }]" /><BaseInput v-if="form.lateCancellationPenaltyType === 'percent'" v-model="form.lateCancellationPenaltyPercent" label="Penalty percentage" type="number" min="0" max="100" /><BaseInput v-else-if="form.lateCancellationPenaltyType === 'fixed'" :model-value="form.lateCancellationPenaltyKobo / 100" label="Penalty amount (₦)" type="number" min="0" @update:model-value="form.lateCancellationPenaltyKobo = Math.round(Number($event || 0) * 100)" /></div></div>
         <BaseInput v-model="form.depositPercent" label="Deposit %" type="number" min="0" max="100" hint="Used when a service does not set a fixed deposit." />
         <BaseInput v-model="form.reminderHoursBefore" label="Reminder (hours before)" type="number" min="0" />
       </div>

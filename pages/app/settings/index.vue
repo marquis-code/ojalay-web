@@ -44,7 +44,7 @@ const tabs = [
   { key: 'summaries', label: 'Summaries' }, { key: 'whatsapp', label: 'WhatsApp' }, { key: 'calendar', label: 'Calendar sync' }, { key: 'staff', label: 'Staff' },
   { key: 'billing', label: 'Billing' }, { key: 'domain', label: 'Domain' },
 ];
-const businessForm = reactive({ name: '', category: '', tagline: '', description: '', about: '', address: '', email: '', publicPhone: '', whatsappNumber: '', brandColor: '#FF5A1F', settlementBankName: '', settlementBankCode: '', settlementAccountNumber: '', settlementAccountName: '' });
+const businessForm = reactive({ name: '', category: '', tagline: '', description: '', about: '', address: '', email: '', publicPhone: '', whatsappNumber: '', brandColor: '#FF5A1F', orderPolicy: '', settlementBankName: '', settlementBankCode: '', settlementAccountNumber: '', settlementAccountName: '' });
 const profileForm = reactive({ name: '', phone: '', avatarUrl: '' });
 const passwordForm = reactive({ current: '', next: '', confirm: '' });
 const alerts = reactive({ lowStockInApp: true, lowStockEmail: true, lowStockWhatsapp: true, debtReminders: true, reminderDaysBefore: 2, repeatOverdueEveryDays: 7 });
@@ -80,7 +80,7 @@ const pendingInvitePlanBlocks = computed(() => (businessStore.usage?.staff || 0)
 function setTab(tab: string) { activeTab.value = tab; void router.replace({ query: { tab } }); }
 function hydrate() {
   const b = businessStore.business;
-  if (b) Object.assign(businessForm, { name: b.name, category: b.category, tagline: b.tagline, description: b.description, about: b.about, address: b.address, email: b.email || '', publicPhone: b.publicPhone || '', whatsappNumber: b.whatsappNumber || '', brandColor: b.brandColor, settlementBankName: b.settlementBankName || '', settlementBankCode: b.settlementBankCode || '', settlementAccountNumber: b.settlementAccountNumber || '', settlementAccountName: b.settlementAccountName || '' });
+  if (b) Object.assign(businessForm, { name: b.name, category: b.category, tagline: b.tagline, description: b.description, about: b.about, address: b.address, email: b.email || '', publicPhone: b.publicPhone || '', whatsappNumber: b.whatsappNumber || '', brandColor: b.brandColor, orderPolicy: b.orderPolicy || '', settlementBankName: b.settlementBankName || '', settlementBankCode: b.settlementBankCode || '', settlementAccountNumber: b.settlementAccountNumber || '', settlementAccountName: b.settlementAccountName || '' });
   const a = (b?.alertSettings || {}) as Record<string, unknown>;
   Object.assign(alerts, {
     lowStockInApp: a.lowStockInApp !== false, lowStockEmail: a.lowStockEmail !== false, lowStockWhatsapp: a.lowStockWhatsapp !== false,
@@ -251,6 +251,11 @@ onMounted(async () => { if (!businessStore.context) await businessStore.load(); 
           <BaseInput v-model="businessForm.address" label="Address" />
         </div>
         <BaseButton class="mt-5" :loading="businessStore.loading" @click="saveBusiness">Save business details</BaseButton>
+      </BaseCard>
+      <BaseCard v-if="businessStore.business?.businessMode !== 'services'" class="xl:order-3 xl:col-span-2">
+        <h2 class="font-display text-xl font-bold">Store order policy</h2>
+        <p class="mt-1 text-xs leading-relaxed text-muted">Used for product orders only. Service cancellation rules live under Availability.</p>
+        <div class="mt-4"><BaseTextarea v-model="businessForm.orderPolicy" label="Returns, delivery and order cancellation policy" placeholder="Example: Orders can be cancelled before dispatch. Returns accepted within 48 hours if unused." /></div>
       </BaseCard>
       <BaseCard v-if="isOwner" class="xl:order-3 xl:col-span-2">
         <h2 class="font-display text-xl font-bold">Settlement accounts</h2>

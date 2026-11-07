@@ -31,6 +31,14 @@ const chatError = ref('');
 const booking = computed(() => data.value?.booking);
 const business = computed(() => data.value?.business as Record<string, any> | null);
 const timezone = computed(() => booking.value?.timezone || 'Africa/Lagos');
+const cancellationTerms = computed(() => {
+  const settings = business.value?.bookingSettings;
+  if (!settings) return '';
+  const window = settings.cancellationWindowHours ?? 24;
+  if (settings.lateCancellationPenaltyType === 'none') return `Free cancellation until ${window} hours before the appointment. After that, online cancellation is closed.`;
+  const penalty = settings.lateCancellationPenaltyType === 'fixed' ? formatNaira(settings.lateCancellationPenaltyKobo || 0) : `${settings.lateCancellationPenaltyPercent || 0}% of the service price`;
+  return `Free cancellation until ${window} hours before the appointment. After that, a ${penalty} late-cancellation penalty applies.`;
+});
 function when(value?: string) { return value ? new Date(value).toLocaleString('en-NG', { timeZone: timezone.value, weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }) : ''; }
 async function loadSlots() {
   if (!booking.value || !newDate.value || !business.value?.slug) return;
@@ -89,6 +97,7 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
           </div>
           <p v-if="booking.location || business?.address" class="flex items-start gap-2 text-xs text-muted"><MapPin class="mt-0.5 h-4 w-4 shrink-0" /> {{ booking.location || business?.address }}</p>
           <p v-if="business?.bookingSettings?.policy" class="rounded-2xl border border-line p-4 text-xs leading-relaxed text-muted">{{ business.bookingSettings.policy }}</p>
+          <p v-if="cancellationTerms" class="rounded-2xl border border-line p-4 text-xs leading-relaxed text-muted"><strong class="text-ink">Cancellation.</strong> {{ cancellationTerms }}</p>
           <div v-if="notice" class="rounded-2xl bg-success/10 p-3 text-xs font-semibold text-success">{{ notice }}</div>
           <div v-if="actionError" class="rounded-2xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ actionError }}</div>
           <div v-if="booking.paymentStatus !== 'paid' && booking.status !== 'cancelled'" class="rounded-2xl bg-warning/10 p-4">
@@ -125,7 +134,7 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
         </div>
       </BaseCard>
 
-      <BaseModal v-model:open="showCancel" title="Cancel this appointment?" description="This cannot be undone. If you are inside the cancellation window, please message the business." size="sm">
+      <BaseModal v-model:open="showCancel" title="Cancel this appointment?" :description="cancellationTerms || 'This cannot be undone. If you are inside the cancellation window, please message the business.'" size="sm">
         <div class="flex gap-2"><BaseButton variant="ghost" block @click="showCancel = false">Keep it</BaseButton><BaseButton variant="danger" block :loading="busy" @click="doCancel">Cancel appointment</BaseButton></div>
       </BaseModal>
       <BaseModal v-model:open="showReschedule" title="Move your appointment" description="Choose a new date and time. The business is notified." size="md">

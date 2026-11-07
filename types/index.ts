@@ -30,7 +30,7 @@ export interface Business {
   id: string; name: string; slug: string; ownerId: string; category: string; description: string;
   logoUrl?: string | null; bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; brandColor: string; templateKey: string;
   sections: string[]; socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
-  email?: string | null; settlementBankName?: string | null; settlementBankCode?: string | null; settlementAccountNumber?: string | null; settlementAccountName?: string | null; settlementAccounts?: SettlementAccount[]; settlementPrimaryAccountId?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
+  email?: string | null; orderPolicy?: string; settlementBankName?: string | null; settlementBankCode?: string | null; settlementAccountNumber?: string | null; settlementAccountName?: string | null; settlementAccounts?: SettlementAccount[]; settlementPrimaryAccountId?: string | null; address: string; about: string; storefrontPublished: boolean; publishedAt?: string | null;
   seoTitle: string; seoDescription: string; customDomain?: string | null; customDomainVerified: boolean;
   summarySettings: { dailyEnabled: boolean; weeklyEnabled: boolean; sendTime: string; weeklyDay: number; channels: { whatsapp: boolean; email: boolean } };
   alertSettings: Record<string, unknown>; businessMode: 'products' | 'services' | 'hybrid'; bookingSettings: BookingSettings; campusCode?: string | null; campusName?: string | null; campusVerified?: boolean; campusAmbassadorCode?: string | null; marketplaceFeePercent?: number; verificationRequestedAt?: string | null; isSuspended?: boolean; createdAt?: string;
@@ -125,7 +125,7 @@ export interface StorefrontBusiness {
   bannerUrl?: string | null; heroVideoUrl?: string | null; storyImageUrl?: string | null; lookbookTitle?: string; lookbook?: { url: string; caption?: string }[]; tagline: string; brandColor: string; templateKey: string; sections: string[];
   socialLinks: Record<string, string>; publicPhone?: string | null; whatsappNumber?: string | null;
   email?: string | null; address: string; about: string; seoTitle: string; seoDescription: string; currency: string;
-  businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null;
+  businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null; orderPolicy?: string;
   campusCode?: string | null; campusName?: string | null; campusVerified?: boolean;
   serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number;
 }
@@ -229,6 +229,9 @@ export interface BookingSettings {
   windowDays: number;
   slotIntervalMinutes: number;
   cancellationWindowHours: number;
+  lateCancellationPenaltyType: 'none' | 'percent' | 'fixed';
+  lateCancellationPenaltyPercent: number;
+  lateCancellationPenaltyKobo: number;
   depositPercent: number;
   paymentCollection: 'deposit' | 'full';
   reminderHoursBefore: number;

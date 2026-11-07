@@ -3,7 +3,7 @@ import { ArrowRight, BadgeCheck, CalendarCheck, Check, ChevronLeft, ChevronRight
 
 const auth = useAuthStore();
 const cards = [
-  { image: '/images/business/just-steam-it-logo.jpg', alt: 'Just Steam It bedbug steam treatment business in Lagos', business: 'Just Steam It', area: 'UNILAG · Lagos', category: 'Home & Pest Care', service: 'Bedbug steam treatment', price: 'from ₦5,000', rating: '5.0', position: 'center' },
+  { image: '/images/business/just-steam-it-logo.jpg', alt: 'Just Steam It bedbug steam treatment business in Lagos', business: 'Just Steam It', area: 'Lagos, Nigeria', category: 'Home & Pest Care', service: 'Bedbug steam treatment', price: 'from ₦5,000', rating: '5.0', position: 'center' },
 ];
 const active = ref(0);
 let timer: ReturnType<typeof setInterval> | null = null;

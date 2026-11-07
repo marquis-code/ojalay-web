@@ -4,7 +4,7 @@ const points = [
   {
     icon: Search, number: '01', label: 'The discovery question',
     question: '“Where do customers find me when they’re not already in my DMs?”',
-    answer: 'Ojaly puts verified local service providers in front of customers across Lagos, with UNILAG and CMUL as launch communities. Discovery becomes demand — not another link you have to push alone.',
+    answer: 'Ojaly puts verified local service providers in front of customers across Lagos. Discovery becomes demand — not another link you have to push alone.',
     outcome: 'Get found by customers who are ready to book',
   },
   {
@@ -50,7 +50,7 @@ const points = [
       </div>
 
       <div class="mt-8 flex flex-col gap-4 rounded-3xl border-2 border-ink bg-brand-100 p-5 text-forest-900 shadow-chunky-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <div><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-forest-900/60">Now live in Lagos</p><p class="mt-1 font-display text-xl font-bold">UNILAG and CMUL. Service businesses first.</p><p class="mt-1 text-xs text-forest-900/70">Hair, food, nails, printing, laundry, design, repairs and tutoring.</p></div>
+        <div><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-forest-900/60">Now live in Lagos</p><p class="mt-1 font-display text-xl font-bold">Local service businesses, built for scale.</p><p class="mt-1 text-xs text-forest-900/70">Hair, food, nails, printing, laundry, design, repairs and tutoring.</p></div>
         <div class="flex flex-wrap gap-2"><BaseButton to="/marketplace" variant="dark">Browse marketplace <ArrowRight class="h-4 w-4" /></BaseButton><BaseButton to="/register" variant="ghost" class="!text-forest-900">List your service</BaseButton></div>
       </div>
     </div>

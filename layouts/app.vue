@@ -67,6 +67,7 @@ onMounted(loadBusiness);
       </main>
     </div>
     <MobileNav />
+    <SupportChatWidget :show-whatsapp="false" />
     <TourOverlay />
   </div>
 </template>

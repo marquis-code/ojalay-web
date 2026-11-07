@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Plus } from 'lucide-vue-next';
 const faqs = [
-  { q: 'What is Ojaly now?', a: 'Ojaly is a local service marketplace and booking record. Customers discover verified service businesses across Lagos — including UNILAG and CMUL — book a real time and pay securely. The business gets the customer, deposit, receipt and review in the same transaction.' },
+  { q: 'What is Ojaly now?', a: 'Ojaly is a local service marketplace and booking record. Customers discover verified service businesses across Lagos, book a real time and pay securely. The business gets the customer, deposit, receipt and review in the same transaction.' },
   { q: 'Who is it for?', a: 'Anyone who wants trusted hair, food, nails, printing, laundry, design, repair and tutoring services. Service businesses that want demand and a booking system — campus and community. Product sellers can still use Ojaly, but the marketplace is built for services first.' },
   { q: 'How do I know the businesses are real?', a: 'A business must be reviewed by the Ojaly team before it appears. Verified listings show a badge, reviews only come from completed appointments, and every payment gets a receipt.' },
   { q: 'How does payment work?', a: 'Payments go through Paystack directly to the business. Ojaly records the booking, deposit, receipt and remaining balance. We do not hold your money.' },
@@ -10,7 +10,7 @@ const faqs = [
   { q: 'What if a day is fully booked?', a: 'Join the waitlist. If a customer cancels or reschedules, Ojaly offers the opening to waiting customers by email and WhatsApp.' },
   { q: 'Can I reschedule or cancel?', a: 'Yes. Every booking has a private management link. Reschedule or cancel within the business policy window; deposits and cancellation rules are shown upfront.' },
   { q: 'Is it free?', a: 'Students browse and book for free. Service businesses start free and can upgrade when they need more staff, packages or advanced tools. No card is required to start.' },
-  { q: 'Where is Ojaly available?', a: 'Lagos first. Campus communities UNILAG and CMUL are launch filters, not requirements. Any trusted local service provider — campus or community — can apply for verification.' },
+  { q: 'Where is Ojaly available?', a: 'Lagos first, expanding across Nigeria. Any trusted local service provider can apply for verification.' },
 ];
 const open = ref<number | null>(0);
 </script>

@@ -1,0 +1,20 @@
+export default defineEventHandler((event) => {
+  setHeader(event, 'Content-Type', 'text/plain; charset=utf-8');
+  setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300');
+  return [
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /app',
+    'Disallow: /app/',
+    'Disallow: /receipt/',
+    'Disallow: /invoice/',
+    'Disallow: /order/',
+    'Disallow: /pay/',
+    'Disallow: /payment/',
+    'Disallow: /embed/',
+    'Disallow: /api/',
+    '',
+    'Sitemap: https://ojaly.org/sitemap.xml',
+    '',
+  ].join('\n');
+});

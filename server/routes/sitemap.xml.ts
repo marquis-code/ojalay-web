@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   setHeader(event, 'Content-Type', 'application/xml; charset=utf-8');
   setHeader(event, 'Cache-Control', 'public, max-age=3600, s-maxage=3600');
   const config = useRuntimeConfig(event);
-  const base = String(config.public.appUrl || 'https://ojaly.org').replace(/\/$/, '');
+  const base = String(config.public.appUrl || 'https://ojaly.org').replace(/\/$/, '').replace(/^https:\/\/www\./, 'https://');
   let urls: { loc: string; lastmod?: string; changefreq: string; priority: number }[] = [
     { loc: '/', changefreq: 'weekly', priority: 1 },
     { loc: '/marketplace', changefreq: 'daily', priority: 0.9 },

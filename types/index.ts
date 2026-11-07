@@ -554,7 +554,8 @@ export interface BookingMessageInboxItem {
   status: string; location?: string; lastMessage: string; lastMessageAt?: string | null; lastSender?: string | null; unread: number;
 }
 
-export interface SupportChatMessage { id: string; sender: 'visitor' | 'admin'; senderName: string; body: string; createdAt: string; seen?: boolean; }
+export interface SupportAttachment { url: string; type: 'image' | 'audio'; }
+export interface SupportChatMessage { id: string; sender: 'visitor' | 'admin'; senderName: string; body: string; attachments?: SupportAttachment[]; createdAt: string; seen?: boolean; }
 export interface SupportConversationSummary {
   id: string; token?: string; name: string; email: string; phone: string; status: 'open' | 'closed';
   unreadAdmin: number; unreadVisitor: number; lastMessage?: string; lastSender?: string | null; lastMessageAt?: string | null;

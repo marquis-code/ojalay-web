@@ -37,6 +37,17 @@ class UploadsApi {
     return { url, optimizedUrl: optimizedImage(url, 1200) };
   }
 
+  async uploadPublicSupportAttachment(file: File): Promise<{ url: string; type: 'image' | 'audio' }> {
+    const isImage = file.type.startsWith('image/');
+    const isAudio = file.type.startsWith('audio/');
+    if (!isImage && !isAudio) throw new Error('Attach an image or a voice note.');
+    const upload = isImage ? await compressImage(file, { maxWidth: 1800, maxHeight: 1800, quality: 0.8 }) : file;
+    if (upload.size > (isAudio ? 15 : 5) * 1024 * 1024) throw new Error(isAudio ? 'Voice notes must be under 15MB.' : 'Images must be under 5MB.');
+    const form = new FormData(); form.append('file', upload);
+    const response = await http().post('/uploads/public/support', form);
+    return response.data.data as { url: string; type: 'image' | 'audio' };
+  }
+
   async uploadPublicRequestImage(file: File): Promise<{ url: string; optimizedUrl: string }> {
     if (!file.type.startsWith('image/')) throw new Error('Choose a JPG, PNG or WebP photo.');
     const compressed = await compressImage(file, { maxWidth: 1800, maxHeight: 1800, quality: 0.8 });

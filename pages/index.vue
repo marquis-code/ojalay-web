@@ -28,6 +28,7 @@ definePageMeta({ layout: 'default' });
 
 <template>
   <div>
+    <PlatformPromoBar />
     <LandingHero />
     <FeaturedBusinesses />
     <SupportChatWidget />

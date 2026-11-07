@@ -34,6 +34,7 @@ const whatsapp = computed(() => whatsappLink(props.business.whatsappNumber || pr
         <span v-if="!product.inStock" class="rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide" :style="{ background: template.colors.ink, color: template.colors.background }">Sold out</span>
         <span v-else-if="product.variants.some((v) => v.lowStock)" class="rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide" :style="{ background: template.colors.accent, color: template.colors.ink }">Few left</span>
       </div>
+      <div class="absolute right-2.5 top-2.5"><PlatformPromoBadge /></div>
     </NuxtLink>
     <div class="p-3.5">
       <NuxtLink :to="productUrl"><h3 class="truncate text-[13px] font-bold" :style="{ color: template.colors.ink }">{{ product.name }}</h3></NuxtLink>

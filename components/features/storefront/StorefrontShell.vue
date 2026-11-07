@@ -4,15 +4,18 @@ import type { StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { templateVars } from '~/utils/templates';
 import { whatsappLink } from '~/utils/phone';
 import { optimizedImage } from '~/utils/cloudinary';
+import { publicApi } from '~/api/factories/publicApi';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate }>();
 const cart = useCartStore();
+const packageCount = ref<number | null>(null);
 const open = ref(false);
 const route = useRoute();
 const mode = computed(() => props.business.businessMode || 'products');
 const bookPath = computed(() => `/s/${props.business.slug}/services`);
 const links = computed(() => [
   { to: `/s/${props.business.slug}`, label: 'Home', exact: true },
-  ...(mode.value !== 'products' ? [{ to: bookPath.value, label: 'Services' }, { to: `/s/${props.business.slug}/packages`, label: 'Packages' }] : []),
+  ...(mode.value !== 'products' ? [{ to: bookPath.value, label: 'Services' }] : []),
+  ...(mode.value !== 'products' && (packageCount.value || 0) > 0 ? [{ to: `/s/${props.business.slug}/packages`, label: 'Packages' }] : []),
   ...(mode.value !== 'services' ? [{ to: `/s/${props.business.slug}/products`, label: 'Shop' }] : []),
   { to: `/s/${props.business.slug}/about`, label: 'About' },
   { to: `/s/${props.business.slug}/contact`, label: 'Contact' },
@@ -20,7 +23,10 @@ const links = computed(() => [
 const active = (to: string, exact = false) => exact ? route.path === to : route.path.startsWith(to);
 const wa = computed(() => whatsappLink(props.business.whatsappNumber || props.business.publicPhone, `Hi ${props.business.name}! I'd like to order.`));
 const mounted = ref(false);
-onMounted(() => { cart.hydrate(); mounted.value = true; });
+onMounted(async () => {
+  cart.hydrate(); mounted.value = true;
+  try { const result = await publicApi.packages(props.business.slug); packageCount.value = result.items?.length || 0; } catch { packageCount.value = 0; }
+});
 watch(() => props.business.slug, (slug) => cart.init(slug, props.business.name), { immediate: true });
 
 const THEME_KEYS = ['--bg', '--surface', '--raised', '--ink', '--muted', '--line'] as const;
@@ -60,6 +66,7 @@ onBeforeUnmount(clearStorefrontTheme);
 
 <template>
   <div class="storefront min-h-dvh" :style="templateVars(template)" :data-layout="template.layout" :data-card="template.cardStyle">
+    <PlatformPromoBar />
     <div class="border-b text-center text-[11px] font-semibold tracking-wide" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">
       <p class="px-3 py-2">{{ business.tagline }}</p>
     </div>
@@ -104,7 +111,7 @@ onBeforeUnmount(clearStorefrontTheme);
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">{{ mode === 'products' ? 'Shop' : 'Book' }}</p>
             <NuxtLink v-if="mode !== 'products'" :to="bookPath" class="mt-3 block text-sm opacity-80 hover:opacity-100">Book a service</NuxtLink>
-            <NuxtLink v-if="mode !== 'products'" :to="`/s/${business.slug}/packages`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Packages</NuxtLink>
+            <NuxtLink v-if="mode !== 'products' && (packageCount || 0) > 0" :to="`/s/${business.slug}/packages`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Packages</NuxtLink>
             <NuxtLink v-if="mode !== 'services'" :to="`/s/${business.slug}/products`" class="mt-3 block text-sm opacity-80 hover:opacity-100">All products</NuxtLink>
             <NuxtLink :to="`/s/${business.slug}/about`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Our story</NuxtLink>
             <NuxtLink :to="`/s/${business.slug}/contact`" class="mt-2 block text-sm opacity-80 hover:opacity-100">Contact</NuxtLink>

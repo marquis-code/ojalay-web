@@ -36,6 +36,7 @@ useHead(() => data.value ? {
       <div class="mt-5 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
         <div>
           <p class="text-[10px] font-bold uppercase tracking-[0.18em]" :style="{ color: data.template.colors.primary }">{{ data.service.category }}</p>
+          <div class="mt-2"><PlatformPromoBadge /></div>
           <h1 class="mt-2 font-display text-4xl font-bold tracking-[-0.045em] sm:text-5xl" :style="{ color: data.template.colors.ink }">{{ data.service.name }}</h1>
           <p class="mt-4 max-w-xl text-sm leading-relaxed sm:text-base" :style="{ color: data.template.colors.muted }">{{ data.service.description || 'A considered appointment, made for you.' }}</p>
           <div class="mt-5 flex flex-wrap gap-2 text-[10px] font-semibold" :style="{ color: data.template.colors.muted }"><span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-2" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 16%, transparent)` }"><Clock3 class="h-3.5 w-3.5" /> {{ data.service.durationMinutes }} minutes</span><span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-2" :style="{ borderColor: `color-mix(in srgb, ${data.template.colors.ink} 16%, transparent)` }"><Sparkles class="h-3.5 w-3.5" /> {{ formatNaira(data.service.priceKobo) }}</span><span v-if="data.service.requiresDeposit" class="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-2 text-warning"><ShieldCheck class="h-3.5 w-3.5" /> Deposit {{ formatNaira(data.service.depositKobo) }}</span></div>

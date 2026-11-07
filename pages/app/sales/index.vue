@@ -15,10 +15,13 @@ const voidOpen = ref(false);
 const voidReason = ref('');
 const receiptLoading = ref(false);
 const receiptToken = ref('');
+const chatOpen = ref(false);
+const chatSaleId = ref('');
 let timer: ReturnType<typeof setTimeout> | null = null;
 watch(() => filters.search, () => { if (timer) clearTimeout(timer); timer = setTimeout(() => load(), 300); });
 watch(() => [filters.period, filters.paymentStatus], () => { filters.page = 1; load(); });
 function openDetail(sale: Sale) { detail.value = sale; detailOpen.value = true; receiptToken.value = ''; }
+function openChat(id: string) { chatSaleId.value = id; chatOpen.value = true; }
 async function loadReceipt() {
   if (!detail.value?.receiptId) return;
   receiptLoading.value = true;
@@ -106,11 +109,13 @@ onMounted(load);
         <div v-if="receiptToken" class="rounded-xl border border-success/20 bg-success/5 p-3 text-xs"><p class="font-bold text-success">Receipt ready</p><a :href="`/receipt/${receiptToken}`" target="_blank" class="mt-1 inline-flex items-center gap-1 font-semibold underline">Open receipt <ExternalLink class="h-3 w-3" /></a></div>
         <div class="flex flex-wrap gap-2">
           <BaseButton v-if="detail.receiptId" size="sm" variant="outline" :loading="receiptLoading" @click="loadReceipt">Open receipt</BaseButton>
-          <BaseButton size="sm" variant="outline" @click="resend"><Send class="h-4 w-4" /> Resend receipt</BaseButton><BaseButton size="sm" variant="outline" @click="shareReceipt"><MessageCircle class="h-4 w-4" /> Share on WhatsApp</BaseButton>
+          <BaseButton size="sm" variant="outline" @click="resend"><Send class="h-4 w-4" /> Resend receipt</BaseButton><BaseButton size="sm" variant="outline" @click="openChat(detail.id)"><MessageCircle class="h-4 w-4" /> Chat customer</BaseButton><BaseButton size="sm" variant="outline" @click="shareReceipt"><MessageCircle class="h-4 w-4" /> Share on WhatsApp</BaseButton>
           <BaseButton v-if="auth.isOwner && !detail.orderId" size="sm" variant="danger" @click="voidOpen = true"><RotateCcw class="h-4 w-4" /> Void sale</BaseButton>
         </div>
       </div>
     </BaseModal>
+
+    <SaleChatModal v-model:open="chatOpen" :sale-id="chatSaleId" />
 
     <BaseModal v-model:open="voidOpen" title="Void this sale?" description="Stock will be restored, the debt record removed and the sale taken out of your reports. This cannot be undone.">
       <BaseTextarea v-model="voidReason" label="Reason" placeholder="Recorded twice by mistake" />

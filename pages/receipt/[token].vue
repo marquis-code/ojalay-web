@@ -9,6 +9,7 @@ const { data, error } = await usePublicReceipt(token);
 if (error.value || !data.value) throw createError({ statusCode: 404, statusMessage: 'Receipt not found', fatal: true });
 const receipt = computed(() => data.value!.receipt);
 const business = computed(() => data.value!.business as { name: string; logoUrl?: string; brandColor?: string; email?: string; publicPhone?: string; address?: string });
+const chatToken = computed(() => (data.value as unknown as { chatToken?: string })?.chatToken || '');
 const config = useRuntimeConfig();
 useSeoMeta({ title: computed(() => `Receipt ${receipt.value.receiptNumber} — ${business.value.name}`), robots: 'noindex' });
 useHead({ titleTemplate: '%s' });
@@ -53,6 +54,7 @@ function printReceipt() { window.print(); }
           <p class="mt-6 border-t border-line pt-4 text-center text-[10px] text-muted">This receipt was generated automatically by {{ business.name }} on Ojaly.</p>
         </div>
       </div>
+      <SaleCustomerChat v-if="chatToken" :token="chatToken" :business-name="business.name" />
     </div>
   </div>
 </template>

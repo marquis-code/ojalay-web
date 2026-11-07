@@ -561,3 +561,7 @@ export interface SupportConversationSummary {
   unreadAdmin: number; unreadVisitor: number; lastMessage?: string; lastSender?: string | null; lastMessageAt?: string | null;
 }
 export interface SupportThread { token?: string; conversation: SupportConversationSummary; messages: SupportChatMessage[]; typing?: { visitor: boolean; admin: boolean }; }
+
+export interface SaleChatMessage { id: string; sender: 'customer' | 'business'; senderName: string; body: string; attachments?: SupportAttachment[]; createdAt: string; seen?: boolean; }
+export interface SaleChatSummary { id: string; saleNumber: string; customerName: string; customerEmail?: string; totalKobo: number; soldAt: string; items?: { name: string; quantity: number }[]; }
+export interface SaleChatThread { sale: SaleChatSummary; messages: SaleChatMessage[]; }

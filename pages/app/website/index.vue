@@ -22,6 +22,23 @@ const sectionLabels: Record<string, { label: string; hint: string }> = {
   contact: { label: 'Contact strip', hint: 'A strong final CTA with your details.' },
 };
 const allTemplates = computed(() => builder.data.value?.templates || []);
+const templateSearch = ref('');
+const templateFilter = ref<'all' | 'free' | 'paid' | 'included'>('all');
+const templateLimit = ref(24);
+const filteredTemplates = computed(() => {
+  const term = templateSearch.value.trim().toLowerCase();
+  return allTemplates.value.filter((template) => {
+    if (templateFilter.value === 'free' && template.isPaid) return false;
+    if (templateFilter.value === 'paid' && !template.isPaid) return false;
+    if (templateFilter.value === 'included' && !template.available) return false;
+    if (!term) return true;
+    return [template.name, template.description, template.vibe, template.layout, template.motif].join(' ').toLowerCase().includes(term);
+  });
+});
+const visibleTemplates = computed(() => filteredTemplates.value.slice(0, templateLimit.value));
+watch([templateSearch, templateFilter], () => { templateLimit.value = 24; });
+const previewRef = ref<HTMLElement | null>(null);
+function scrollToPreview() { previewRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 const currentTemplate = computed(() => allTemplates.value.find((t) => t.key === draft.templateKey) || allTemplates.value[0] || null);
 const colors = ['#FF5A1F', '#0B3D2E', '#1F4FD8', '#E85D75', '#8B5CF6', '#C8FF00', '#D97706', '#0F766E'];
 const socialFields = [{ key: 'instagram', label: 'Instagram' }, { key: 'tiktok', label: 'TikTok' }, { key: 'twitter', label: 'X / Twitter' }, { key: 'facebook', label: 'Facebook' }, { key: 'website', label: 'Other website' }];
@@ -99,7 +116,8 @@ onMounted(async () => { await builder.load(); hydrate(); });
   <div class="space-y-5">
     <PageHeader title="My website" subtitle="Your catalog is the website. Pick a look, tweak the words, publish." eyebrow="Free storefront">
       <template #actions>
-        <BaseButton v-if="builder.data.value" :to="builder.data.value.urls.path" target="_blank" variant="outline"><Eye class="h-4 w-4" /> View live</BaseButton>
+        <BaseButton v-if="builder.data.value?.business.storefrontPublished" :to="builder.data.value.urls.path" target="_blank" variant="outline"><Eye class="h-4 w-4" /> View live</BaseButton>
+        <BaseButton v-else-if="builder.data.value" variant="outline" @click="scrollToPreview"><Eye class="h-4 w-4" /> Preview website</BaseButton>
         <BaseButton variant="outline" :loading="savingLocal" :disabled="!dirty" @click="save()"><Save class="h-4 w-4" /> Save</BaseButton>
         <BaseButton v-if="builder.data.value?.business.storefrontPublished" variant="ghost" @click="unpublish">Unpublish</BaseButton>
         <BaseButton v-else :loading="builder.publishing.value" @click="publish"><Rocket class="h-4 w-4" /> Publish</BaseButton>
@@ -125,14 +143,16 @@ onMounted(async () => { await builder.load(); hydrate(); });
           <BaseCard v-if="activeTab === 'design'" padding="sm">
             <h2 class="font-display text-lg font-bold">Template</h2>
             <p class="text-[11px] text-muted">Every template is a data-driven layout. No code.</p>
+            <div class="mt-3 space-y-2"><div class="relative"><Search class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" /><input v-model="templateSearch" type="search" placeholder="Search 2,000+ templates…" class="input-base h-10 min-h-0 pl-9 text-xs" aria-label="Search templates"></div><div class="flex items-center justify-between gap-2"><p class="text-[10px] text-muted">{{ filteredTemplates.length }} templates</p><select v-model="templateFilter" class="rounded-lg border border-line bg-surface px-2 py-1.5 text-[10px] font-bold" aria-label="Filter templates"><option value="all">All styles</option><option value="free">Free</option><option value="included">Included in plan</option><option value="paid">Premium</option></select></div></div>
             <div class="mt-3 grid grid-cols-2 gap-2" data-tour="website-templates">
-              <button v-for="template in allTemplates" :key="template.key" type="button" class="relative overflow-hidden rounded-xl border-2 p-2 text-left transition" :class="draft.templateKey === template.key ? 'border-ink' : 'border-line hover:border-muted'" :disabled="!template.available" @click="draft.templateKey = template.key">
+              <button v-for="template in visibleTemplates" :key="template.key" type="button" class="relative overflow-hidden rounded-xl border-2 p-2 text-left transition" :class="draft.templateKey === template.key ? 'border-ink' : 'border-line hover:border-muted'" :disabled="!template.available" @click="draft.templateKey = template.key">
                 <div class="h-16 overflow-hidden rounded-lg p-2" :style="{ background: template.colors.background, color: template.colors.ink }"><p class="text-[9px] font-bold" :style="{ color: template.colors.primary }">TOLA THRIFT</p><div class="mt-1 grid grid-cols-2 gap-1"><span class="h-6 rounded" :style="{ background: template.colors.ink }" /><span class="h-6 rounded" :style="{ background: template.colors.primary }" /></div></div>
                 <p class="mt-1.5 text-[10px] font-bold">{{ template.name }}</p>
                 <span v-if="!template.available" class="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-forest-900/90 px-2 py-1 text-[8px] font-bold text-white"><Lock class="h-2.5 w-2.5" /> Paid</span>
                 <span v-if="draft.templateKey === template.key" class="absolute bottom-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-ink text-canvas"><Check class="h-2.5 w-2.5" /></span>
               </button>
             </div>
+            <div v-if="filteredTemplates.length > visibleTemplates.length" class="mt-3 flex justify-center"><button type="button" class="rounded-full border border-line px-4 py-2 text-[10px] font-bold hover:border-ink" @click="templateLimit += 24">Load more templates</button></div>
             <div class="mt-5"><label class="label-base">Brand colour</label><div class="flex flex-wrap gap-2"><button v-for="color in colors" :key="color" type="button" class="h-8 w-8 rounded-full border-2" :class="draft.brandColor === color ? 'border-ink ring-2 ring-brand/30' : 'border-white'" :style="{ background: color }" :aria-label="`Use ${color}`" @click="draft.brandColor = color" /><label class="flex h-8 items-center gap-1 rounded-full border border-line px-3 text-[10px] font-bold"><input v-model="draft.brandColor" type="color" class="h-4 w-4 border-0 bg-transparent p-0"> Custom</label></div></div>
             <div class="mt-4"><ImageUploader v-model="draft.logoUrl" purpose="logo" label="Logo" hint="Square works best. Optional." aspect="square" /></div>
             <div class="mt-4"><ImageUploader v-model="draft.bannerUrl" purpose="banner" label="Banner (optional)" aspect="banner" /></div>
@@ -218,10 +238,11 @@ onMounted(async () => { await builder.load(); hydrate(); });
           <div class="flex gap-2"><BaseButton block variant="outline" :loading="savingLocal" :disabled="!dirty" @click="save()"><Save class="h-4 w-4" /> Save changes</BaseButton><BaseButton v-if="!builder.data.value.business.storefrontPublished" block :loading="builder.publishing.value" @click="publish"><Rocket class="h-4 w-4" /> Publish</BaseButton></div>
         </div>
 
-        <div class="xl:sticky xl:top-[84px] xl:self-start">
+        <div ref="previewRef" class="xl:sticky xl:top-[84px] xl:self-start">
           <StorefrontPreview :business="draft" :template="currentTemplate" :products="builder.data.value.products" :services="builder.data.value.services || []" :providers="builder.data.value.providers || []" :business-mode="builder.data.value.business.businessMode" :slug="builder.data.value.business.slug" />
           <div class="mt-3 grid gap-2 sm:grid-cols-2">
-            <a :href="builder.data.value.urls.path" target="_blank" class="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface py-2.5 text-[11px] font-bold"><ExternalLink class="h-3.5 w-3.5" /> Open storefront</a>
+            <a v-if="builder.data.value.business.storefrontPublished" :href="builder.data.value.urls.path" target="_blank" class="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface py-2.5 text-[11px] font-bold"><ExternalLink class="h-3.5 w-3.5" /> Open storefront</a>
+            <button v-else type="button" class="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface py-2.5 text-[11px] font-bold" @click="scrollToPreview"><Eye class="h-3.5 w-3.5" /> Preview before publishing</button>
             <NuxtLink to="/app/settings?tab=domain" class="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-surface py-2.5 text-[11px] font-bold"><Settings class="h-3.5 w-3.5" /> Domain settings</NuxtLink>
           </div>
           <p class="mt-3 text-center text-[10px] text-muted"><Sparkles class="mr-1 inline h-3 w-3 text-brand-500" /> Live preview updates as you type. Save to make it permanent.</p>

@@ -13,6 +13,7 @@ const { contact } = useStorefrontCheckout(business.value.slug);
 const form = reactive({ name: '', phone: '', email: '', message: '' });
 const sending = ref(false);
 const sent = ref(false);
+const { openChat } = useStorefrontChat();
 const wa = computed(() => whatsappLink(business.value.whatsappNumber || business.value.publicPhone, `Hi ${business.value.name}! I have a question.`));
 useSeoMeta({ title: computed(() => `Contact — ${business.value.name}`), description: computed(() => `Contact ${business.value.name}. Message on WhatsApp or send a note.`), ogType: 'website' });
 useHead({ titleTemplate: '%s' });
@@ -34,7 +35,8 @@ async function submit() {
           <h1 class="mt-2 font-display text-5xl font-bold tracking-[-0.05em]" :style="{ color: template.colors.ink }">Let's talk.</h1>
           <p class="mt-3 text-sm leading-relaxed" :style="{ color: template.colors.muted }">Sizing, delivery, custom orders — send a message and a real human from {{ business.name }} will reply.</p>
           <div class="mt-7 space-y-3">
-            <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="flex items-center gap-3 rounded-2xl p-4 text-sm font-bold" :style="{ background: '#25D366', color: '#06231A', borderRadius: template.radius }"><MessageCircle class="h-5 w-5" /> Chat on WhatsApp <span class="ml-auto text-[10px] opacity-60">Fastest</span></a>
+            <button type="button" class="flex items-center gap-3 rounded-2xl p-4 text-sm font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary, borderRadius: template.radius }" @click="openChat({ type: 'general' })"><MessageCircle class="h-5 w-5" /> Chat inside Ojaly <span class="ml-auto text-[10px] opacity-60">Recommended</span></button>
+            <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="flex items-center gap-3 rounded-2xl border p-4 text-sm font-semibold opacity-70" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: template.colors.ink }"><MessageCircle class="h-4 w-4" /> WhatsApp fallback</a>
             <a v-if="business.publicPhone" :href="`tel:${business.publicPhone}`" class="flex items-center gap-3 rounded-2xl border p-4 text-sm font-semibold" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: template.colors.ink }"><Phone class="h-4 w-4" /> {{ business.publicPhone }}</a>
             <a v-if="business.email" :href="`mailto:${business.email}`" class="flex items-center gap-3 rounded-2xl border p-4 text-sm font-semibold" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: template.colors.ink }"><Mail class="h-4 w-4" /> {{ business.email }}</a>
             <p v-if="business.address" class="flex items-start gap-3 rounded-2xl border p-4 text-sm" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: template.colors.ink }"><MapPin class="mt-0.5 h-4 w-4 shrink-0" /> {{ business.address }}</p>
@@ -44,8 +46,8 @@ async function submit() {
           <div v-if="sent" class="py-10 text-center">
             <CheckCircle2 class="mx-auto h-12 w-12" :style="{ color: template.colors.primary }" />
             <h2 class="mt-3 font-display text-2xl font-bold" :style="{ color: template.colors.ink }">Message sent.</h2>
-            <p class="mt-1 text-sm" :style="{ color: template.colors.muted }">They'll get back to you. For a faster reply, use WhatsApp.</p>
-            <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="mt-5 inline-flex rounded-full px-5 py-3 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">Open WhatsApp</a>
+            <p class="mt-1 text-sm" :style="{ color: template.colors.muted }">They'll get back to you. For a written record, use the in-app chat.</p>
+            <button type="button" class="mt-5 inline-flex rounded-full px-5 py-3 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" @click="openChat({ type: 'general' })">Open chat</button>
           </div>
           <form v-else class="space-y-3" @submit.prevent="submit">
             <h2 class="font-display text-xl font-bold" :style="{ color: template.colors.ink }">Send a message</h2>

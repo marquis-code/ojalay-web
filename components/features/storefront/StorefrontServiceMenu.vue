@@ -3,7 +3,7 @@ import { ArrowRight, CalendarDays, Clock3, MapPin, Sparkles, Star } from 'lucide
 import type { PublicProvider, Service, StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { formatNaira } from '~/utils/money';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; services: Service[]; providers: PublicProvider[] }>();
-const wa = computed(() => props.business.whatsappNumber || props.business.publicPhone);
+const { openChat } = useStorefrontChat();
 </script>
 
 <template>
@@ -21,7 +21,7 @@ const wa = computed(() => props.business.whatsappNumber || props.business.public
           </div>
           <div class="mt-7 flex flex-col gap-2 sm:flex-row">
             <NuxtLink :to="`/s/${business.slug}/services`" class="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full px-6 text-sm font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">See services & book <ArrowRight class="h-4 w-4" /></NuxtLink>
-            <a v-if="wa" :href="`https://wa.me/${wa.replace(/\D/g, '')}`" target="_blank" rel="noopener" class="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border-2 px-6 text-sm font-bold" :style="{ borderColor: template.colors.ink, color: template.colors.ink }">Ask a question</a>
+            <button type="button" class="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border-2 px-6 text-sm font-bold" :style="{ borderColor: template.colors.ink, color: template.colors.ink }" @click="openChat({ type: 'general' })">Ask a question</button>
           </div>
         </div>
         <div class="relative">

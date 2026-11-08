@@ -6,7 +6,7 @@ import { optimizedImage } from '~/utils/cloudinary';
 const props = defineProps<{ home: StorefrontHome }>();
 const { business, template, products, categories, productCount, services, providers, businessMode } = toRefs(props.home);
 const mode = computed(() => businessMode.value || 'products');
-const wa = computed(() => whatsappLink(business.value.whatsappNumber || business.value.publicPhone, `Hi ${business.value.name}! I'd like to order.`));
+const { openChat } = useStorefrontChat();
 const reveal = ref(false);
 onMounted(() => { reveal.value = true; });
 </script>
@@ -25,7 +25,7 @@ onMounted(() => { reveal.value = true; });
         <div v-if="products.length" class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <StorefrontProductCard v-for="product in products.slice(0, 4)" :key="product.id" :product="product" :template="template" :business="business" />
         </div>
-        <div v-else class="mt-6 rounded-2xl border border-dashed p-10 text-center" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }"><p class="font-display text-xl font-bold" :style="{ color: template.colors.ink }">The first drop is loading</p><p class="mt-1 text-xs" :style="{ color: template.colors.muted }">Message us on WhatsApp and we’ll tell you what’s available.</p></div>
+        <div v-else class="mt-6 rounded-2xl border border-dashed p-10 text-center" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }"><p class="font-display text-xl font-bold" :style="{ color: template.colors.ink }">The first drop is loading</p><p class="mt-1 text-xs" :style="{ color: template.colors.muted }">Chat with the business inside Ojaly and we’ll tell you what’s available.</p></div>
         <NuxtLink :to="`/s/${business.slug}/products`" class="mt-6 flex min-h-[48px] items-center justify-center gap-1.5 rounded-full border text-xs font-bold sm:hidden" :style="{ borderColor: template.colors.ink, color: template.colors.ink }">See all {{ productCount }} products <ArrowRight class="h-3.5 w-3.5" /></NuxtLink>
       </section>
 
@@ -70,12 +70,12 @@ onMounted(() => { reveal.value = true; });
         <div v-if="products.length" class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <StorefrontProductCard v-for="product in products" :key="product.id" :product="product" :template="template" :business="business" />
         </div>
-        <div v-else class="mt-6 rounded-2xl border border-dashed p-10 text-center" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }"><p class="font-display text-xl font-bold" :style="{ color: template.colors.ink }">Restocking soon</p><p class="mt-1 text-xs" :style="{ color: template.colors.muted }">Follow us or message us on WhatsApp for the next drop.</p></div>
+        <div v-else class="mt-6 rounded-2xl border border-dashed p-10 text-center" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }"><p class="font-display text-xl font-bold" :style="{ color: template.colors.ink }">Restocking soon</p><p class="mt-1 text-xs" :style="{ color: template.colors.muted }">Follow us or chat with the business for the next drop.</p></div>
       </section>
 
       <section v-else-if="section === 'testimonials'" class="border-y" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)`, background: template.colors.surface }">
         <div class="mx-auto grid max-w-6xl gap-4 px-4 py-12 sm:grid-cols-3 sm:px-6">
-          <div v-for="(promise, index) in [{ icon: PackageCheck, title: 'Packed with care', body: 'Every order is checked and packed by hand before it leaves.' }, { icon: MessageCircle, title: 'Real human service', body: 'Questions? Message us directly on WhatsApp. We reply.' }, { icon: Heart, title: 'Support small business', body: 'Every order supports a small Nigerian business, not a giant chain.' }]" :key="promise.title" class="rounded-2xl p-5" :style="{ background: index === 0 ? template.colors.primary : template.colors.background, color: index === 0 ? template.colors.onPrimary : template.colors.ink, borderRadius: template.radius }">
+          <div v-for="(promise, index) in [{ icon: PackageCheck, title: 'Packed with care', body: 'Every order is checked and packed by hand before it leaves.' }, { icon: MessageCircle, title: 'Real human service', body: 'Questions? Chat with the business inside Ojaly. We reply here.' }, { icon: Heart, title: 'Support small business', body: 'Every order supports a small Nigerian business, not a giant chain.' }]" :key="promise.title" class="rounded-2xl p-5" :style="{ background: index === 0 ? template.colors.primary : template.colors.background, color: index === 0 ? template.colors.onPrimary : template.colors.ink, borderRadius: template.radius }">
             <component :is="promise.icon" class="h-5 w-5 opacity-70" /><p class="mt-3 font-display text-lg font-bold">{{ promise.title }}</p><p class="mt-1 text-xs leading-relaxed opacity-70">{{ promise.body }}</p>
           </div>
         </div>
@@ -85,7 +85,7 @@ onMounted(() => { reveal.value = true; });
         <div class="overflow-hidden rounded-[2rem] p-7 sm:p-10" :style="{ background: template.colors.ink, color: template.colors.background }">
           <div class="grid gap-6 sm:grid-cols-[1.3fr_1fr] sm:items-center">
             <div><p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">Talk to a human</p><h2 class="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Questions? We answer.</h2><p class="mt-2 max-w-md text-sm leading-relaxed opacity-70">Sizing, delivery, custom requests — send a message. No bots pretending to be people.</p></div>
-            <div class="flex flex-col gap-2"><a v-if="wa" :href="wa" target="_blank" rel="noopener" class="flex min-h-[50px] items-center justify-center gap-2 rounded-full text-sm font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }"><MessageCircle class="h-4 w-4" /> WhatsApp us</a><NuxtLink :to="`/s/${business.slug}/contact`" class="flex min-h-[50px] items-center justify-center gap-2 rounded-full border-2 text-sm font-bold" :style="{ borderColor: `color-mix(in srgb, ${template.colors.background} 35%, transparent)`, color: template.colors.background }">Send a message</NuxtLink></div>
+            <div class="flex flex-col gap-2"><button type="button" class="flex min-h-[50px] items-center justify-center gap-2 rounded-full text-sm font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" @click="openChat({ type: 'general' })"><MessageCircle class="h-4 w-4" /> Chat with us</button><NuxtLink :to="`/s/${business.slug}/contact`" class="flex min-h-[50px] items-center justify-center gap-2 rounded-full border-2 text-sm font-bold" :style="{ borderColor: `color-mix(in srgb, ${template.colors.background} 35%, transparent)`, color: template.colors.background }">Send a message</NuxtLink></div>
           </div>
           <div class="mt-6 flex flex-wrap gap-x-6 gap-y-1 border-t pt-4 text-[11px] opacity-60" :style="{ borderColor: `color-mix(in srgb, ${template.colors.background} 15%, transparent)` }"><span v-if="business.address">{{ business.address }}</span><span v-if="business.publicPhone">{{ business.publicPhone }}</span><span v-if="business.email">{{ business.email }}</span></div>
         </div>

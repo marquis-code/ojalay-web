@@ -2,11 +2,11 @@
 import { ArrowRight, Instagram, Menu, MessageCircle, Search, ShoppingBag, X } from 'lucide-vue-next';
 import type { StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { templateVars } from '~/utils/templates';
-import { whatsappLink } from '~/utils/phone';
 import { optimizedImage } from '~/utils/cloudinary';
 import { publicApi } from '~/api/factories/publicApi';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate }>();
 const cart = useCartStore();
+const { openChat } = useStorefrontChat();
 const packageCount = ref<number | null>(null);
 const open = ref(false);
 const route = useRoute();
@@ -21,7 +21,6 @@ const links = computed(() => [
   { to: `/s/${props.business.slug}/contact`, label: 'Contact' },
 ]);
 const active = (to: string, exact = false) => exact ? route.path === to : route.path.startsWith(to);
-const wa = computed(() => whatsappLink(props.business.whatsappNumber || props.business.publicPhone, `Hi ${props.business.name}! I'd like to order.`));
 const mounted = ref(false);
 onMounted(async () => {
   cart.hydrate(); mounted.value = true;
@@ -89,13 +88,14 @@ onBeforeUnmount(clearStorefrontTheme);
           </NuxtLink>
           <NuxtLink v-if="mode !== 'products'" :to="bookPath" class="hidden min-h-[40px] shrink-0 items-center justify-center whitespace-nowrap rounded-full px-4 text-[11px] font-bold sm:inline-flex" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">Book now</NuxtLink>
           <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full md:hidden" :style="{ color: template.colors.ink }" aria-label="Menu" @click="open = !open"><X v-if="open" class="h-5 w-5" /><Menu v-else class="h-5 w-5" /></button>
-          <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="hidden items-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-bold md:inline-flex" :style="{ background: template.colors.primary, color: template.colors.onPrimary }"><MessageCircle class="h-3.5 w-3.5" /> WhatsApp</a>
+          <button type="button" class="hidden items-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-bold md:inline-flex" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" @click="openChat({ type: 'general' })"><MessageCircle class="h-3.5 w-3.5" /> Chat</button>
         </div>
       </div>
       <div v-if="open" class="border-t px-4 py-3 md:hidden" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 12%, transparent)` }">
         <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="block rounded-lg px-3 py-3 text-sm font-semibold" :style="{ color: template.colors.ink }" @click="open = false">{{ link.label }}</NuxtLink>
         <NuxtLink v-if="mode !== 'products'" :to="bookPath" class="mt-1 flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" @click="open = false">Book now <ArrowRight class="h-4 w-4" /></NuxtLink>
-        <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="mt-1 flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }"><MessageCircle class="h-4 w-4" /> Chat to order</a>
+        <button type="button" class="mt-1 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" @click="open = false; openChat({ type: 'general' })"><MessageCircle class="h-4 w-4" /> Chat with business</button>
+        <a v-if="business.whatsappNumber || business.publicPhone" :href="`https://wa.me/${(business.whatsappNumber || business.publicPhone || '').replace(/\D/g, '')}`" target="_blank" rel="noopener" class="mt-2 flex items-center justify-center gap-2 rounded-xl border border-current/15 py-3 text-xs font-bold opacity-70">WhatsApp fallback</a>
       </div>
     </header>
 
@@ -107,7 +107,7 @@ onBeforeUnmount(clearStorefrontTheme);
           <div class="lg:col-span-2">
             <p class="font-display text-3xl font-bold tracking-tight">{{ business.name }}</p>
             <p class="mt-2 max-w-sm text-sm leading-relaxed opacity-70">{{ business.tagline }}</p>
-            <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }"><MessageCircle class="h-4 w-4" /> Chat with us</a>
+            <button type="button" class="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" @click="openChat({ type: 'general' })"><MessageCircle class="h-4 w-4" /> Chat with us</button>
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-[0.18em] opacity-50">{{ mode === 'products' ? 'Shop' : 'Book' }}</p>
@@ -135,7 +135,7 @@ onBeforeUnmount(clearStorefrontTheme);
       </div>
     </footer>
 
-    <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="fixed bottom-5 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-forest-900 shadow-lg transition hover:scale-105 md:hidden" aria-label="Chat on WhatsApp"><MessageCircle class="h-7 w-7" /></a>
+    <StorefrontChatWidget :business="business" />
   </div>
 </template>
 

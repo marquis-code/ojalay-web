@@ -2,13 +2,13 @@
 import { ArrowLeft, Check, MessageCircle, Minus, Plus, ShoppingBag, Truck } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { optimizedImage } from '~/utils/cloudinary';
-import { whatsappLink } from '~/utils/phone';
 definePageMeta({ layout: false });
 const route = useRoute();
 const config = useRuntimeConfig();
 const router = useRouter();
 const toast = useToast();
 const cart = useCartStore();
+const { openChat } = useStorefrontChat();
 const slug = computed(() => String(route.params.slug));
 const id = computed(() => String(route.params.id));
 const { data, error } = await useStorefrontProduct(slug, id);
@@ -54,7 +54,6 @@ function buyNow() {
   addToCart();
   void router.push(`/s/${business.value.slug}/cart`);
 }
-const wa = computed(() => whatsappLink(business.value.whatsappNumber || business.value.publicPhone, `Hi ${business.value.name}! I'd like to order ${product.value.name} (${formatNaira(selectedVariant.value?.priceKobo || product.value.priceKobo)}).`));
 </script>
 
 <template>
@@ -90,12 +89,12 @@ const wa = computed(() => whatsappLink(business.value.whatsappNumber || business
           </div>
           <div class="mt-2 flex gap-2">
             <button type="button" class="flex min-h-[48px] flex-1 items-center justify-center rounded-full border-2 text-sm font-bold disabled:opacity-40" :style="{ borderColor: template.colors.ink, color: template.colors.ink }" :disabled="!product.inStock" @click="buyNow">Buy now</button>
-            <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="flex min-h-[48px] w-12 items-center justify-center rounded-full" :style="{ background: '#25D366', color: '#06231A' }" aria-label="Order on WhatsApp"><MessageCircle class="h-5 w-5" /></a>
+            <button type="button" class="flex min-h-[48px] w-12 items-center justify-center rounded-full" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" aria-label="Chat about this product" @click="openChat({ type: 'product', id: product.id, name: product.name })"><MessageCircle class="h-5 w-5" /></button>
           </div>
           <div class="mt-6 space-y-2 border-t pt-4 text-xs" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)`, color: template.colors.muted }">
             <p class="flex items-center gap-2"><Check class="h-3.5 w-3.5" :style="{ color: template.colors.primary }" /> Pay online or when you receive it</p>
             <p class="flex items-center gap-2"><Truck class="h-3.5 w-3.5" :style="{ color: template.colors.primary }" /> Delivery arranged directly with the seller</p>
-            <p class="flex items-center gap-2"><MessageCircle class="h-3.5 w-3.5" :style="{ color: template.colors.primary }" /> Questions? Chat with us on WhatsApp</p>
+            <p class="flex items-center gap-2"><MessageCircle class="h-3.5 w-3.5" :style="{ color: template.colors.primary }" /> Questions? Chat with the business inside Ojaly</p>
           </div>
         </div>
       </div>

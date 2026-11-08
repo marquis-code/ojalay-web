@@ -566,3 +566,7 @@ export interface SupportThread { token?: string; conversation: SupportConversati
 export interface SaleChatMessage { id: string; sender: 'customer' | 'business'; senderName: string; body: string; attachments?: SupportAttachment[]; createdAt: string; seen?: boolean; }
 export interface SaleChatSummary { id: string; saleNumber: string; customerName: string; customerEmail?: string; totalKobo: number; soldAt: string; items?: { name: string; quantity: number }[]; }
 export interface SaleChatThread { sale: SaleChatSummary; messages: SaleChatMessage[]; }
+
+export interface StorefrontChatMessage { id: string; sender: 'visitor' | 'business'; senderName: string; body: string; createdAt: string; seen?: boolean; }
+export interface StorefrontChatConversation { id: string; token?: string; businessId: string; name: string; phone: string; email?: string | null; contextType: 'product' | 'service' | 'general'; contextId?: string | null; contextName?: string; status: 'open' | 'closed'; unreadAdmin: number; unreadVisitor: number; lastMessageAt?: string | null; lastMessage?: string; lastSender?: string | null; createdAt?: string; }
+export interface StorefrontChatThread { conversation: StorefrontChatConversation; messages: StorefrontChatMessage[]; }

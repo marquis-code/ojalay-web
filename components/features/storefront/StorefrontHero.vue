@@ -3,9 +3,8 @@ import { ArrowRight, MessageCircle, Sparkles, Star } from 'lucide-vue-next';
 import type { StorefrontBusiness, StorefrontTemplate, StorefrontProduct } from '~/types';
 import { formatNaira } from '~/utils/money';
 import { optimizedImage } from '~/utils/cloudinary';
-import { whatsappLink } from '~/utils/phone';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate; products: StorefrontProduct[]; productCount: number }>();
-const wa = computed(() => whatsappLink(props.business.whatsappNumber || props.business.publicPhone, `Hi ${props.business.name}! I'd like to place an order.`));
+const { openChat } = useStorefrontChat();
 const featured = computed(() => props.products.slice(0, 3));
 const isCentered = computed(() => ['centered', 'soft'].includes(props.template.layout));
 const headline = computed(() => props.business.tagline || `Things you'll love, from ${props.business.name}.`);
@@ -23,11 +22,11 @@ const headline = computed(() => props.business.tagline || `Things you'll love, f
         <p class="mt-5 max-w-lg text-sm leading-relaxed sm:text-base" :class="isCentered ? 'mx-auto' : ''" :style="{ color: template.colors.muted }">{{ business.description || business.tagline }}</p>
         <div class="mt-7 flex flex-col gap-2.5 sm:flex-row" :class="isCentered ? 'justify-center' : ''">
           <NuxtLink :to="`/s/${business.slug}/products`" class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full px-6 text-sm font-bold transition hover:opacity-90" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">Shop the collection <ArrowRight class="h-4 w-4" /></NuxtLink>
-          <a v-if="wa" :href="wa" target="_blank" rel="noopener" class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border-2 px-6 text-sm font-bold transition hover:opacity-70" :style="{ borderColor: template.colors.ink, color: template.colors.ink }"><MessageCircle class="h-4 w-4" /> Order on WhatsApp</a>
+          <button type="button" class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border-2 px-6 text-sm font-bold transition hover:opacity-70" :style="{ borderColor: template.colors.ink, color: template.colors.ink }" @click="openChat({ type: 'general' })"><MessageCircle class="h-4 w-4" /> Chat with us</button>
         </div>
         <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-semibold" :class="isCentered ? 'justify-center' : ''" :style="{ color: template.colors.muted }">
           <span>✦ {{ productCount }} product{{ productCount === 1 ? '' : 's' }}</span>
-          <span>✦ Order on WhatsApp</span>
+          <span>✦ Chat with the business</span>
           <span>✦ Pay online or on delivery</span>
         </div>
       </div>

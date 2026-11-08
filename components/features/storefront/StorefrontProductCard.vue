@@ -3,9 +3,9 @@ import { MessageCircle, Plus, ShoppingBag } from 'lucide-vue-next';
 import type { StorefrontProduct, StorefrontTemplate, StorefrontBusiness } from '~/types';
 import { formatNaira } from '~/utils/money';
 import { optimizedImage } from '~/utils/cloudinary';
-import { whatsappLink } from '~/utils/phone';
 const props = defineProps<{ product: StorefrontProduct; template: StorefrontTemplate; business: StorefrontBusiness }>();
 const cart = useCartStore();
+const { openChat } = useStorefrontChat();
 const router = useRouter();
 const toast = useToast();
 const firstVariant = computed(() => props.product.variants.find((v) => v.id) || props.product.variants[0]);
@@ -19,7 +19,6 @@ function add() {
   cart.add({ productId: props.product.id, variantId: variant.id, name: props.product.name, variantName: variant.name, priceKobo: variant.priceKobo, imageUrl: props.product.images[0], slug: props.business.slug });
   toast.success(`${props.product.name} added to cart.`);
 }
-const whatsapp = computed(() => whatsappLink(props.business.whatsappNumber || props.business.publicPhone, `Hi ${props.business.name}! I'm interested in ${props.product.name} (${formatNaira(props.product.priceKobo)}).`));
 </script>
 
 <template>
@@ -42,7 +41,7 @@ const whatsapp = computed(() => whatsappLink(props.business.whatsappNumber || pr
       <div class="mt-2.5 flex items-center justify-between gap-2">
         <p class="font-display text-base font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(product.priceKobo) }}</p>
         <div class="flex gap-1">
-          <a v-if="business.whatsappNumber || business.publicPhone" :href="whatsapp" target="_blank" rel="noopener" class="flex h-8 w-8 items-center justify-center rounded-full border transition hover:opacity-70" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: template.colors.ink }" :aria-label="`Ask about ${product.name} on WhatsApp`"><MessageCircle class="h-3.5 w-3.5" /></a>
+          <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full border transition hover:opacity-70" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: template.colors.ink }" :aria-label="`Ask about ${product.name}`" @click="openChat({ type: 'product', id: product.id, name: product.name })"><MessageCircle class="h-3.5 w-3.5" /></button>
           <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full transition hover:opacity-80 disabled:opacity-30" :style="{ background: template.colors.primary, color: template.colors.onPrimary }" :disabled="!product.inStock" :aria-label="`Add ${product.name} to cart`" @click="add"><Plus class="h-4 w-4" /></button>
         </div>
       </div>

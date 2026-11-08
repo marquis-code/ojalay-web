@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ArrowLeft, ExternalLink, Loader2, MessageCircle, RefreshCw, Send, X } from 'lucide-vue-next';
+import { ArrowLeft, ExternalLink, ImagePlus, Loader2, MessageCircle, Mic, RefreshCw, Send, Square, X } from 'lucide-vue-next';
 import { storefrontChatApi } from '~/api/factories/storefrontChatApi';
+import { uploadsApi } from '~/api/factories/uploadsApi';
+import type { SupportAttachment } from '~/types';
 import { useBusinessStore } from '~/stores/business';
 import { formatDateTime } from '~/utils/date';
 definePageMeta({ layout: 'app' });
@@ -15,6 +17,11 @@ const thread = ref<Record<string, any> | null>(null);
 const draft = ref('');
 const loading = ref(false);
 const sending = ref(false);
+const attachment = ref<SupportAttachment | null>(null);
+const uploading = ref(false);
+const recording = ref(false);
+let recorder: MediaRecorder | null = null;
+let recordingStream: MediaStream | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
 const selectedConversation = computed(() => conversations.value.find((item) => item.id === selectedId.value) || thread.value?.conversation || null);
 const contextLink = computed(() => {
@@ -37,11 +44,37 @@ async function open(id: string) {
   finally { loading.value = false; }
 }
 async function send() {
-  if (!thread.value || !draft.value.trim()) return;
+  if (!thread.value || (!draft.value.trim() && !attachment.value)) return;
   sending.value = true;
-  try { await storefrontChatApi.reply(thread.value.conversation.id, draft.value.trim()); draft.value = ''; thread.value = await storefrontChatApi.thread(thread.value.conversation.id); await loadConversations(); }
+  try { await storefrontChatApi.reply(thread.value.conversation.id, draft.value.trim(), attachment.value ? [attachment.value] : undefined); draft.value = ''; attachment.value = null; thread.value = await storefrontChatApi.thread(thread.value.conversation.id); await loadConversations(); }
   catch (error) { toast.error((error as Error).message); }
   finally { sending.value = false; }
+}
+async function addImage(event: Event) {
+  const input = event.target as HTMLInputElement; const file = input.files?.[0]; input.value = '';
+  if (!file) return;
+  uploading.value = true;
+  try { attachment.value = await uploadsApi.uploadPublicSupportAttachment(file); }
+  catch (error) { toast.error((error as Error).message); }
+  finally { uploading.value = false; }
+}
+async function toggleRecording() {
+  if (recording.value) { recorder?.stop(); recording.value = false; return; }
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') { toast.error('Voice notes are not supported in this browser.'); return; }
+  try {
+    recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const chunks: Blob[] = []; recorder = new MediaRecorder(recordingStream);
+    recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+    recorder.onstop = async () => {
+      recordingStream?.getTracks().forEach((track) => track.stop()); recording.value = false;
+      const blob = new Blob(chunks, { type: recorder?.mimeType || 'audio/webm' });
+      uploading.value = true;
+      try { attachment.value = await uploadsApi.uploadPublicSupportAttachment(new File([blob], 'voice-note.webm', { type: blob.type || 'audio/webm' })); }
+      catch (error) { toast.error((error as Error).message); }
+      finally { uploading.value = false; }
+    };
+    recorder.start(); recording.value = true;
+  } catch { toast.error('Allow microphone access to record a voice note.'); }
 }
 async function loadConversations() { try { conversations.value = await storefrontChatApi.conversations(); } catch { /* keep current */ } }
 async function closeConversation() {
@@ -52,7 +85,7 @@ async function closeConversation() {
 function back() { selectedId.value = ''; thread.value = null; void router.replace({ query: {} }); }
 function when(value: string) { return new Date(value).toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit' }); }
 onMounted(async () => { await load(); timer = setInterval(async () => { await loadConversations(); if (selectedId.value) { try { thread.value = await storefrontChatApi.thread(selectedId.value); } catch { /* keep */ } } }, 5000); });
-onBeforeUnmount(() => { if (timer) clearInterval(timer); });
+onBeforeUnmount(() => { if (timer) clearInterval(timer); if (recorder?.state !== 'inactive') recorder?.stop(); recordingStream?.getTracks().forEach((track) => track.stop()); });
 </script>
 
 <template>
@@ -78,10 +111,10 @@ onBeforeUnmount(() => { if (timer) clearInterval(timer); });
         </div>
         <div class="border-b border-line bg-raised/30 px-4 py-2.5 text-[10px] text-muted"><span class="font-bold text-ink">{{ thread.conversation.contextName || 'General enquiry' }}</span> · Replies stay in Ojaly and are attached to the customer record.</div>
         <div class="min-h-0 flex-1 space-y-3 overflow-y-auto bg-canvas/30 p-4">
-          <div v-for="message in thread.messages" :key="message.id" class="flex max-w-[88%] flex-col" :class="message.sender === 'business' ? 'ml-auto items-end' : 'items-start'"><div class="w-fit max-w-full rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed" :class="message.sender === 'business' ? 'bg-brand-500 text-white' : 'border border-line bg-surface text-ink'">{{ message.body }}</div><p class="mt-1 text-[9px] text-muted">{{ message.sender === 'business' ? 'You' : thread.conversation.name }} · {{ when(message.createdAt) }}</p></div>
+          <div v-for="message in thread.messages" :key="message.id" class="flex max-w-[88%] flex-col" :class="message.sender === 'business' ? 'ml-auto items-end' : 'items-start'"><div class="w-fit max-w-full break-words rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed" :class="message.sender === 'business' ? 'bg-brand-500 text-white' : 'border border-line bg-surface text-ink'"><p v-if="message.body" class="whitespace-pre-line">{{ message.body }}</p><template v-for="asset in message.attachments || []" :key="asset.url"><img v-if="asset.type === 'image'" :src="asset.url" alt="Attachment" class="mt-2 max-h-52 w-full min-w-[170px] rounded-xl object-cover"><audio v-else :src="asset.url" controls class="mt-2 w-full min-w-[210px]"></audio></template></div><p class="mt-1 text-[9px] text-muted">{{ message.sender === 'business' ? 'You' : thread.conversation.name }} · {{ when(message.createdAt) }}</p></div>
           <p v-if="!thread.messages.length" class="py-12 text-center text-xs text-muted">No messages yet. Reply below.</p>
         </div>
-        <div class="border-t border-line p-3"><div class="flex gap-2"><input v-model="draft" type="text" placeholder="Reply inside Ojaly…" class="min-h-[44px] min-w-0 flex-1 rounded-xl border border-line bg-canvas px-3 text-xs" @keyup.enter="send"><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white disabled:opacity-50" :disabled="sending || !draft.trim()" aria-label="Send reply" @click="send"><Loader2 v-if="sending" class="h-4 w-4 animate-spin" /><Send v-else class="h-4 w-4" /></button></div><p class="mt-2 text-[9px] text-muted">The customer sees this in their in-app chat. A WhatsApp/email alert is sent when they message you.</p></div>
+        <div class="border-t border-line p-3"><p v-if="uploading || sending" class="mb-2 flex items-center gap-2 text-[10px] font-semibold text-brand-600"><Loader2 class="h-3.5 w-3.5 animate-spin" /> {{ uploading ? 'Uploading attachment…' : 'Sending reply…' }}</p><div v-if="attachment" class="mb-2 flex items-center gap-2 rounded-xl bg-raised p-2"><img v-if="attachment.type === 'image'" :src="attachment.url" alt="Preview" class="h-10 w-10 rounded-lg object-cover"><audio v-else :src="attachment.url" controls class="h-9 min-w-0 flex-1"></audio><button type="button" class="ml-auto text-muted" @click="attachment = null"><X class="h-4 w-4" /></button></div><div class="flex gap-1.5"><label class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line text-muted hover:bg-raised"><ImagePlus class="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" :disabled="uploading" @change="addImage"></label><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line" :class="recording ? 'bg-danger text-white' : 'text-muted hover:bg-raised'" :disabled="uploading" @click="toggleRecording"><Square v-if="recording" class="h-4 w-4" /><Mic v-else class="h-4 w-4" /></button><input v-model="draft" type="text" placeholder="Reply inside Ojaly…" class="min-h-[44px] min-w-0 flex-1 rounded-xl border border-line bg-canvas px-3 text-xs" @keyup.enter="send"><button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white disabled:opacity-50" :disabled="sending || uploading || (!draft.trim() && !attachment)" aria-label="Send reply" @click="send"><Loader2 v-if="sending" class="h-4 w-4 animate-spin" /><Send v-else class="h-4 w-4" /></button></div><p class="mt-2 text-[9px] text-muted">The customer sees this in their in-app chat. A WhatsApp/email alert is sent when they message you.</p></div>
       </div>
       <div v-else class="card hidden min-h-0 items-center justify-center text-center lg:flex"><div><MessageCircle class="mx-auto h-8 w-8 text-muted" /><p class="mt-3 font-display text-lg font-bold">Select a conversation</p><p class="mt-1 text-xs text-muted">Customer questions from your storefront appear here.</p></div></div>
     </div>

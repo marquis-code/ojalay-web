@@ -570,3 +570,15 @@ export interface SaleChatThread { sale: SaleChatSummary; messages: SaleChatMessa
 export interface StorefrontChatMessage { id: string; sender: 'visitor' | 'business'; senderName: string; body: string; attachments?: SupportAttachment[]; createdAt: string; seen?: boolean; }
 export interface StorefrontChatConversation { id: string; token?: string; businessId: string; name: string; phone: string; email?: string | null; contextType: 'product' | 'service' | 'general'; contextId?: string | null; contextName?: string; status: 'open' | 'closed'; unreadAdmin: number; unreadVisitor: number; lastMessageAt?: string | null; lastMessage?: string; lastSender?: string | null; createdAt?: string; }
 export interface StorefrontChatThread { conversation: StorefrontChatConversation; messages: StorefrontChatMessage[]; }
+
+export interface StorefrontAnalyticsRange { key: 'today' | '7d' | '30d' | '90d'; days: number; from: string; to: string; }
+export interface StorefrontAnalyticsDay { date: string; label: string; visitors: number; visits: number; }
+export interface StorefrontAnalyticsGroup { key: string; visits: number; visitors: number; }
+export interface StorefrontAnalytics {
+  range: StorefrontAnalyticsRange;
+  totals: { visitors: number; visits: number; todayVisitors: number; todayVisits: number };
+  comparison: { visitorsPercent: number | null; visitsPercent: number | null };
+  daily: StorefrontAnalyticsDay[];
+  sources: StorefrontAnalyticsGroup[];
+  pages: StorefrontAnalyticsGroup[];
+}

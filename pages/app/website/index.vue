@@ -124,6 +124,8 @@ onMounted(async () => { await builder.load(); hydrate(); });
       </template>
     </PageHeader>
 
+    <StorefrontAnalyticsCard />
+
     <div v-if="builder.loading.value && !builder.data.value" class="grid gap-4 lg:grid-cols-[380px_1fr]"><div class="skeleton h-[600px] rounded-3xl" /><div class="skeleton h-[600px] rounded-3xl" /></div>
     <div v-else-if="!builder.data.value" class="card p-6"><p class="font-bold">Could not load your website builder.</p><BaseButton size="sm" class="mt-3" @click="builder.load().then(hydrate)">Try again</BaseButton></div>
     <template v-else-if="currentTemplate">

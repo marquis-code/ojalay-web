@@ -118,6 +118,8 @@ onMounted(loadAll);
         </StatCard>
       </div>
 
+      <StorefrontAnalyticsCard compact />
+
       <InsightBanner :insights="dashboard.data.value?.insights || []" />
 
       <div class="grid gap-4 xl:grid-cols-[1.6fr_1fr]">

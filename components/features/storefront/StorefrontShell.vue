@@ -7,6 +7,7 @@ import { publicApi } from '~/api/factories/publicApi';
 const props = defineProps<{ business: StorefrontBusiness; template: StorefrontTemplate }>();
 const cart = useCartStore();
 const { openChat } = useStorefrontChat();
+let lastTracked = '';
 const packageCount = ref<number | null>(null);
 const open = ref(false);
 const route = useRoute();
@@ -22,11 +23,36 @@ const links = computed(() => [
 ]);
 const active = (to: string, exact = false) => exact ? route.path === to : route.path.startsWith(to);
 const mounted = ref(false);
+function visitorId() {
+  if (!import.meta.client) return '';
+  const key = 'ojaly.visitor';
+  let value = localStorage.getItem(key);
+  if (!value) {
+    value = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `v-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(key, value);
+  }
+  return value;
+}
+function trackVisit() {
+  if (!import.meta.client || !props.business.id) return;
+  if (localStorage.getItem('ojaly.access')) return; // vendor preview / signed-in team member
+  if (new URLSearchParams(location.search).has('preview')) return;
+  const path = route.path;
+  if (lastTracked === path) return;
+  lastTracked = path;
+  const params = new URLSearchParams(location.search);
+  const source = params.get('src') || params.get('utm_source') || params.get('ref') || '';
+  void publicApi.trackVisit(props.business.id, {
+    visitorId: visitorId(), path, source,
+    referrer: document.referrer || '',
+  }).catch(() => undefined);
+}
 onMounted(async () => {
-  cart.hydrate(); mounted.value = true;
+  cart.hydrate(); mounted.value = true; trackVisit();
   try { const result = await publicApi.packages(props.business.slug); packageCount.value = result.items?.length || 0; } catch { packageCount.value = 0; }
 });
 watch(() => props.business.slug, (slug) => cart.init(slug, props.business.name), { immediate: true });
+watch(() => route.fullPath, () => trackVisit());
 
 const THEME_KEYS = ['--bg', '--surface', '--raised', '--ink', '--muted', '--line'] as const;
 function rgbTriplet(hex: string): string {

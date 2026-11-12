@@ -16,13 +16,14 @@ const canShare = ref(false);
 const business = computed(() => businessStore.business);
 const isService = computed(() => business.value?.businessMode === 'services' || business.value?.businessMode === 'hybrid');
 const path = computed(() => isService.value ? `/s/${business.value?.slug}/services` : `/s/${business.value?.slug}`);
-const url = computed(() => `${String(config.public.appUrl).replace(/\/$/, '')}${path.value}`);
+const url = computed(() => `${String(config.public.appUrl).replace(/\/$/, '')}${path.value}?src=share`);
+const qrUrl = computed(() => `${String(config.public.appUrl).replace(/\/$/, '')}${path.value}?src=qr`);
 const qrCode = computed(() => qr.value);
 const shareText = computed(() => `Buy from ${business.value?.name || 'my shop'} on Ojaly: ${url.value}`);
 
 async function makeQr() {
   if (!url.value || !business.value?.slug) return;
-  qr.value = await QRCode.toDataURL(url.value, { width: 720, margin: 1, color: { dark: '#06231A', light: '#FFFFFF' } });
+  qr.value = await QRCode.toDataURL(qrUrl.value, { width: 720, margin: 1, color: { dark: '#06231A', light: '#FFFFFF' } });
 }
 async function copy() {
   try { await navigator.clipboard.writeText(url.value); copied.value = true; toast.success('Shop link copied.'); setTimeout(() => { copied.value = false; }, 1800); }
@@ -49,7 +50,7 @@ async function downloadCard() {
 }
 onMounted(async () => {
   canShare.value = typeof navigator !== 'undefined' && Boolean(navigator.share); if (!businessStore.context) await businessStore.load(); await makeQr(); });
-watch(url, makeQr);
+watch(qrUrl, makeQr);
 </script>
 
 <template>

@@ -4,6 +4,7 @@ import type { AvailabilityResponse, Booking, Invoice, Order, PublicProvider, Pub
 class PublicApi extends BaseApi {
   constructor() { super('/'); }
   platformCampaign(): Promise<{ enabled: boolean; percentOff: number; label: string; bannerText: string; badgeText: string }> { return this.request('get', 'promotions/public/platform'); }
+  trackVisit(businessId: string, payload: { visitorId: string; path: string; referrer?: string; source?: string }): Promise<{ tracked: boolean }> { return this.request('post', `public/storefront-visits/${businessId}`, payload); }
   storefrontHome(slug: string): Promise<StorefrontHome> { return this.request('get', `storefront/${slug}`); }
   storefrontByDomain(domain: string): Promise<StorefrontHome> { return this.request('get', `storefront/domain/${domain}`); }
   products(slug: string, params: { page?: number; limit?: number; search?: string; category?: string } = {}): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; items: StorefrontProduct[]; meta: { total: number; page: number; limit: number; pages: number } }> {

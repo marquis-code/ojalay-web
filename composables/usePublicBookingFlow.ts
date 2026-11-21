@@ -8,7 +8,7 @@ export function usePublicBookingFlow(slug: string) {
   const error = ref<string | null>(null);
   const waitlistLoading = ref(false);
   const waitlistJoined = ref(false);
-  const confirmed = ref<{ booking: Booking; whatsappUrl: string | null; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null } | null>(null);
+  const confirmed = ref<{ booking: Booking | null; whatsappUrl: string | null; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null } | null>(null);
 
   async function loadAvailability(serviceId: string, date: string, providerId?: string, durationMinutes?: number) {
     loading.value = true; error.value = null;

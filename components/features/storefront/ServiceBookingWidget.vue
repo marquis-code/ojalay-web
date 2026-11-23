@@ -132,7 +132,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
     </div>
     <template v-else>
       <div class="flex items-center justify-between border-b px-4 py-3 sm:px-5" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }">
-        <div><p class="text-[9px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.primary }">Book this service</p><p class="mt-0.5 font-display text-lg font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(service.priceKobo) }}<template v-if="displayDuration"> · {{ service.durationMinutes }} min</template></p></div>
+        <div><p class="text-[9px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.primary }">Book this service</p><p class="mt-0.5 font-display text-lg font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(service.priceKobo) }}<span v-if="displayDuration"> · {{ service.durationMinutes }} min</span></p></div>
         <div class="flex gap-1"><span v-for="n in 3" :key="n" class="h-1.5 w-6 rounded-full" :class="step >= n ? '' : 'opacity-20'" :style="{ background: template.colors.primary }" /></div>
       </div>
       <div class="p-4 sm:p-5">

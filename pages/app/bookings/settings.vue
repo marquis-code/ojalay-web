@@ -20,7 +20,10 @@ const form = reactive<BookingSettings>({
   weeklyHours: Array.from({ length: 7 }, (_, day) => ({ day, isOpen: day !== 0, start: '09:00', end: '18:00' })),
   closedDates: [], locations: [], policy: '', waitlistOnClosedDays: false, waitlistPaymentEnabled: false,
 });
-const closedDatesInput = ref('');
+const closedDates = ref<string[]>([]);
+const newClosedDate = ref('');
+const closeRangeFrom = ref('');
+const closeRangeTo = ref('');
 const locationsInput = ref('');
 watchEffect(() => {
   if (!business.value) return;
@@ -28,10 +31,34 @@ watchEffect(() => {
   if (business.value.bookingSettings) {
     Object.assign(form, business.value.bookingSettings);
     form.weeklyHours = business.value.bookingSettings.weeklyHours?.length ? business.value.bookingSettings.weeklyHours : form.weeklyHours;
-    closedDatesInput.value = (business.value.bookingSettings.closedDates || []).join(', ');
+    closedDates.value = [...(business.value.bookingSettings.closedDates || [])].sort();
     locationsInput.value = (business.value.bookingSettings.locations || []).join(', ');
   }
 });
+function addClosedDate() {
+  if (!newClosedDate.value || closedDates.value.includes(newClosedDate.value)) return;
+  closedDates.value = [...closedDates.value, newClosedDate.value].sort();
+  newClosedDate.value = '';
+}
+function removeClosedDate(date: string) {
+  closedDates.value = closedDates.value.filter((value) => value !== date);
+}
+function addClosedRange() {
+  if (!closeRangeFrom.value || !closeRangeTo.value) return;
+  const start = new Date(`${closeRangeFrom.value}T12:00:00Z`);
+  const end = new Date(`${closeRangeTo.value}T12:00:00Z`);
+  if (start > end) return;
+  const additions: string[] = [];
+  for (let day = new Date(start); day <= end; day.setUTCDate(day.getUTCDate() + 1)) {
+    additions.push(day.toISOString().slice(0, 10));
+    if (additions.length > 365) break;
+  }
+  closedDates.value = [...new Set([...closedDates.value, ...additions])].sort();
+  closeRangeFrom.value = '';
+  closeRangeTo.value = '';
+}
+function closedLabel(value: string) { return new Date(`${value}T12:00:00`).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); }
+
 async function save() {
   saving.value = true;
   try {
@@ -40,7 +67,7 @@ async function save() {
       bookingSettings: {
         ...form,
         weeklyHours: form.weeklyHours,
-        closedDates: closedDatesInput.value.split(',').map((d) => d.trim()).filter(Boolean),
+        closedDates: [...closedDates.value].sort(),
         locations: locationsInput.value.split(',').map((d) => d.trim()).filter(Boolean),
       },
     } as never);
@@ -114,7 +141,15 @@ onMounted(async () => {
           <input v-model="d.slotIntervalMinutes" type="number" min="0" class="input-base !py-2 !text-xs" :disabled="!d.isOpen" :aria-label="`${days[d.day]} slot interval`" placeholder="Every">
         </div>
       </div>
-      <div class="mt-4 grid gap-3 sm:grid-cols-2"><label class="flex items-start gap-2 rounded-xl border border-line p-3 text-xs font-semibold"><input v-model="form.waitlistOnClosedDays" type="checkbox" class="mt-0.5 h-4 w-4"><span>Show waitlist on closed / unavailable days</span></label><label class="flex items-start gap-2 rounded-xl border border-line p-3 text-xs font-semibold"><input v-model="form.waitlistPaymentEnabled" type="checkbox" class="mt-0.5 h-4 w-4"><span>Require online payment when joining the waitlist</span></label></div><div class="mt-4"><BaseInput v-model="closedDatesInput" label="Closed dates" placeholder="2026-12-25, 2026-12-26" hint="Comma-separated YYYY-MM-DD dates." /></div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2"><label class="flex items-start gap-2 rounded-xl border border-line p-3 text-xs font-semibold"><input v-model="form.waitlistOnClosedDays" type="checkbox" class="mt-0.5 h-4 w-4"><span>Show waitlist on closed / unavailable days</span></label><label class="flex items-start gap-2 rounded-xl border border-line p-3 text-xs font-semibold"><input v-model="form.waitlistPaymentEnabled" type="checkbox" class="mt-0.5 h-4 w-4"><span>Require online payment when joining the waitlist</span></label></div><div class="mt-5 rounded-2xl border border-line p-4">
+        <div class="flex flex-wrap items-start justify-between gap-2"><div><p class="text-sm font-bold">Closed dates</p><p class="mt-1 text-[11px] text-muted">Add individual dates or close a whole range. Customers cannot book on these days.</p></div><span class="rounded-full bg-raised px-2.5 py-1 text-[10px] font-bold text-muted">{{ closedDates.length }} day{{ closedDates.length === 1 ? '' : 's' }}</span></div>
+        <div class="mt-3 flex flex-wrap gap-1.5" :class="closedDates.length ? 'max-h-32 overflow-y-auto' : ''">
+          <span v-for="date in closedDates" :key="date" class="inline-flex items-center gap-1.5 rounded-full border border-line bg-raised/60 px-2.5 py-1.5 text-[10px] font-semibold">{{ closedLabel(date) }}<button type="button" class="text-muted hover:text-danger" :aria-label="`Remove ${date}`" @click="removeClosedDate(date)">×</button></span>
+          <p v-if="!closedDates.length" class="text-[11px] text-muted">No closed dates yet.</p>
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]"><BaseDatePicker v-model="newClosedDate" label="Add one date" /><BaseButton type="button" variant="outline" class="sm:self-end" :disabled="!newClosedDate" @click="addClosedDate">Add</BaseButton></div>
+        <div class="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto]"><BaseDatePicker v-model="closeRangeFrom" label="Close from" /><BaseDatePicker v-model="closeRangeTo" label="Close until" /><BaseButton type="button" variant="outline" class="sm:self-end" :disabled="!closeRangeFrom || !closeRangeTo" @click="addClosedRange">Add range</BaseButton></div>
+      </div>
       <div class="mt-4"><BaseInput v-model="locationsInput" label="Booking locations" placeholder="Block Boys Hostel, Block Girls Hostel, OPH Girls Hostel" hint="Optional. Customers will choose one of these when booking. Comma-separated." /></div>
     </div>
 

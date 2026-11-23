@@ -58,7 +58,14 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
 ];
 const mode = computed<Mode>(() => businessStore.business?.businessMode || 'products');
 const isVisible = (link: NavLink) => !link.modes || link.modes.includes(mode.value);
-const isActive = (to: string, exact = false) => exact ? route.path === to : route.path === to || route.path.startsWith(`${to}/`);
+const visibleLinks = computed(() => groups.flatMap((group) => group.links).filter((link) => (!link.ownerOnly || auth.isOwner) && isVisible(link)));
+const activeTo = computed(() => {
+  const path = route.path;
+  return visibleLinks.value
+    .filter((link) => link.exact ? path === link.to : path === link.to || path.startsWith(`${link.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0]?.to || '';
+});
+const isActive = (to: string, _exact = false) => activeTo.value === to;
 const trialDays = computed(() => businessStore.trialDaysLeft);
 </script>
 

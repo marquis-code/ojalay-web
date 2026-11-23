@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Banknote, CalendarDays, Clock3, Plus, Scissors, UserRoundCog } from 'lucide-vue-next';
+import { Banknote, CalendarDays, CheckCircle2, Clock3, Loader2, Plus, Scissors, UserRoundCog } from 'lucide-vue-next';
+import { businessesApi } from '~/api/factories/businessesApi';
 import type { Provider } from '~/types';
 definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'Team & schedules' });
@@ -11,6 +12,15 @@ const saving = ref(false);
 const editing = ref<Provider | null>(null);
 const removing = ref<Provider | null>(null);
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const banks = ref<{ name: string; code: string }[]>([]);
+const banksLoading = ref(false);
+const resolvingAccount = ref(false);
+const accountError = ref('');
+const bankOptions = computed(() => {
+  const options = banks.value.map((bank) => ({ value: bank.code, label: bank.name }));
+  if (form.bankCode && form.bankName && !options.some((option) => option.value === form.bankCode)) options.unshift({ value: form.bankCode, label: form.bankName });
+  return options;
+});
 const defaultHours = () => Array.from({ length: 7 }, (_, day) => ({ day, isWorking: day !== 0, start: '09:00', end: '18:00', breakStart: '', breakEnd: '' }));
 const form = reactive({
   name: '', title: '', bio: '', email: '', phone: '', avatarUrl: '', color: '#FF5A1F',
@@ -44,8 +54,30 @@ function openEdit(provider: Provider) {
   open.value = true;
 }
 function addTimeOff() { form.timeOff.push({ startAt: '', endAt: '', reason: 'Time off' }); }
+async function loadBanks() {
+  banksLoading.value = true;
+  try { banks.value = await businessesApi.settlementBanks(); }
+  catch (error) { accountError.value = (error as Error).message; }
+  finally { banksLoading.value = false; }
+}
+async function resolveAccount() {
+  accountError.value = '';
+  if (!form.bankCode || !/^\d{10}$/.test(form.accountNumber)) return;
+  resolvingAccount.value = true;
+  try {
+    const result = await businessesApi.resolveSettlementAccount({ bankCode: form.bankCode, accountNumber: form.accountNumber });
+    form.accountName = result.accountName;
+    form.bankName = banks.value.find((bank) => bank.code === form.bankCode)?.name || form.bankName;
+  } catch (error) {
+    form.accountName = '';
+    accountError.value = (error as Error).message;
+  } finally { resolvingAccount.value = false; }
+}
+watch(() => form.accountNumber, (value) => { form.accountName = ''; accountError.value = ''; if (/^\d{10}$/.test(value)) void resolveAccount(); });
+watch(() => form.bankCode, () => { if (/^\d{10}$/.test(form.accountNumber)) void resolveAccount(); });
 async function save() {
   if (form.name.trim().length < 2) return toast.error('Add a name for this team member.');
+  if (form.salaryEnabled && form.accountNumber && (!form.bankCode || !form.accountName)) return toast.error('Choose a bank and resolve the account number before saving.');
   saving.value = true;
   try {
     const payload = {
@@ -75,7 +107,7 @@ function hoursFor(provider: Provider) {
   if (!working.length) return 'Uses business hours';
   return `${working.length} days · ${working[0].start}–${working[0].end}`;
 }
-onMounted(load);
+onMounted(async () => { await Promise.all([load(), loadBanks()]); });
 </script>
 
 <template>
@@ -145,7 +177,7 @@ onMounted(load);
         </div>
         <div class="rounded-2xl border border-line p-4">
           <div class="flex items-center justify-between gap-3"><div><p class="text-sm font-bold">Payroll</p><p class="mt-1 text-[11px] text-muted">Optional monthly salary paid through Ojaly after owner approval.</p></div><label class="flex items-center gap-2 text-sm font-semibold"><input v-model="form.salaryEnabled" type="checkbox" class="h-4 w-4"> Enable</label></div>
-          <div v-if="form.salaryEnabled" class="mt-4 grid gap-3 sm:grid-cols-2"><BaseSelect v-model="form.payFrequency" label="Pay frequency" :options="[{ value: 'daily', label: 'Daily' }, { value: 'weekly', label: 'Weekly' }, { value: 'monthly', label: 'Monthly' }, { value: 'per_service', label: 'Per completed service' }]" /><BaseInput v-model="form.payRate" :label="form.payFrequency === 'per_service' ? 'Rate per completed service' : form.payFrequency === 'daily' ? 'Daily rate' : form.payFrequency === 'weekly' ? 'Weekly rate' : 'Monthly salary'" prefix="₦" inputmode="decimal" /><BaseDatePicker v-model="form.salaryStartDate" label="Salary start date" /><BaseInput v-model="form.bankName" label="Bank name" placeholder="GTBank" /><BaseInput v-model="form.bankCode" label="Bank code" placeholder="058" /><BaseInput v-model="form.accountNumber" :label="editing?.bankAccountLast4 ? 'Account number (leave blank to keep)' : 'Account number'" placeholder="0123456789" /><BaseInput v-model="form.accountName" label="Account name" placeholder="As it appears on the bank account" /></div>
+          <div v-if="form.salaryEnabled" class="mt-4 grid gap-3 sm:grid-cols-2"><BaseSelect v-model="form.payFrequency" label="Pay frequency" :options="[{ value: 'daily', label: 'Daily' }, { value: 'weekly', label: 'Weekly' }, { value: 'monthly', label: 'Monthly' }, { value: 'per_service', label: 'Per completed service' }]" /><BaseInput v-model="form.payRate" :label="form.payFrequency === 'per_service' ? 'Rate per completed service' : form.payFrequency === 'daily' ? 'Daily rate' : form.payFrequency === 'weekly' ? 'Weekly rate' : 'Monthly salary'" prefix="₦" inputmode="decimal" /><BaseDatePicker v-model="form.salaryStartDate" label="Salary start date" /><div class="sm:col-span-2"><BaseSelect v-model="form.bankCode" label="Bank name" :options="bankOptions" :placeholder="banksLoading ? 'Loading banks…' : 'Choose a bank'" searchable /><p v-if="accountError" class="mt-1 text-[10px] font-semibold text-danger">{{ accountError }}</p></div><BaseInput v-model="form.accountNumber" :label="editing?.bankAccountLast4 ? 'Account number (leave blank to keep)' : 'Account number'" placeholder="0123456789" inputmode="numeric" :maxlength="10" /><div class="flex items-end"><div class="w-full rounded-xl border border-line bg-raised/50 px-3 py-3 text-xs"><p class="text-[9px] font-bold uppercase tracking-wider text-muted">Account name</p><p class="mt-1 flex items-center gap-1.5 font-semibold" :class="form.accountName ? 'text-success' : 'text-muted'"><Loader2 v-if="resolvingAccount" class="h-3.5 w-3.5 animate-spin" /><CheckCircle2 v-else-if="form.accountName" class="h-3.5 w-3.5" />{{ resolvingAccount ? 'Resolving…' : form.accountName || 'Resolved automatically from bank + account number' }}</p></div></div></div>
         </div>
         <div>
           <div class="flex items-center justify-between"><p class="label-base mb-0">Time off</p><button type="button" class="text-xs font-bold text-brand-600" @click="addTimeOff">+ Add time off</button></div>

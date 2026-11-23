@@ -25,6 +25,9 @@ const waitlistEmail = ref('');
 const packageCode = ref('');
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...props.providers.map((p) => ({ value: p.id, label: p.name }))]);
 const addOns = computed(() => props.service.addOns.filter((a) => addOnNames.value.includes(a.name)));
+const displayDuration = computed(() => props.service.showDuration !== false && props.service.durationMinutes > 0);
+const canJoinWaitlist = computed(() => Boolean(availability.value && (availability.value.waitlistAllowed ?? !availability.value.closed)));
+const effectiveDuration = computed(() => props.service.durationMinutes > 0 ? props.service.durationMinutes : (props.business.bookingSettings?.slotIntervalMinutes || 30));
 const subtotal = computed(() => props.service.priceKobo + addOns.value.reduce((sum, a) => sum + a.priceKobo, 0));
 const serviceCharge = computed(() => {
   if (!props.business.serviceChargeEnabled) return 0;
@@ -54,7 +57,7 @@ watch(providerId, () => { if (step.value !== 1) return; startAt.value = ''; void
 watch(addOnNames, () => { if (step.value !== 1) return; startAt.value = ''; void refreshSlots(); });
 async function refreshSlots() {
   if (!date.value) return;
-  await loadAvailability(props.service.id, date.value, providerId.value || undefined, props.service.durationMinutes + addOns.value.reduce((sum, a) => sum + (a.durationMinutes || 0), 0));
+  await loadAvailability(props.service.id, date.value, providerId.value || undefined, effectiveDuration.value + addOns.value.reduce((sum, a) => sum + (a.durationMinutes || 0), 0));
 }
 function toggleAddon(name: string) {
   addOnNames.value = addOnNames.value.includes(name) ? addOnNames.value.filter((n) => n !== name) : [...addOnNames.value, name];
@@ -94,15 +97,20 @@ async function submit() {
 function reset() { step.value = 1; startAt.value = ''; confirmed.value = null; }
 async function submitWaitlist() {
   if (waitlistName.value.trim().length < 2 || waitlistPhone.value.trim().length < 7) return;
+  if (props.business.bookingSettings?.waitlistPaymentEnabled && !waitlistEmail.value.trim()) { error.value = 'Add your email to pay and join the waitlist.'; return; }
   const from = new Date(`${date.value}T12:00:00`); const to = new Date(from); to.setDate(to.getDate() + 7);
   try {
-    await joinWaitlist({
+    const result = await joinWaitlist({
       serviceId: props.service.id, providerId: providerId.value || undefined,
       customerName: waitlistName.value.trim(), customerPhone: waitlistPhone.value.trim(),
       customerEmail: waitlistEmail.value || undefined,
       preferredFrom: date.value, preferredTo: to.toISOString().slice(0, 10),
       notes: 'Joined from the online booking page',
     });
+    if (result?.payment?.authorizationUrl) {
+      rememberPayment(result.payment.reference, window.location.pathname);
+      window.location.href = result.payment.authorizationUrl;
+    }
   } catch { /* error shown */ }
 }
 onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10); void refreshSlots(); publicApi.newCustomerPromotion().then((promo) => { promoPercent.value = promo.enabled ? promo.percentOff : 0; }).catch(() => undefined); });
@@ -124,7 +132,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
     </div>
     <template v-else>
       <div class="flex items-center justify-between border-b px-4 py-3 sm:px-5" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }">
-        <div><p class="text-[9px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.primary }">Book this service</p><p class="mt-0.5 font-display text-lg font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(service.priceKobo) }} · {{ service.durationMinutes }} min</p></div>
+        <div><p class="text-[9px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.primary }">Book this service</p><p class="mt-0.5 font-display text-lg font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(service.priceKobo) }}<template v-if="displayDuration"> · {{ service.durationMinutes }} min</template></p></div>
         <div class="flex gap-1"><span v-for="n in 3" :key="n" class="h-1.5 w-6 rounded-full" :class="step >= n ? '' : 'opacity-20'" :style="{ background: template.colors.primary }" /></div>
       </div>
       <div class="p-4 sm:p-5">
@@ -136,11 +144,11 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
             <div class="flex items-center justify-between"><p class="label-base">Available times</p><span v-if="loading" class="inline-flex items-center gap-1 text-[10px] text-muted"><Loader2 class="h-3 w-3 animate-spin" /> Checking…</span></div>
             <div v-if="availability?.slots.length" class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4"><button v-for="slot in availability.slots" :key="slot.startAt" type="button" class="rounded-xl border py-2.5 text-xs font-bold" :class="startAt === slot.startAt ? 'border-current' : ''" :style="{ borderColor: startAt === slot.startAt ? template.colors.primary : `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: startAt === slot.startAt ? template.colors.primary : template.colors.ink }" @click="pick(slot.startAt, slot.providers)">{{ slot.time }}</button></div>
             <div v-else-if="!loading" class="mt-2 rounded-xl border border-dashed p-4" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }">
-              <p class="text-xs" :style="{ color: template.colors.muted }">{{ availability?.closed ? 'This business is closed on that day. Try another day.' : 'Fully booked on this day. Join the waitlist and we’ll message you if a spot opens.' }}</p>
-              <div v-if="!availability?.closed && waitlistJoined" class="mt-3 rounded-lg bg-success/10 p-3 text-xs font-semibold text-success">You’re on the waitlist. We’ll message you if a slot opens.</div>
-              <div v-else-if="!availability?.closed" class="mt-3 space-y-2">
+              <p v-if="business.bookingSettings?.waitlistPaymentEnabled" class="mb-2 text-[10px] font-semibold" :style="{ color: template.colors.primary }">Payment required to join: {{ formatNaira(service.requiresDeposit ? service.depositKobo : service.priceKobo) }}. If no suitable slot opens, the business can refund it to your Ojaly wallet.</p><p class="text-xs" :style="{ color: template.colors.muted }">{{ availability?.closed ? (canJoinWaitlist ? 'This business is closed on that day, but you can join the waitlist for a future opening.' : 'This business is closed on that day. Try another day.') : 'Fully booked on this day. Join the waitlist and we’ll message you if a spot opens.' }}</p>
+              <div v-if="canJoinWaitlist && waitlistJoined" class="mt-3 rounded-lg bg-success/10 p-3 text-xs font-semibold text-success">You’re on the waitlist. We’ll message you if a slot opens.</div>
+              <div v-else-if="canJoinWaitlist" class="mt-3 space-y-2">
                 <div class="grid gap-2 sm:grid-cols-2"><BaseInput v-model="waitlistName" label="Your name" placeholder="First and last name" /><BaseInput v-model="waitlistPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" /></div>
-                <BaseInput v-model="waitlistEmail" label="Email (optional)" type="email" placeholder="For a waitlist alert" />
+                <BaseInput v-model="waitlistEmail" :label="business.bookingSettings?.waitlistPaymentEnabled ? 'Email (required for payment)' : 'Email (optional)'" type="email" placeholder="For a waitlist alert" :required="business.bookingSettings?.waitlistPaymentEnabled" />
                 <BaseButton size="sm" :loading="waitlistLoading" @click="submitWaitlist">Join waitlist</BaseButton>
               </div>
             </div>

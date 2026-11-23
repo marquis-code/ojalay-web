@@ -9,6 +9,7 @@ class WaitlistApi extends BaseApi {
   notify(id: string): Promise<WaitlistEntry> { return this.request('post', `/${id}/notify`); }
   setStatus(id: string, status: WaitlistEntry['status']): Promise<WaitlistEntry> { return this.request('patch', `/${id}`, { status }); }
   removeEntry(id: string): Promise<{ removed: boolean }> { return this.request('delete', `/${id}`); }
+  refundToWallet(id: string): Promise<WaitlistEntry & { walletCreditedKobo: number }> { return this.request('post', `/${id}/refund`); }
 }
 
 export const waitlistApi = new WaitlistApi();

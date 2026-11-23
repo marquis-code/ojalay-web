@@ -28,10 +28,11 @@ onMounted(() => loadOne(id.value));
     <div class="flex items-center justify-between gap-3"><div class="flex items-center gap-3"><NuxtLink to="/app/customers" class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface" aria-label="Back"><ArrowLeft class="h-4 w-4" /></NuxtLink><div><p class="eyebrow">Customer</p><h1 class="font-display text-3xl font-bold">{{ detail?.customer.name || 'Loading…' }}</h1></div></div><BaseButton v-if="detail" size="sm" variant="outline" @click="openEdit"><Pencil class="h-3.5 w-3.5" /> Edit</BaseButton></div>
     <div v-if="loading" class="skeleton h-64 rounded-3xl" />
     <template v-else-if="detail">
-      <div class="grid gap-4 sm:grid-cols-3">
+      <div class="grid gap-4 sm:grid-cols-4">
         <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Total spent</p><p class="mt-1 font-display text-2xl font-bold">{{ formatNaira(detail.customer.totalSpentKobo) }}</p></div>
         <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Outstanding</p><p class="mt-1 font-display text-2xl font-bold" :class="detail.customer.outstandingKobo > 0 ? 'text-warning' : 'text-success'">{{ formatNaira(detail.customer.outstandingKobo) }}</p></div>
         <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Purchases</p><p class="mt-1 font-display text-2xl font-bold">{{ detail.customer.orderCount }}</p></div>
+        <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Wallet credit</p><p class="mt-1 font-display text-2xl font-bold text-success">{{ formatNaira(detail.customer.walletBalanceKobo || 0) }}</p></div>
       </div>
       <BaseCard>
         <div class="flex flex-wrap items-center gap-3">

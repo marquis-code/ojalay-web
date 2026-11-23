@@ -54,7 +54,7 @@ export interface Product {
 }
 export interface Customer {
   id: string; name: string; phone: string; email?: string | null; address: string; notes: string; tags: string[];
-  totalSpentKobo: number; outstandingKobo: number; orderCount: number; lastPurchaseAt?: string | null; isActive: boolean;
+  totalSpentKobo: number; outstandingKobo: number; orderCount: number; walletBalanceKobo?: number; lastPurchaseAt?: string | null; isActive: boolean;
 }
 export interface SaleItem {
   id?: string; productId: string; variantId?: string | null; name: string; variantName: string; sku: string;
@@ -222,6 +222,8 @@ export interface WeeklyHours {
   isOpen: boolean;
   start: string;
   end: string;
+  maxSlots?: number;
+  slotIntervalMinutes?: number;
 }
 
 export interface BookingSettings {
@@ -241,6 +243,8 @@ export interface BookingSettings {
   closedDates: string[];
   locations: string[];
   policy: string;
+  waitlistOnClosedDays: boolean;
+  waitlistPaymentEnabled: boolean;
 }
 
 export interface ServiceAddon {
@@ -257,6 +261,7 @@ export interface Service {
   imageUrl?: string | null;
   color: string;
   durationMinutes: number;
+  showDuration: boolean;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
   priceKobo: number;
@@ -383,6 +388,8 @@ export interface AvailabilityResponse {
   date: string;
   timezone: string;
   closed: boolean;
+  waitlistAllowed?: boolean;
+  full?: boolean;
   service: Pick<Service, 'id' | 'name' | 'durationMinutes' | 'priceKobo'>;
   slots: AvailabilitySlot[];
 }
@@ -406,6 +413,11 @@ export interface WaitlistEntry {
   preferredStartAt?: string | null;
   notes: string;
   status: 'waiting' | 'notified' | 'booked' | 'cancelled';
+  paymentStatus?: 'not_required' | 'unpaid' | 'paid' | 'refunded';
+  amountKobo?: number;
+  paymentReference?: string | null;
+  paidAt?: string | null;
+  refundedKobo?: number;
   notifiedAt?: string | null;
   createdAt: string;
 }

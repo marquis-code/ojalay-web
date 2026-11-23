@@ -2,12 +2,13 @@
 import { ArrowLeft, BellRing, CalendarClock, Check, Trash2, Users } from 'lucide-vue-next';
 import { formatDate } from '~/utils/date';
 import { prettyPhone, whatsappLink } from '~/utils/phone';
+import { formatNaira } from '~/utils/money';
 import type { WaitlistEntry } from '~/types';
 definePageMeta({ layout: 'app' });
 useSeoMeta({ title: 'Waitlist' });
 
 const toast = useToast();
-const { items, loading, filter, load, notify, setStatus, remove } = useWaitlist();
+const { items, loading, filter, load, notify, setStatus, remove, refundToWallet } = useWaitlist();
 const busy = ref<string | null>(null);
 const filters = [
   { value: 'all', label: 'Everyone' }, { value: 'waiting', label: 'Waiting' },
@@ -24,6 +25,12 @@ async function act(entry: WaitlistEntry, action: 'notify' | 'booked' | 'cancelle
     else await setStatus(entry.id, action);
     toast.success(action === 'notify' ? 'Waitlist customer notified.' : `Marked ${action}.`);
   } catch (error) { toast.error((error as Error).message); }
+  finally { busy.value = null; }
+}
+async function refundEntry(entry: WaitlistEntry) {
+  busy.value = entry.id;
+  try { const result = await refundToWallet(entry.id); toast.success(`${formatNaira(result.walletCreditedKobo)} credited to the customer wallet.`); }
+  catch (error) { toast.error((error as Error).message); }
   finally { busy.value = null; }
 }
 async function removeEntry(entry: WaitlistEntry) {
@@ -62,8 +69,11 @@ onMounted(load);
             <p class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted"><CalendarClock class="h-3.5 w-3.5" /> Wants {{ formatDate(entry.preferredFrom) }} – {{ formatDate(entry.preferredTo) }}</p>
             <p v-if="entry.preferredStartAt" class="mt-1 text-[10px] font-semibold text-brand-600">Requested session: {{ new Date(entry.preferredStartAt).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) }}</p>
             <p v-if="entry.notes" class="mt-1 text-[11px] text-muted">{{ entry.notes }}</p>
+            <p v-if="entry.paymentStatus === 'paid'" class="mt-1 text-[10px] font-semibold text-success">Paid {{ formatNaira(entry.amountKobo || 0) }} · wallet refund available</p>
+            <p v-else-if="entry.paymentStatus === 'unpaid'" class="mt-1 text-[10px] font-semibold text-warning">Payment pending</p>
           </div>
           <div class="flex flex-wrap gap-1.5">
+            <BaseButton v-if="entry.paymentStatus === 'paid' && entry.status !== 'cancelled'" size="sm" variant="outline" :loading="busy === entry.id" @click="refundEntry(entry)">Refund to wallet</BaseButton>
             <BaseButton v-if="entry.status === 'waiting' || entry.status === 'notified'" size="sm" :loading="busy === entry.id" @click="act(entry, 'notify')"><BellRing class="h-3.5 w-3.5" /> Notify</BaseButton>
             <BaseButton v-if="entry.status === 'waiting' || entry.status === 'notified'" size="sm" variant="outline" :loading="busy === entry.id" @click="act(entry, 'booked')"><Check class="h-3.5 w-3.5" /> Booked</BaseButton>
             <a :href="whatsappLink(entry.customerPhone, `Hi ${entry.customerName.split(' ')[0]}! A spot may have opened for ${entry.serviceName}.`)" target="_blank" rel="noopener" class="inline-flex min-h-[36px] items-center rounded-xl border border-line px-3 text-xs font-bold">WhatsApp</a>

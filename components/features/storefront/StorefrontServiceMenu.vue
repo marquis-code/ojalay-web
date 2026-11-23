@@ -45,7 +45,7 @@ const { openChat } = useStorefrontChat();
           <div class="flex items-start justify-between gap-2"><p class="text-[9px] font-bold uppercase tracking-[0.14em]" :style="{ color: template.colors.muted }">{{ service.category }}</p><PlatformPromoBadge /></div>
           <div class="mt-1 flex items-start justify-between gap-2"><p class="font-display text-lg font-bold leading-tight" :style="{ color: template.colors.ink }">{{ service.name }}</p><p class="shrink-0 text-sm font-bold" :style="{ color: template.colors.primary }">{{ formatNaira(service.priceKobo) }}</p></div>
           <p class="mt-1 line-clamp-2 text-xs leading-relaxed" :style="{ color: template.colors.muted }">{{ service.description || 'A considered appointment, made for you.' }}</p>
-          <div class="mt-auto flex items-center justify-between gap-2 pt-4"><span class="inline-flex items-center gap-1 text-[10px] font-semibold" :style="{ color: template.colors.muted }"><Clock3 class="h-3 w-3" /> {{ service.durationMinutes }} min</span><span class="inline-flex items-center gap-1 text-[10px] font-bold" :style="{ color: template.colors.primary }">Book <ArrowRight class="h-3 w-3 transition group-hover:translate-x-0.5" /></span></div>
+          <div class="mt-auto flex items-center justify-between gap-2 pt-4"><span v-if="service.showDuration && service.durationMinutes > 0" class="inline-flex items-center gap-1 text-[10px] font-semibold" :style="{ color: template.colors.muted }"><Clock3 class="h-3 w-3" /> {{ service.durationMinutes }} min</span><span class="inline-flex items-center gap-1 text-[10px] font-bold" :style="{ color: template.colors.primary }">Book <ArrowRight class="h-3 w-3 transition group-hover:translate-x-0.5" /></span></div>
         </NuxtLink>
       </div>
     </section>

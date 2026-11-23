@@ -16,5 +16,6 @@ export function useWaitlist() {
   async function notify(id: string) { const entry = await waitlistApi.notify(id); await load(); return entry; }
   async function setStatus(id: string, status: WaitlistEntry['status']) { const entry = await waitlistApi.setStatus(id, status); await load(); return entry; }
   async function remove(id: string) { await waitlistApi.removeEntry(id); await load(); }
-  return { items, loading, error, filter, load, notify, setStatus, remove };
+  async function refundToWallet(id: string) { const result = await waitlistApi.refundToWallet(id); await load(); return result; }
+  return { items, loading, error, filter, load, notify, setStatus, remove, refundToWallet };
 }

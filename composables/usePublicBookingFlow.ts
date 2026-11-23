@@ -18,7 +18,7 @@ export function usePublicBookingFlow(slug: string) {
   }
   async function joinWaitlist(payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; preferredStartAt?: string; notes?: string }) {
     waitlistLoading.value = true; error.value = null;
-    try { await publicApi.joinWaitlist(slug, payload); waitlistJoined.value = true; }
+    try { const result = await publicApi.joinWaitlist(slug, payload); waitlistJoined.value = !result?.payment?.authorizationUrl; return result; }
     catch (err) { error.value = (err as Error).message; throw err; }
     finally { waitlistLoading.value = false; }
   }

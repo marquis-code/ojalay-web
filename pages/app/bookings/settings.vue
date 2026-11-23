@@ -18,7 +18,7 @@ const form = reactive<BookingSettings>({
   enabled: false, autoConfirm: true, leadTimeMinutes: 120, windowDays: 60, slotIntervalMinutes: 30,
   cancellationWindowHours: 24, lateCancellationPenaltyType: 'none', lateCancellationPenaltyPercent: 0, lateCancellationPenaltyKobo: 0, depositPercent: 0, paymentCollection: 'deposit', reminderHoursBefore: 24,
   weeklyHours: Array.from({ length: 7 }, (_, day) => ({ day, isOpen: day !== 0, start: '09:00', end: '18:00' })),
-  closedDates: [], locations: [], policy: 'Please arrive 5 minutes early. Cancellations within 24 hours may lose the deposit.',
+  closedDates: [], locations: [], policy: '', waitlistOnClosedDays: false, waitlistPaymentEnabled: false,
 });
 const closedDatesInput = ref('');
 const locationsInput = ref('');
@@ -105,14 +105,16 @@ onMounted(async () => {
       <div class="flex items-center gap-2"><CalendarDays class="h-4 w-4 text-brand-600" /><h2 class="font-display text-lg font-bold">Business hours</h2></div>
       <p class="mt-1 text-xs text-muted">Team members can override these hours on their own schedules.</p>
       <div class="mt-4 space-y-2">
-        <div v-for="d in form.weeklyHours" :key="d.day" class="grid grid-cols-[90px_28px_1fr_1fr] items-center gap-2 rounded-xl border border-line p-2">
+        <div v-for="d in form.weeklyHours" :key="d.day" class="grid grid-cols-[90px_28px_1fr_1fr_80px_80px] items-center gap-2 rounded-xl border border-line p-2">
           <span class="text-xs font-bold">{{ days[d.day] }}</span>
           <input v-model="d.isOpen" type="checkbox" class="h-4 w-4" :aria-label="`${days[d.day]} open`">
           <input v-model="d.start" type="time" class="input-base !py-2 !text-xs" :disabled="!d.isOpen" :aria-label="`${days[d.day]} opening time`">
           <input v-model="d.end" type="time" class="input-base !py-2 !text-xs" :disabled="!d.isOpen" :aria-label="`${days[d.day]} closing time`">
+          <input v-model="d.maxSlots" type="number" min="0" class="input-base !py-2 !text-xs" :disabled="!d.isOpen" :aria-label="`${days[d.day]} maximum slots`" placeholder="Max">
+          <input v-model="d.slotIntervalMinutes" type="number" min="0" class="input-base !py-2 !text-xs" :disabled="!d.isOpen" :aria-label="`${days[d.day]} slot interval`" placeholder="Every">
         </div>
       </div>
-      <div class="mt-4"><BaseInput v-model="closedDatesInput" label="Closed dates" placeholder="2026-12-25, 2026-12-26" hint="Comma-separated YYYY-MM-DD dates." /></div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2"><label class="flex items-start gap-2 rounded-xl border border-line p-3 text-xs font-semibold"><input v-model="form.waitlistOnClosedDays" type="checkbox" class="mt-0.5 h-4 w-4"><span>Show waitlist on closed / unavailable days</span></label><label class="flex items-start gap-2 rounded-xl border border-line p-3 text-xs font-semibold"><input v-model="form.waitlistPaymentEnabled" type="checkbox" class="mt-0.5 h-4 w-4"><span>Require online payment when joining the waitlist</span></label></div><div class="mt-4"><BaseInput v-model="closedDatesInput" label="Closed dates" placeholder="2026-12-25, 2026-12-26" hint="Comma-separated YYYY-MM-DD dates." /></div>
       <div class="mt-4"><BaseInput v-model="locationsInput" label="Booking locations" placeholder="Block Boys Hostel, Block Girls Hostel, OPH Girls Hostel" hint="Optional. Customers will choose one of these when booking. Comma-separated." /></div>
     </div>
 

@@ -16,7 +16,7 @@ const editing = ref<Service | null>(null);
 const removing = ref<Service | null>(null);
 const form = reactive({
   name: '', description: '', category: 'Beauty', imageUrl: '', color: '#FF5A1F',
-  durationMinutes: 60, bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
+  durationMinutes: 60, showDuration: true, bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
   price: '', deposit: '', requiresDeposit: false, maxBookingsPerSlot: 1,
   providerIds: [] as string[], isActive: true,
   addOns: [] as { name: string; price: string; durationMinutes: number }[],
@@ -27,7 +27,7 @@ const avgPrice = computed(() => activeCount.value ? Math.round(items.value.filte
 function reset() {
   Object.assign(form, {
     name: '', description: '', category: categories.value[0] || 'Beauty', imageUrl: '', color: '#FF5A1F',
-    durationMinutes: 60, bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
+    durationMinutes: 60, showDuration: true, bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
     price: '', deposit: '', requiresDeposit: false, maxBookingsPerSlot: 1,
     providerIds: providers.value.slice(0, 1).map((p) => p.id), isActive: true, addOns: [],
   });
@@ -38,7 +38,7 @@ function openEdit(service: Service) {
   editing.value = service;
   Object.assign(form, {
     name: service.name, description: service.description, category: service.category,
-    imageUrl: service.imageUrl || '', color: service.color, durationMinutes: service.durationMinutes,
+    imageUrl: service.imageUrl || '', color: service.color, durationMinutes: service.durationMinutes, showDuration: service.showDuration !== false,
     bufferBeforeMinutes: service.bufferBeforeMinutes, bufferAfterMinutes: service.bufferAfterMinutes,
     price: nairaInput(service.priceKobo), deposit: nairaInput(service.depositKobo),
     requiresDeposit: service.requiresDeposit, maxBookingsPerSlot: service.maxBookingsPerSlot,
@@ -58,7 +58,7 @@ async function save() {
     const payload = {
       name: form.name.trim(), description: form.description.trim(), category: form.category,
       imageUrl: form.imageUrl || null, color: form.color,
-      durationMinutes: Number(form.durationMinutes) || 60,
+      durationMinutes: Math.max(0, Number(form.durationMinutes) || 0), showDuration: form.showDuration,
       bufferBeforeMinutes: Number(form.bufferBeforeMinutes) || 0,
       bufferAfterMinutes: Number(form.bufferAfterMinutes) || 0,
       priceKobo: nairaToKobo(form.price), depositKobo: nairaToKobo(form.deposit),
@@ -113,7 +113,7 @@ onMounted(async () => {
           </div>
           <p class="mt-2 line-clamp-2 text-[12px] leading-relaxed text-muted">{{ service.description || 'No description yet.' }}</p>
           <div class="mt-4 flex flex-wrap gap-2 text-[10px] font-semibold text-muted">
-            <span class="inline-flex items-center gap-1 rounded-full bg-raised px-2.5 py-1.5"><Clock3 class="h-3 w-3" /> {{ service.durationMinutes }} min</span>
+            <span v-if="service.showDuration && service.durationMinutes > 0" class="inline-flex items-center gap-1 rounded-full bg-raised px-2.5 py-1.5"><Clock3 class="h-3 w-3" /> {{ service.durationMinutes }} min</span>
             <span class="inline-flex items-center gap-1 rounded-full bg-raised px-2.5 py-1.5"><Users class="h-3 w-3" /> {{ service.providerIds.length }} team member{{ service.providerIds.length === 1 ? '' : 's' }}</span>
             <span v-if="service.requiresDeposit" class="rounded-full bg-warning/10 px-2.5 py-1.5 text-warning">Deposit {{ formatNaira(service.depositKobo) }}</span>
           </div>
@@ -131,7 +131,7 @@ onMounted(async () => {
           <div class="sm:col-span-2"><BaseInput v-model="form.name" label="Service name" placeholder="e.g. Knotless braids" required /></div>
           <BaseInput v-model="form.category" label="Category" placeholder="Hair, Nails, Facials…" />
           <BaseInput v-model="form.price" label="Price" prefix="₦" inputmode="decimal" placeholder="15,000" required />
-          <BaseInput v-model="form.durationMinutes" label="Duration (minutes)" type="number" min="5" />
+          <div><BaseInput v-model="form.durationMinutes" label="Duration (minutes)" type="number" min="0" hint="Set 0 to hide duration entirely." /><label class="mt-2 flex items-center gap-2 text-xs font-semibold"><input v-model="form.showDuration" type="checkbox" class="h-4 w-4"> Show duration to customers</label></div>
           <BaseInput v-model="form.maxBookingsPerSlot" label="People per slot" type="number" min="1" hint="1 for private appointments." />
           <BaseInput v-model="form.bufferBeforeMinutes" label="Buffer before (min)" type="number" min="0" />
           <BaseInput v-model="form.bufferAfterMinutes" label="Buffer after (min)" type="number" min="0" />

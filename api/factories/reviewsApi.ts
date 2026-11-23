@@ -7,6 +7,7 @@ class ReviewsApi extends BaseApi {
     return this.request('get', '', undefined, { status });
   }
   setStatus(id: string, status: Review['status']): Promise<Review> { return this.request('patch', `/${id}`, { status }); }
+  reply(id: string, reply: string): Promise<Review> { return this.request('post', `/${id}/reply`, { reply }); }
   removeReview(id: string): Promise<{ removed: boolean }> { return this.request('delete', `/${id}`); }
 }
 

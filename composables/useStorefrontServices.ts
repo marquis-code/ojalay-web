@@ -44,9 +44,9 @@ export function usePublicReview(token: MaybeRefOrGetter<string>) {
 export function useReviewActions(token: MaybeRefOrGetter<string>) {
   const busy = ref(false);
   const error = ref<string | null>(null);
-  async function submit(rating: number, comment: string) {
+  async function submit(payload: { rating: number; comment?: string; categoryRatings?: Record<string, number>; tags?: string[]; wouldRecommend?: boolean }) {
     busy.value = true; error.value = null;
-    try { return await publicApi.submitReview(toValue(token), { rating, comment }); }
+    try { return await publicApi.submitReview(toValue(token), payload); }
     catch (err) { error.value = (err as Error).message; throw err; }
     finally { busy.value = false; }
   }

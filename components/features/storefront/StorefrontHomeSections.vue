@@ -14,6 +14,7 @@ onMounted(() => { reveal.value = true; });
 <template>
   <div>
     <StorefrontServiceMenu v-if="mode === 'services' || mode === 'hybrid'" :business="business" :template="template" :services="services || []" :providers="providers || []" />
+    <StorefrontReviews v-if="home.reviews" :reviews="home.reviews" :template="template" />
     <template v-if="mode !== 'services'">
     <template v-for="section in business.sections" :key="section">
       <StorefrontHero v-if="section === 'hero'" :business="business" :template="template" :products="products" :product-count="productCount" />

@@ -138,6 +138,7 @@ export interface StorefrontHome {
   business: StorefrontBusiness; template: StorefrontTemplate; products: StorefrontProduct[];
   categories: string[]; productCount: number; services?: Service[]; serviceCount?: number;
   providers?: PublicProvider[]; businessMode?: 'products' | 'services' | 'hybrid';
+  reviews?: { items: PublicReview[]; average: number; count: number };
 }
 export interface BuilderData {
   business: Business; template: StorefrontTemplate; templates: StorefrontTemplate[];
@@ -420,6 +421,11 @@ export interface Review {
   customerName: string;
   rating: number;
   comment: string;
+  categoryRatings?: Record<string, number>;
+  tags?: string[];
+  wouldRecommend?: boolean | null;
+  vendorReply?: string;
+  vendorRepliedAt?: string | null;
   publicToken: string;
   status: 'published' | 'pending' | 'hidden';
   createdAt: string;
@@ -427,11 +433,22 @@ export interface Review {
 export interface PublicReview {
   id: string; rating: number; comment: string; customerName: string;
   serviceName: string; providerName?: string | null; createdAt: string;
+  categoryRatings?: Record<string, number>; tags?: string[]; wouldRecommend?: boolean | null;
+  vendorReply?: string;
 }
 export interface ReviewSummary {
   total: number; average: number; fiveStar: number; needsAttention: number;
+  responseRate: number; pendingRequests: number;
+  distribution: { star: number; count: number }[];
+  categoryAverages: Record<string, number | null>;
+  services: { name: string; count: number; rating: number }[];
 }
-export interface ReviewListResponse { items: Review[]; summary: ReviewSummary; }
+export interface ReviewRequest {
+  id: string; bookingNumber: string; customerName: string; customerPhone: string;
+  customerEmail?: string | null; serviceName: string; providerName?: string | null;
+  completedAt: string; reviewRequestedAt?: string | null; reviewUrl: string | null;
+}
+export interface ReviewListResponse { items: Review[]; summary: ReviewSummary; requests: ReviewRequest[]; }
 export interface ReviewContext {
   booking: { id: string; bookingNumber: string; serviceId: string; serviceName: string; providerName: string; customerName: string; startAt: string; status: string };
   business: { id: string; name: string; slug: string; logoUrl?: string | null; brandColor: string } | null;

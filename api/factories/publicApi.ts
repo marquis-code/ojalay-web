@@ -37,7 +37,7 @@ class PublicApi extends BaseApi {
   campus(): Promise<CampusOverview> { return this.request('get', 'campus'); }
   applyCampus(payload: { name: string; phone: string; email?: string; campusCode: string; year?: string; socials?: string; why?: string }): Promise<{ application: CampusApplication; already?: boolean }> { return this.request('post', 'campus/apply', payload); }
   reviewContext(token: string): Promise<ReviewContext> { return this.request('get', `public/reviews/${token}`); }
-  submitReview(token: string, payload: { rating: number; comment?: string }): Promise<Review> { return this.request('post', `public/reviews/${token}`, payload); }
+  submitReview(token: string, payload: { rating: number; comment?: string; categoryRatings?: Record<string, number>; tags?: string[]; wouldRecommend?: boolean }): Promise<Review> { return this.request('post', `public/reviews/${token}`, payload); }
   packages(slug: string): Promise<{ business: StorefrontHome['business']; template: StorefrontTemplate; items: ServicePackage[] }> { return this.request('get', `storefront/${slug}/packages`); }
   checkoutPackage(slug: string, packageId: string, payload: { customerName: string; customerPhone: string; customerEmail?: string }): Promise<{ purchase: PackagePurchase; payment: { authorizationUrl: string; reference: string; amountKobo: number }; business: StorefrontHome['business'] }> {
     return this.request('post', `storefront/${slug}/packages/${packageId}/checkout`, payload);

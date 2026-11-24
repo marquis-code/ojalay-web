@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, CalendarDays, CalendarRange, Check, Clock3, MessageCircle, Plus, Repeat2, Settings2, UserRound, Users, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, CalendarDays, CalendarRange, Check, Clock3, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { whatsappLink } from '~/utils/phone';
 import type { Booking } from '~/types';
@@ -12,6 +12,7 @@ const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, 
 const { items: providers, load: loadProviders } = useProviders();
 const selected = ref<Booking | null>(null);
 const detailOpen = ref(false);
+const moreOpen = ref(false);
 const busy = ref(false);
 const refundOpen = ref(false);
 const rosterOpen = ref(false);
@@ -41,7 +42,7 @@ function shiftDay(delta: number) {
   const d = new Date(`${filters.date}T12:00:00`); d.setDate(d.getDate() + delta);
   filters.date = d.toISOString().slice(0, 10); void load();
 }
-function openBooking(booking: Booking) { selected.value = booking; detailOpen.value = true; }
+function openBooking(booking: Booking) { selected.value = booking; detailOpen.value = true; moreOpen.value = false; }
 async function openReschedule(booking: Booking) {
   selected.value = booking;
   const d = new Date(booking.startAt); const today = new Date();
@@ -167,15 +168,16 @@ onMounted(async () => {
         <p v-if="selected.notes" class="rounded-2xl border border-line p-3 text-xs text-muted">{{ selected.notes }}</p>
         <div v-if="selected.paymentStatus === 'unpaid' && selected.depositKobo" class="rounded-2xl bg-warning/10 p-3 text-xs text-warning">{{ selected.depositKobo >= selected.priceKobo ? 'Full payment' : 'Commitment fee' }} of {{ formatNaira(selected.depositKobo) }} is still unpaid.</div>
         <div v-if="selected.providerFeeKobo" class="rounded-2xl border border-line p-3 text-xs"><div class="flex items-center justify-between"><span class="text-muted">Service subtotal</span><span class="font-semibold">{{ formatNaira(selected.priceKobo - (selected.serviceChargeKobo || 0)) }}</span></div><div class="mt-1 flex items-center justify-between"><span class="text-muted">Ojaly provider fee</span><span class="font-semibold text-danger">−{{ formatNaira(selected.providerFeeKobo) }}</span></div><div class="mt-2 flex items-center justify-between border-t border-line pt-2 font-bold"><span>Your payout</span><span>{{ formatNaira(selected.providerNetKobo || 0) }}</span></div></div>
-        <div class="flex flex-wrap gap-2">
-          <a :href="waCustomer(selected)" target="_blank" rel="noopener" class="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><MessageCircle class="h-3.5 w-3.5" /> WhatsApp</a>
-          <BaseButton v-if="selected.capacity > 1" size="sm" variant="outline" @click="openRoster(selected)"><Users class="h-4 w-4" /> Roster ({{ selected.capacity }})</BaseButton>
-          <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="outline" :loading="busy" @click="openReschedule(selected)"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
-          <BaseButton v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'" size="sm" variant="outline" :loading="busy" @click="refundOpen = true">Refund payment</BaseButton>
-          <BaseButton v-if="selected.status === 'pending'" size="sm" :loading="busy" @click="update(selected.id, 'confirmed')"><Check class="h-4 w-4" /> Confirm</BaseButton>
-          <BaseButton v-if="selected.status === 'confirmed'" size="sm" :loading="busy" @click="update(selected.id, 'completed')"><Check class="h-4 w-4" /> Complete & record sale</BaseButton>
-          <BaseButton v-if="selected.status === 'confirmed'" size="sm" variant="outline" :loading="busy" @click="update(selected.id, 'no_show')">No-show</BaseButton>
-          <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="ghost" class="text-danger" :loading="busy" @click="cancelBooking(selected.id)"><X class="h-4 w-4" /> Cancel</BaseButton>
+        <div class="rounded-2xl border border-line bg-raised/30 p-3">
+          <div class="grid gap-2 sm:grid-cols-3">
+            <a :href="waCustomer(selected)" target="_blank" rel="noopener" class="inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl border border-line bg-surface px-3 text-[11px] font-bold hover:bg-raised"><MessageCircle class="h-3.5 w-3.5" /> Message customer</a>
+            <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="outline" :loading="busy" class="w-full" @click="openReschedule(selected)"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
+            <BaseButton v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'" size="sm" variant="outline" :loading="busy" class="w-full" @click="refundOpen = true">Refund payment</BaseButton>
+          </div>
+          <div v-if="selected.status === 'pending'" class="mt-2"><BaseButton size="lg" class="w-full" :loading="busy" @click="update(selected.id, 'confirmed')"><Check class="h-4 w-4" /> Confirm booking</BaseButton></div>
+          <div v-else-if="selected.status === 'confirmed'" class="mt-2"><BaseButton size="lg" class="w-full" :loading="busy" @click="update(selected.id, 'completed')"><Check class="h-4 w-4" /> Complete & record sale</BaseButton></div>
+          <div v-else class="mt-2 rounded-xl border border-line bg-surface px-3 py-2.5 text-center text-[10px] font-semibold capitalize text-muted">Booking {{ selected.status.replace('_', ' ') }}</div>
+          <div v-if="!['cancelled', 'completed'].includes(selected.status)" class="relative mt-2 flex justify-center"><button type="button" class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-muted hover:text-ink" :aria-expanded="moreOpen" @click="moreOpen = !moreOpen"><MoreHorizontal class="h-4 w-4" /> More actions</button><div v-if="moreOpen" class="absolute bottom-full right-0 z-10 mb-1 w-40 rounded-xl border border-line bg-surface p-1 shadow-lift"><button v-if="selected.status === 'confirmed'" type="button" class="flex w-full items-center rounded-lg px-3 py-2 text-left text-[11px] font-semibold hover:bg-raised" @click="moreOpen = false; update(selected.id, 'no_show')">Mark no-show</button><button type="button" class="flex w-full items-center rounded-lg px-3 py-2 text-left text-[11px] font-semibold text-danger hover:bg-danger/5" @click="moreOpen = false; cancelBooking(selected.id)">Cancel booking</button></div></div>
         </div>
         <div class="border-t border-line pt-3 text-xs text-muted"><p>Client can manage this booking here:</p><NuxtLink :to="`/booking/${selected.publicToken}`" target="_blank" class="mt-1 block break-all font-semibold text-brand-600">/booking/{{ selected.publicToken }}</NuxtLink></div>
       </div>

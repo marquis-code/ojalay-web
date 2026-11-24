@@ -13,6 +13,7 @@ const providerId = ref('');
 const date = ref('');
 const startAt = ref('');
 const addOnNames = ref<string[]>([]);
+const quantity = ref(Math.max(1, props.service.minQuantity || 1));
 const customerName = ref('');
 const customerPhone = ref('');
 const customerEmail = ref('');
@@ -26,9 +27,11 @@ const packageCode = ref('');
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...props.providers.map((p) => ({ value: p.id, label: p.name }))]);
 const addOns = computed(() => props.service.addOns.filter((a) => addOnNames.value.includes(a.name)));
 const displayDuration = computed(() => props.service.showDuration !== false && props.service.durationMinutes > 0);
+const quantityEnabled = computed(() => Boolean(props.service.quantityEnabled));
+const quantityLabel = computed(() => props.service.quantityLabel || 'Quantity');
 const canJoinWaitlist = computed(() => Boolean(availability.value && (availability.value.waitlistAllowed ?? !availability.value.closed)));
-const effectiveDuration = computed(() => props.service.durationMinutes > 0 ? props.service.durationMinutes : (props.business.bookingSettings?.slotIntervalMinutes || 30));
-const subtotal = computed(() => props.service.priceKobo + addOns.value.reduce((sum, a) => sum + a.priceKobo, 0));
+const effectiveDuration = computed(() => (props.service.durationMinutes > 0 ? props.service.durationMinutes : (props.business.bookingSettings?.slotIntervalMinutes || 30)) * quantity.value);
+const subtotal = computed(() => props.service.priceKobo * quantity.value + addOns.value.reduce((sum, a) => sum + a.priceKobo, 0));
 const serviceCharge = computed(() => {
   if (!props.business.serviceChargeEnabled) return 0;
   if (props.business.serviceChargeType === 'fixed') return Math.max(0, props.business.serviceChargeFixedKobo || 0);
@@ -62,6 +65,13 @@ async function refreshSlots() {
 function toggleAddon(name: string) {
   addOnNames.value = addOnNames.value.includes(name) ? addOnNames.value.filter((n) => n !== name) : [...addOnNames.value, name];
 }
+function changeQuantity(delta: number) {
+  const min = Math.max(1, props.service.minQuantity || 1);
+  const max = Math.max(min, props.service.maxQuantity || 20);
+  quantity.value = Math.min(max, Math.max(min, quantity.value + delta));
+  startAt.value = '';
+  void refreshSlots();
+}
 function pick(start: string, providers: { id: string }[]) {
   startAt.value = start;
   if (!providerId.value && providers[0]) providerId.value = providers[0].id;
@@ -83,7 +93,7 @@ async function submit() {
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
       customerName: customerName.value.trim(), customerPhone: customerPhone.value.trim(),
       customerEmail: customerEmail.value.trim(), notes: notes.value || undefined, location: location.value || undefined, packageCode: packageCode.value.trim() || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
-      addOnNames: addOnNames.value,
+      addOnNames: addOnNames.value, quantity: quantity.value,
     });
     if (result.payment?.authorizationUrl) {
       rememberPayment(result.payment.reference, window.location.pathname);
@@ -104,7 +114,7 @@ async function submitWaitlist() {
       serviceId: props.service.id, providerId: providerId.value || undefined,
       customerName: waitlistName.value.trim(), customerPhone: waitlistPhone.value.trim(),
       customerEmail: waitlistEmail.value || undefined,
-      preferredFrom: date.value, preferredTo: to.toISOString().slice(0, 10),
+      preferredFrom: date.value, preferredTo: to.toISOString().slice(0, 10), quantity: quantity.value,
       notes: 'Joined from the online booking page',
     });
     if (result?.payment?.authorizationUrl) {
@@ -132,19 +142,22 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
     </div>
     <template v-else>
       <div class="flex items-center justify-between border-b px-4 py-3 sm:px-5" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }">
-        <div><p class="text-[9px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.primary }">Book this service</p><p class="mt-0.5 font-display text-lg font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(service.priceKobo) }}<span v-if="displayDuration"> · {{ service.durationMinutes }} min</span></p></div>
+        <div><p class="text-[9px] font-bold uppercase tracking-[0.16em]" :style="{ color: template.colors.primary }">Book this service</p><p class="mt-0.5 font-display text-lg font-bold" :style="{ color: template.colors.ink }">{{ formatNaira(subtotal) }}<span v-if="displayDuration"> · {{ effectiveDuration }} min</span><span v-if="quantityEnabled"> · {{ quantity }} {{ quantityLabel.toLowerCase() }}</span></p></div>
         <div class="flex gap-1"><span v-for="n in 3" :key="n" class="h-1.5 w-6 rounded-full" :class="step >= n ? '' : 'opacity-20'" :style="{ background: template.colors.primary }" /></div>
       </div>
       <div class="p-4 sm:p-5">
         <div v-if="step === 1" class="space-y-4">
           <div><p class="label-base">Add-ons <span class="font-normal normal-case text-muted">(optional)</span></p><div v-if="service.addOns.length" class="flex flex-wrap gap-2"><button v-for="addon in service.addOns" :key="addon.name" type="button" class="rounded-full border px-3 py-2 text-[10px] font-semibold" :class="addOnNames.includes(addon.name) ? 'border-current' : 'opacity-70'" :style="{ borderColor: template.colors.ink, color: addOnNames.includes(addon.name) ? template.colors.primary : template.colors.muted }" @click="toggleAddon(addon.name)">{{ addon.name }} +{{ formatNaira(addon.priceKobo) }}</button></div><p v-else class="text-xs" :style="{ color: template.colors.muted }">No add-ons for this service.</p></div>
+          <div v-if="quantityEnabled" class="rounded-xl border p-3" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 15%, transparent)` }">
+            <div class="flex items-center justify-between gap-3"><div><p class="text-[10px] font-bold uppercase tracking-wider" :style="{ color: template.colors.muted }">{{ quantityLabel }}</p><p class="mt-1 text-[10px]" :style="{ color: template.colors.muted }">{{ formatNaira(service.priceKobo) }} each</p></div><div class="flex items-center gap-2"><button type="button" class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-bold" :style="{ borderColor: template.colors.ink }" :disabled="quantity <= (service.minQuantity || 1)" @click="changeQuantity(-1)">−</button><span class="w-6 text-center text-sm font-bold" :style="{ color: template.colors.ink }">{{ quantity }}</span><button type="button" class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-bold" :style="{ borderColor: template.colors.ink }" :disabled="quantity >= (service.maxQuantity || 20)" @click="changeQuantity(1)">+</button></div></div>
+          </div>
           <BaseSelect v-model="providerId" :options="providerOptions" label="Team member" />
           <div><p class="label-base">Pick a day</p><div class="grid grid-cols-4 gap-1.5 sm:grid-cols-7"><button v-for="d in nextDays" :key="d.iso" type="button" class="rounded-xl border py-2 text-center" :class="date === d.iso ? 'border-current' : ''" :style="{ borderColor: date === d.iso ? template.colors.primary : `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: date === d.iso ? template.colors.primary : template.colors.ink }" @click="chooseDate(d.iso)"><span class="block text-[9px] font-bold uppercase opacity-60">{{ d.weekday }}</span><span class="block text-sm font-bold">{{ d.day }}</span></button></div></div>
           <div>
             <div class="flex items-center justify-between"><p class="label-base">Available times</p><span v-if="loading" class="inline-flex items-center gap-1 text-[10px] text-muted"><Loader2 class="h-3 w-3 animate-spin" /> Checking…</span></div>
             <div v-if="availability?.slots.length" class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4"><button v-for="slot in availability.slots" :key="slot.startAt" type="button" class="rounded-xl border py-2.5 text-xs font-bold" :class="startAt === slot.startAt ? 'border-current' : ''" :style="{ borderColor: startAt === slot.startAt ? template.colors.primary : `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: startAt === slot.startAt ? template.colors.primary : template.colors.ink }" @click="pick(slot.startAt, slot.providers)">{{ slot.time }}</button></div>
             <div v-else-if="!loading" class="mt-2 rounded-xl border border-dashed p-4" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }">
-              <p v-if="business.bookingSettings?.waitlistPaymentEnabled" class="mb-2 text-[10px] font-semibold" :style="{ color: template.colors.primary }">Payment required to join: {{ formatNaira(service.requiresDeposit ? service.depositKobo : service.priceKobo) }}. If no suitable slot opens, the business can refund it to your Ojaly wallet.</p><p class="text-xs" :style="{ color: template.colors.muted }">{{ availability?.closed ? (canJoinWaitlist ? 'This business is closed on that day, but you can join the waitlist for a future opening.' : 'This business is closed on that day. Try another day.') : 'Fully booked on this day. Join the waitlist and we’ll message you if a spot opens.' }}</p>
+              <p v-if="business.bookingSettings?.waitlistPaymentEnabled" class="mb-2 text-[10px] font-semibold" :style="{ color: template.colors.primary }">Payment required to join: {{ formatNaira(service.requiresDeposit ? service.depositKobo * quantity : service.priceKobo * quantity) }}. If no suitable slot opens, the business can refund it to your Ojaly wallet.</p><p class="text-xs" :style="{ color: template.colors.muted }">{{ availability?.closed ? (canJoinWaitlist ? 'This business is closed on that day, but you can join the waitlist for a future opening.' : 'This business is closed on that day. Try another day.') : 'Fully booked on this day. Join the waitlist and we’ll message you if a spot opens.' }}</p>
               <div v-if="canJoinWaitlist && waitlistJoined" class="mt-3 rounded-lg bg-success/10 p-3 text-xs font-semibold text-success">You’re on the waitlist. We’ll message you if a slot opens.</div>
               <div v-else-if="canJoinWaitlist" class="mt-3 space-y-2">
                 <div class="grid gap-2 sm:grid-cols-2"><BaseInput v-model="waitlistName" label="Your name" placeholder="First and last name" /><BaseInput v-model="waitlistPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" /></div>
@@ -158,7 +171,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
         <form v-else-if="step === 3" class="space-y-3" @submit.prevent="submit">
           <div v-if="promoPercent" class="rounded-xl border border-brand-200 bg-brand-50 p-3 text-xs font-semibold text-brand-700">New customer? Your first booking gets {{ promoPercent }}% off automatically.</div>
           <button type="button" class="inline-flex items-center gap-1 text-[11px] font-bold" :style="{ color: template.colors.muted }" @click="step = 1"><ChevronLeft class="h-3.5 w-3.5" /> Change time</button>
-          <div class="rounded-xl p-3 text-xs" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 10%, transparent)`, color: template.colors.ink }"><p class="font-bold">{{ service.name }}</p><p class="mt-0.5">{{ new Date(startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(startAt) }}</p></div>
+          <div class="rounded-xl p-3 text-xs" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 10%, transparent)`, color: template.colors.ink }"><p class="font-bold">{{ service.name }}</p><p class="mt-0.5">{{ new Date(startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(startAt) }}</p><p v-if="quantityEnabled" class="mt-1 text-[10px] font-semibold">{{ quantity }} {{ quantityLabel.toLowerCase() }} × {{ formatNaira(service.priceKobo) }}</p></div>
           <div v-if="business.bookingSettings?.locations?.length"><BaseSelect v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required /><p v-if="locationError" class="mt-1 text-[10px] font-semibold text-danger">{{ locationError }}</p></div>
           <BaseInput v-model="customerName" label="Your name" placeholder="First and last name" required />
           <BaseInput v-model="customerPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" required />

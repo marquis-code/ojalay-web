@@ -65,7 +65,7 @@ onMounted(load);
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2"><p class="font-bold">{{ entry.customerName }}</p><BaseBadge :variant="entry.status === 'notified' ? 'success' : entry.status === 'booked' ? 'brand' : entry.status === 'cancelled' ? 'danger' : 'warning'">{{ entry.status }}</BaseBadge></div>
-            <p class="mt-1 text-xs text-muted">{{ entry.serviceName }} · {{ prettyPhone(entry.customerPhone) }}</p>
+            <p class="mt-1 text-xs text-muted">{{ entry.serviceName }}<span v-if="entry.quantity && entry.quantity > 1"> · {{ entry.quantity }} {{ (entry.quantityLabel || 'units').toLowerCase() }}</span> · {{ prettyPhone(entry.customerPhone) }}</p>
             <p class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted"><CalendarClock class="h-3.5 w-3.5" /> Wants {{ formatDate(entry.preferredFrom) }} – {{ formatDate(entry.preferredTo) }}</p>
             <p v-if="entry.preferredStartAt" class="mt-1 text-[10px] font-semibold text-brand-600">Requested session: {{ new Date(entry.preferredStartAt).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) }}</p>
             <p v-if="entry.notes" class="mt-1 text-[11px] text-muted">{{ entry.notes }}</p>

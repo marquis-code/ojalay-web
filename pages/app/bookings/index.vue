@@ -145,7 +145,7 @@ onMounted(async () => {
         <div class="h-12 w-1 shrink-0 rounded-full" :style="{ background: booking.providerColor || '#FF5A1F' }" />
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2"><p class="truncate font-bold">{{ booking.customerName }}</p><span class="rounded-full px-2 py-0.5 text-[9px] font-bold capitalize" :class="statusStyles[booking.status]">{{ booking.status.replace('_', ' ') }}</span><span v-if="booking.packageName" class="rounded-full bg-brand-50 px-2 py-0.5 text-[9px] font-bold text-brand-700">Package</span><span v-if="booking.seriesTotal > 1" class="inline-flex items-center gap-0.5 rounded-full bg-brand-50 px-2 py-0.5 text-[9px] font-bold text-brand-700"><Repeat2 class="h-2.5 w-2.5" /> {{ booking.seriesIndex + 1 }}/{{ booking.seriesTotal }}</span></div>
-          <p class="mt-0.5 truncate text-[12px] text-muted">{{ booking.serviceName }} · {{ booking.providerName }}</p>
+          <p class="mt-0.5 truncate text-[12px] text-muted">{{ booking.serviceName }} · {{ booking.providerName }}</p><p v-if="booking.quantity && booking.quantity > 1" class="mt-0.5 text-[10px] font-semibold text-brand-600">{{ booking.quantity }} {{ (booking.quantityLabel || 'units').toLowerCase() }}</p>
           <p v-if="booking.addOns.length" class="mt-0.5 truncate text-[10px] text-muted">+ {{ booking.addOns.map((a) => a.name).join(', ') }}</p>
         </div>
         <div class="hidden text-right sm:block"><p class="text-sm font-bold">{{ formatNaira(booking.priceKobo) }}</p><p class="text-[10px]" :class="booking.paymentStatus === 'paid' ? 'text-success' : booking.paymentStatus === 'deposit_paid' ? 'text-warning' : 'text-muted'">{{ booking.paymentStatus.replace('_', ' ') }}</p></div>
@@ -160,6 +160,7 @@ onMounted(async () => {
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">When</p><p class="mt-1 font-bold">{{ new Date(selected.startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(selected.startAt) }}</p></div>
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Team</p><p class="mt-1 font-bold">{{ selected.providerName }}</p></div>
           <div v-if="selected.location" class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Location</p><p class="mt-1 font-bold">{{ selected.location }}</p></div>
+          <div v-if="selected.quantity && selected.quantity > 1" class="rounded-2xl bg-brand-50 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-brand-600">Quantity</p><p class="mt-1 font-bold">{{ selected.quantity }} {{ (selected.quantityLabel || 'units').toLowerCase() }}</p></div>
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Client</p><p class="mt-1 font-bold">{{ selected.customerPhone }}</p></div>
           <div class="rounded-2xl bg-raised/60 p-3"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Payment</p><p class="mt-1 font-bold">{{ formatNaira(selected.amountPaidKobo) }} / {{ formatNaira(selected.priceKobo) }}</p></div>
         </div>

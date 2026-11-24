@@ -262,6 +262,10 @@ export interface Service {
   color: string;
   durationMinutes: number;
   showDuration: boolean;
+  quantityEnabled: boolean;
+  quantityLabel: string;
+  minQuantity: number;
+  maxQuantity: number;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
   priceKobo: number;
@@ -342,6 +346,9 @@ export interface Booking {
   startAt: string;
   endAt: string;
   durationMinutes: number;
+  quantity?: number;
+  quantityLabel?: string;
+  unitPriceKobo?: number;
   capacity: number;
   packagePurchaseId?: string | null;
   packageCode?: string | null;
@@ -403,6 +410,9 @@ export interface WaitlistEntry {
   id: string;
   serviceId: string;
   serviceName: string;
+  quantity?: number;
+  quantityLabel?: string;
+  unitPriceKobo?: number;
   providerId?: string | null;
   providerName?: string | null;
   customerName: string;
@@ -427,6 +437,9 @@ export interface Review {
   bookingId: string;
   serviceId: string;
   serviceName: string;
+  quantity?: number;
+  quantityLabel?: string;
+  unitPriceKobo?: number;
   providerId?: string | null;
   providerName?: string | null;
   customerId?: string | null;

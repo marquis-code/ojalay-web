@@ -257,58 +257,80 @@ onMounted(async () => {
             Marked as No-show
           </div>
 
-          <!-- 2. Daily Operational Actions Grid (WhatsApp, Reschedule, Roster) -->
+          <!-- 2. Operational & Exception Actions Grid -->
           <div class="grid grid-cols-2 gap-2">
-            <a :href="waCustomer(selected)" target="_blank" rel="noopener" class="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-bold transition hover:border-[#25D366] hover:bg-raised active:scale-[0.98]">
+            <!-- WhatsApp -->
+            <a
+              :href="waCustomer(selected)"
+              target="_blank"
+              rel="noopener"
+              class="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-bold transition hover:border-[#25D366] hover:bg-raised active:scale-[0.98]"
+              :class="['cancelled', 'completed'].includes(selected.status) ? 'col-span-2' : ''"
+            >
               <MessageCircle class="h-4 w-4 text-[#25D366]" />
               <span>WhatsApp</span>
             </a>
-            <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="md" variant="outline" class="min-h-[42px]" :loading="busy" @click="openReschedule(selected)">
+
+            <!-- Reschedule -->
+            <BaseButton
+              v-if="!['cancelled', 'completed'].includes(selected.status)"
+              size="md"
+              variant="outline"
+              class="min-h-[42px]"
+              :loading="busy"
+              @click="openReschedule(selected)"
+            >
               <CalendarDays class="h-4 w-4 text-brand-600" />
               <span>Reschedule</span>
             </BaseButton>
-            <BaseButton v-if="selected.capacity > 1" size="md" variant="outline" class="col-span-2 min-h-[42px]" @click="openRoster(selected)">
-              <Users class="h-4 w-4 text-brand-600" />
-              <span>Group roster ({{ selected.capacity }} spots)</span>
-            </BaseButton>
-          </div>
 
-          <!-- 3. Exceptions & Destructive Action Bar: Mark No-show & Cancel Booking -->
-          <div
-            v-if="!['cancelled', 'completed'].includes(selected.status) || (selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed')"
-            class="flex flex-wrap items-center justify-between gap-2 border-t border-line/60 pt-3"
-          >
-            <div class="flex items-center gap-1.5">
-              <button
-                v-if="selected.status === 'confirmed'"
-                type="button"
-                class="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-line bg-surface px-3 text-xs font-semibold text-muted hover:border-ink hover:text-ink transition active:scale-[0.98]"
-                :disabled="busy"
-                @click="noShowConfirmOpen = true"
-              >
-                <UserX class="h-3.5 w-3.5 text-muted" />
-                <span>Mark as no-show</span>
-              </button>
-              <button
-                v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'"
-                type="button"
-                class="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-warning/30 bg-warning/5 px-3 text-xs font-semibold text-warning hover:bg-warning/10 transition active:scale-[0.98]"
-                :disabled="busy"
-                @click="refundOpen = true"
-              >
-                <span>Refund payment</span>
-              </button>
-            </div>
+            <!-- Mark as no-show (Left column, aligned with WhatsApp) -->
+            <button
+              v-if="selected.status === 'confirmed'"
+              type="button"
+              class="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-bold text-muted transition hover:border-ink hover:text-ink active:scale-[0.98]"
+              :disabled="busy"
+              @click="noShowConfirmOpen = true"
+            >
+              <UserX class="h-4 w-4 text-muted" />
+              <span>Mark as no-show</span>
+            </button>
+
+            <!-- Cancel booking (Right column, aligned with Reschedule) -->
             <button
               v-if="!['cancelled', 'completed'].includes(selected.status)"
               type="button"
-              class="ml-auto inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-danger/25 bg-danger/5 px-3 text-xs font-semibold text-danger hover:border-danger hover:bg-danger hover:text-white transition active:scale-[0.98]"
+              class="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-danger/25 bg-danger/5 px-3 text-xs font-bold text-danger transition hover:border-danger hover:bg-danger hover:text-white active:scale-[0.98]"
+              :class="selected.status !== 'confirmed' ? 'col-span-2' : ''"
               :disabled="busy"
               @click="cancelConfirmOpen = true"
             >
-              <X class="h-3.5 w-3.5" />
+              <X class="h-4 w-4" />
               <span>Cancel booking</span>
             </button>
+
+            <!-- Refund payment (full width, clean warning tone, only when eligible) -->
+            <button
+              v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'"
+              type="button"
+              class="col-span-2 flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-warning/30 bg-warning/5 px-3 text-xs font-bold text-warning transition hover:bg-warning/10 active:scale-[0.98]"
+              :disabled="busy"
+              @click="refundOpen = true"
+            >
+              <span>Refund payment ({{ formatNaira(selected.amountPaidKobo - (selected.refundedKobo || 0)) }})</span>
+            </button>
+
+            <!-- Group roster (full width, when capacity > 1) -->
+            <BaseButton
+              v-if="selected.capacity > 1"
+              size="md"
+              variant="outline"
+              class="col-span-2 min-h-[42px]"
+              @click="openRoster(selected)"
+            >
+              <Users class="h-4 w-4 text-brand-600" />
+              <span>Group roster ({{ selected.capacity }} spots)</span>
+            </BaseButton>
           </div>
         </div>
 

@@ -112,7 +112,20 @@ onMounted(async () => {
 
         <div class="space-y-4">
           <BaseCard>
-            <div class="flex items-center justify-between gap-2"><div><h3 class="font-display text-lg font-bold">Payouts</h3><p class="text-[11px] text-muted">Paid by bank transfer after review.</p></div><BaseButton size="sm" :disabled="affiliate.data.value.stats.availableKobo < affiliate.data.value.minimumPayoutKobo" @click="openPayout"><Banknote class="h-3.5 w-3.5" /> Request</BaseButton></div>
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h3 class="font-display text-lg font-bold">Payouts</h3>
+                <p class="text-[11px] text-muted">Paid by bank transfer after review.</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <NuxtLink to="/app/payouts" class="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-bold hover:bg-raised">
+                  Payouts hub →
+                </NuxtLink>
+                <BaseButton size="sm" :disabled="affiliate.data.value.stats.availableKobo < affiliate.data.value.minimumPayoutKobo" @click="openPayout">
+                  <Banknote class="h-3.5 w-3.5" /> Request
+                </BaseButton>
+              </div>
+            </div>
             <div class="mt-3 rounded-xl bg-raised/60 p-3">
               <p class="text-[9px] font-bold uppercase tracking-wider text-muted">Bank details</p>
               <template v-if="affiliate.data.value.payoutDetails.bankName"><p class="mt-1 text-xs font-bold">{{ affiliate.data.value.payoutDetails.bankName }} · {{ affiliate.data.value.payoutDetails.accountNumber }}</p><p class="text-[10px] text-muted">{{ affiliate.data.value.payoutDetails.accountName }}</p></template>

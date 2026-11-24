@@ -24,6 +24,7 @@ const more: NavItem[] = [
   { to: '/app/customers', label: 'Customers', icon: Users },
   { to: '/app/debts', label: 'Debts', icon: WalletCards },
   { to: '/app/expenses', label: 'Expenses', icon: ReceiptText },
+  { to: '/app/payouts', label: 'Payouts', icon: Banknote },
   { to: '/app/reports', label: 'Reports', icon: BarChart3 },
   { to: '/app/report-card', label: 'Report card', icon: Sparkles },
   { to: '/app/reviews', label: 'Reviews', icon: Star, modes: ['services', 'hybrid'] },

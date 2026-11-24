@@ -3,7 +3,7 @@ import type { AvailabilityResponse, Booking, BookingListResponse, BookingMetrics
 
 class BookingsApi extends BaseApi {
   constructor() { super('/bookings'); }
-  listBookings(params: { date?: string; from?: string; to?: string; status?: string; providerId?: string; serviceId?: string; search?: string; page?: number; limit?: number } = {}): Promise<BookingListResponse> {
+  listBookings(params: { date?: string; from?: string; to?: string; status?: string; providerId?: string; serviceId?: string; search?: string; page?: number; limit?: number; sort?: 'asc' | 'desc' } = {}): Promise<BookingListResponse> {
     return this.request('get', '', undefined, params as Record<string, unknown>);
   }
   metrics(params: { range?: string; from?: string; to?: string } = {}): Promise<BookingMetrics> {

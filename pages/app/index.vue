@@ -133,7 +133,7 @@ onMounted(loadAll);
 
         <div class="space-y-4">
           <BaseCard v-if="isServiceMode">
-            <div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Today’s appointments</h2><NuxtLink to="/app/bookings" class="text-[10px] font-bold text-brand-600">See all</NuxtLink></div>
+            <div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Today’s appointments</h2><NuxtLink to="/app/bookings/all" class="text-[10px] font-bold text-brand-600">See all</NuxtLink></div>
             <div v-if="appointments.items.value.length" class="mt-3 space-y-2">
               <NuxtLink v-for="b in appointments.items.value.slice(0, 3)" :key="b.id" to="/app/bookings" class="flex items-center gap-2 rounded-xl p-2 hover:bg-raised">
                 <div class="w-12 text-center"><p class="text-xs font-bold">{{ new Date(b.startAt).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' }) }}</p></div>
@@ -204,7 +204,7 @@ onMounted(loadAll);
       <div class="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
         <RecentSales v-if="!isServiceMode" :sales="dashboard.data.value?.recentSales || []" />
         <BaseCard v-else>
-          <div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Recent bookings</h2><NuxtLink to="/app/bookings" class="text-[10px] font-bold text-brand-600">See all</NuxtLink></div>
+          <div class="flex items-center justify-between"><h2 class="font-display text-lg font-bold">Recent bookings</h2><NuxtLink to="/app/bookings/all" class="text-[10px] font-bold text-brand-600">See all</NuxtLink></div>
           <div v-if="appointments.metrics.value?.recentBookings.length" class="mt-3 divide-y divide-line">
             <NuxtLink v-for="booking in appointments.metrics.value.recentBookings" :key="booking.id" to="/app/bookings" class="flex items-center justify-between gap-2 py-2.5 text-xs hover:bg-raised/40">
               <div class="min-w-0"><p class="truncate font-bold">{{ booking.customerName }} · {{ booking.serviceName }}</p><p class="text-[10px] text-muted">{{ formatDate(booking.startAt) }} · {{ booking.bookingNumber }}</p></div>

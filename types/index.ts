@@ -360,6 +360,11 @@ export interface Booking {
   source: string;
   notes: string;
   location?: string;
+  roomNumber?: string;
+  workerPayoutKobo?: number;
+  workerCount?: number;
+  workerIds?: string[];
+  workerBreakdown?: { providerId: string; providerName: string; amountKobo: number }[];
   discountKobo?: number;
   promotionLabel?: string | null;
   subtotalKobo?: number;
@@ -421,6 +426,8 @@ export interface WaitlistEntry {
   preferredFrom: string;
   preferredTo: string;
   preferredStartAt?: string | null;
+  location?: string;
+  roomNumber?: string;
   notes: string;
   status: 'waiting' | 'notified' | 'booked' | 'cancelled';
   paymentStatus?: 'not_required' | 'unpaid' | 'paid' | 'refunded';

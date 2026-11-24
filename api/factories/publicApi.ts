@@ -28,7 +28,7 @@ class PublicApi extends BaseApi {
   availability(slug: string, params: { serviceId: string; date: string; providerId?: string; durationMinutes?: number }): Promise<AvailabilityResponse> {
     return this.request('get', `storefront/${slug}/availability`, undefined, params as Record<string, unknown>);
   }
-  book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; location?: string; addOnNames?: string[]; packageCode?: string; marketplaceCampus?: string; quantity?: number }): Promise<{ booking: Booking | null; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
+  book(slug: string, payload: { serviceId: string; providerId?: string; startAt: string; customerName: string; customerPhone: string; customerEmail?: string; notes?: string; location?: string; roomNumber?: string; addOnNames?: string[]; packageCode?: string; marketplaceCampus?: string; quantity?: number }): Promise<{ booking: Booking | null; business: StorefrontHome['business']; payment: { authorizationUrl: string; reference: string; amountKobo: number } | null; whatsappUrl: string | null; whatsappMessage: string }> {
     return this.request('post', `storefront/${slug}/bookings`, payload);
   }
   newCustomerPromotion(): Promise<{ enabled: boolean; percentOff: number }> { return this.request('get', 'promotions/public/new-customer'); }
@@ -44,7 +44,7 @@ class PublicApi extends BaseApi {
   }
   payPackage(token: string, email?: string): Promise<{ authorizationUrl: string; reference: string; amountKobo: number }> { return this.request('post', `public/payments/package/${token}`, { email }); }
   packagePurchase(token: string): Promise<{ purchase: PackagePurchase; package: ServicePackage | null; business: Record<string, unknown> | null }> { return this.request('get', `public/packages/${token}`); }
-  joinWaitlist(slug: string, payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; preferredStartAt?: string; notes?: string; quantity?: number }): Promise<{ entry: WaitlistEntry & { already?: boolean }; business: StorefrontHome['business']; payment?: { authorizationUrl: string; reference: string; amountKobo: number } | null }> {
+  joinWaitlist(slug: string, payload: { serviceId: string; providerId?: string; customerName: string; customerPhone: string; customerEmail?: string; preferredFrom: string; preferredTo: string; preferredStartAt?: string; location?: string; roomNumber?: string; notes?: string; quantity?: number }): Promise<{ entry: WaitlistEntry & { already?: boolean }; business: StorefrontHome['business']; payment?: { authorizationUrl: string; reference: string; amountKobo: number } | null }> {
     return this.request('post', `storefront/${slug}/waitlist`, payload);
   }
   booking(token: string): Promise<{ booking: Booking; business: Record<string, unknown> | null }> { return this.request('get', `public/bookings/${token}`); }

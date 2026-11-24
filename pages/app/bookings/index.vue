@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, CalendarDays, CalendarRange, Check, Clock3, Copy, ExternalLink, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, UserX, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, Banknote, CalendarDays, CalendarRange, Check, Clock3, Copy, ExternalLink, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, UserX, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { whatsappLink } from '~/utils/phone';
 import type { Booking } from '~/types';
@@ -14,6 +14,28 @@ const selected = ref<Booking | null>(null);
 const detailOpen = ref(false);
 const moreOpen = ref(false);
 const busy = ref(false);
+const workerCount = ref<1 | 2>(1);
+const secondWorkerId = ref('');
+const secondWorkerOptions = computed(() => [
+  { value: '', label: 'Select second worker' },
+  ...providers.value.filter((p) => p.id !== selected.value?.providerId).map((p) => ({ value: p.id, label: p.name })),
+]);
+
+function calculateWorkerPay(serviceName?: string, count: 1 | 2 = 1): number {
+  const norm = (serviceName || '').toLowerCase();
+  if (norm.includes('4-man') || norm.includes('4 man')) return count === 2 ? 500000 : 1000000;
+  if (norm.includes('6-man') || norm.includes('6 man')) return count === 2 ? 600000 : 1200000;
+  if (norm.includes('premium') && norm.includes('double bunk')) return 300000;
+  if (norm.includes('double bunk')) return 200000;
+  if (norm.includes('premium') && norm.includes('single bunk')) return 150000;
+  if (norm.includes('single bunk')) return 100000;
+  return 0;
+}
+
+function isRoomService(serviceName?: string): boolean {
+  const norm = (serviceName || '').toLowerCase();
+  return norm.includes('4-man') || norm.includes('4 man') || norm.includes('6-man') || norm.includes('6 man');
+}
 const refundOpen = ref(false);
 const cancelConfirmOpen = ref(false);
 const noShowConfirmOpen = ref(false);
@@ -44,7 +66,13 @@ function shiftDay(delta: number) {
   const d = new Date(`${filters.date}T12:00:00`); d.setDate(d.getDate() + delta);
   filters.date = d.toISOString().slice(0, 10); void load();
 }
-function openBooking(booking: Booking) { selected.value = booking; detailOpen.value = true; moreOpen.value = false; }
+function openBooking(booking: Booking) {
+  selected.value = booking;
+  workerCount.value = booking.workerCount === 2 ? 2 : 1;
+  secondWorkerId.value = (booking.workerIds && booking.workerIds[1]) || '';
+  detailOpen.value = true;
+  moreOpen.value = false;
+}
 async function openReschedule(booking: Booking) {
   selected.value = booking;
   const d = new Date(booking.startAt); const today = new Date();
@@ -61,9 +89,9 @@ async function confirmReschedule() {
   catch (error) { toast.error((error as Error).message); }
   finally { busy.value = false; }
 }
-async function update(id: string, status: string) {
+async function update(id: string, status: string, opts?: { reason?: string; workerCount?: number; secondProviderId?: string }) {
   busy.value = true;
-  try { await setStatus(id, status); toast.success(`Booking ${status.replace('_', ' ')}.`); selected.value = items.value.find((b) => b.id === id) || null; }
+  try { await setStatus(id, status, opts); toast.success(`Booking ${status.replace('_', ' ')}.`); selected.value = items.value.find((b) => b.id === id) || null; }
   catch (error) { toast.error((error as Error).message); }
   finally { busy.value = false; }
 }
@@ -201,9 +229,13 @@ onMounted(async () => {
             <p class="text-[10px] font-bold uppercase tracking-wider text-muted">Client Phone</p>
             <p class="mt-1 truncate font-bold text-ink">{{ selected.customerPhone }}</p>
           </div>
-          <div v-if="selected.location" class="rounded-2xl bg-raised/50 p-3">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-muted">Location</p>
-            <p class="mt-1 truncate font-bold text-ink">{{ selected.location }}</p>
+          <div v-if="selected.location || selected.roomNumber" class="rounded-2xl bg-raised/50 p-3">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-muted">Location & Room</p>
+            <p class="mt-1 truncate font-bold text-ink">
+              <span v-if="selected.location">{{ selected.location }}</span>
+              <span v-if="selected.location && selected.roomNumber"> · </span>
+              <span v-if="selected.roomNumber">Room {{ selected.roomNumber.replace(/^room\s*/i, '') }}</span>
+            </p>
           </div>
           <div v-if="selected.quantity && selected.quantity > 1" class="rounded-2xl bg-brand-50/70 p-3">
             <p class="text-[10px] font-bold uppercase tracking-wider text-brand-600">Quantity</p>
@@ -234,11 +266,55 @@ onMounted(async () => {
           <div class="mt-2 flex items-center justify-between border-t border-line pt-2 font-bold"><span>Your payout</span><span>{{ formatNaira(selected.providerNetKobo || 0) }}</span></div>
         </div>
 
+        <!-- Worker Steaming Compensation -->
+        <div v-if="selected.status === 'confirmed' && isRoomService(selected.serviceName)" class="rounded-2xl border border-line bg-surface p-3.5 text-xs space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-ink flex items-center gap-1.5"><Users class="h-4 w-4 text-brand-600" /> Steaming Team (Payment Plan)</span>
+            <span class="font-bold text-brand-600">{{ workerCount === 2 ? `${formatNaira(calculateWorkerPay(selected.serviceName, 2))} each` : formatNaira(calculateWorkerPay(selected.serviceName, 1)) }}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="flex flex-col items-center justify-center rounded-xl border p-2 text-center transition"
+              :class="workerCount === 1 ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold' : 'border-line bg-surface text-muted hover:bg-raised'"
+              @click="workerCount = 1"
+            >
+              <span>1 Worker</span>
+              <span class="text-[10px]">{{ formatNaira(calculateWorkerPay(selected.serviceName, 1)) }} full pay</span>
+            </button>
+            <button
+              type="button"
+              class="flex flex-col items-center justify-center rounded-xl border p-2 text-center transition"
+              :class="workerCount === 2 ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold' : 'border-line bg-surface text-muted hover:bg-raised'"
+              @click="workerCount = 2"
+            >
+              <span>2 Workers (Split)</span>
+              <span class="text-[10px]">{{ formatNaira(calculateWorkerPay(selected.serviceName, 2)) }} each</span>
+            </button>
+          </div>
+          <div v-if="workerCount === 2">
+            <BaseSelect v-model="secondWorkerId" label="Second Worker (Co-steamer)" :options="secondWorkerOptions" />
+          </div>
+        </div>
+
+        <div v-else-if="selected.status === 'confirmed' && calculateWorkerPay(selected.serviceName, 1) > 0" class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 text-xs">
+          <span class="text-muted flex items-center gap-1.5"><Banknote class="h-3.5 w-3.5 text-brand-600" /> Worker Pay (Earned on completion)</span>
+          <span class="font-bold text-ink">{{ formatNaira(calculateWorkerPay(selected.serviceName, 1)) }}</span>
+        </div>
+
+        <div v-else-if="selected.workerBreakdown?.length" class="rounded-2xl border border-line bg-surface p-3 text-xs space-y-1.5">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-muted">Worker Payout Recorded</p>
+          <div v-for="w in selected.workerBreakdown" :key="w.providerId" class="flex items-center justify-between">
+            <span class="font-semibold text-ink">{{ w.providerName }}</span>
+            <span class="font-bold text-success">{{ formatNaira(w.amountKobo) }}</span>
+          </div>
+        </div>
+
         <!-- Structured Action Buttons -->
         <div class="space-y-3 border-t border-line pt-4">
           <!-- 1. Primary Lifecycle Action -->
           <div v-if="selected.status === 'confirmed'">
-            <BaseButton block size="lg" :loading="busy" class="shadow-sm" @click="update(selected.id, 'completed')">
+            <BaseButton block size="lg" :loading="busy" class="shadow-sm" @click="update(selected.id, 'completed', { workerCount, secondProviderId: secondWorkerId || undefined })">
               <Check class="h-4 w-4" /> Complete & record sale
             </BaseButton>
           </div>

@@ -19,10 +19,13 @@ const customerPhone = ref('');
 const customerEmail = ref('');
 const notes = ref('');
 const location = ref('');
+const roomNumber = ref('');
 const locationError = ref('');
 const waitlistName = ref('');
 const waitlistPhone = ref('');
 const waitlistEmail = ref('');
+const waitlistLocation = ref('');
+const waitlistRoomNumber = ref('');
 const packageCode = ref('');
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...props.providers.map((p) => ({ value: p.id, label: p.name }))]);
 const addOns = computed(() => props.service.addOns.filter((a) => addOnNames.value.includes(a.name)));
@@ -92,7 +95,9 @@ async function submit() {
     const result = await book({
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
       customerName: customerName.value.trim(), customerPhone: customerPhone.value.trim(),
-      customerEmail: customerEmail.value.trim(), notes: notes.value || undefined, location: location.value || undefined, packageCode: packageCode.value.trim() || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
+      customerEmail: customerEmail.value.trim(), notes: notes.value || undefined,
+      location: location.value || undefined, roomNumber: roomNumber.value.trim() || undefined,
+      packageCode: packageCode.value.trim() || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
       addOnNames: addOnNames.value, quantity: quantity.value,
     });
     if (result.payment?.authorizationUrl) {
@@ -115,6 +120,8 @@ async function submitWaitlist() {
       customerName: waitlistName.value.trim(), customerPhone: waitlistPhone.value.trim(),
       customerEmail: waitlistEmail.value || undefined,
       preferredFrom: date.value, preferredTo: to.toISOString().slice(0, 10), quantity: quantity.value,
+      location: waitlistLocation.value || undefined,
+      roomNumber: waitlistRoomNumber.value.trim() || undefined,
       notes: 'Joined from the online booking page',
     });
     if (result?.payment?.authorizationUrl) {
@@ -161,6 +168,20 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
               <div v-if="canJoinWaitlist && waitlistJoined" class="mt-3 rounded-lg bg-success/10 p-3 text-xs font-semibold text-success">You’re on the waitlist. We’ll message you if a slot opens.</div>
               <div v-else-if="canJoinWaitlist" class="mt-3 space-y-2">
                 <div class="grid gap-2 sm:grid-cols-2"><BaseInput v-model="waitlistName" label="Your name" placeholder="First and last name" /><BaseInput v-model="waitlistPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" /></div>
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <BaseSelect
+                    v-if="business.bookingSettings?.locations?.length"
+                    v-model="waitlistLocation"
+                    label="Hostel / Location"
+                    :options="[{ value: '', label: 'Select location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]"
+                  />
+                  <BaseInput
+                    v-model="waitlistRoomNumber"
+                    label="Room number"
+                    placeholder="e.g. Room 204 or Block A"
+                    :class="!business.bookingSettings?.locations?.length ? 'sm:col-span-2' : ''"
+                  />
+                </div>
                 <BaseInput v-model="waitlistEmail" :label="business.bookingSettings?.waitlistPaymentEnabled ? 'Email (required for payment)' : 'Email (optional)'" type="email" placeholder="For a waitlist alert" :required="business.bookingSettings?.waitlistPaymentEnabled" />
                 <BaseButton size="sm" :loading="waitlistLoading" @click="submitWaitlist">Join waitlist</BaseButton>
               </div>
@@ -172,7 +193,18 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <div v-if="promoPercent" class="rounded-xl border border-brand-200 bg-brand-50 p-3 text-xs font-semibold text-brand-700">New customer? Your first booking gets {{ promoPercent }}% off automatically.</div>
           <button type="button" class="inline-flex items-center gap-1 text-[11px] font-bold" :style="{ color: template.colors.muted }" @click="step = 1"><ChevronLeft class="h-3.5 w-3.5" /> Change time</button>
           <div class="rounded-xl p-3 text-xs" :style="{ background: `color-mix(in srgb, ${template.colors.primary} 10%, transparent)`, color: template.colors.ink }"><p class="font-bold">{{ service.name }}</p><p class="mt-0.5">{{ new Date(startAt).toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short' }) }} · {{ time(startAt) }}</p><p v-if="quantityEnabled" class="mt-1 text-[10px] font-semibold">{{ quantity }} {{ quantityLabel.toLowerCase() }} × {{ formatNaira(service.priceKobo) }}</p></div>
-          <div v-if="business.bookingSettings?.locations?.length"><BaseSelect v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required /><p v-if="locationError" class="mt-1 text-[10px] font-semibold text-danger">{{ locationError }}</p></div>
+          <div v-if="business.bookingSettings?.locations?.length" class="grid gap-2 sm:grid-cols-2">
+            <div>
+              <BaseSelect v-model="location" label="Where are you booking?" :options="[{ value: '', label: 'Choose a location' }, ...(business.bookingSettings.locations || []).map((place) => ({ value: place, label: place }))]" required />
+              <p v-if="locationError" class="mt-1 text-[10px] font-semibold text-danger">{{ locationError }}</p>
+            </div>
+            <div>
+              <BaseInput v-model="roomNumber" label="Room number" placeholder="e.g. Room 204 or Block A" />
+            </div>
+          </div>
+          <div v-else>
+            <BaseInput v-model="roomNumber" label="Room / Unit number (optional)" placeholder="e.g. Room 204 or Flat 3" />
+          </div>
           <BaseInput v-model="customerName" label="Your name" placeholder="First and last name" required />
           <BaseInput v-model="customerPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" required />
           <BaseInput v-model="customerEmail" label="Email" type="email" placeholder="Required for online payment receipt & confirmation" :required="!packageCode && total > 0" />

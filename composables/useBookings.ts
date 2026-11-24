@@ -39,7 +39,7 @@ export function useBookings() {
   async function calendarFeed() { return bookingsApi.calendarFeed(); }
   async function roster(id: string) { return bookingsApi.roster(id); }
   async function createRecurring(payload: Record<string, unknown>) { const result = await bookingsApi.createRecurring(payload); await load(); return result; }
-  async function setStatus(id: string, status: string, reason?: string) { const b = await bookingsApi.setStatus(id, status, reason); await load(); return b; }
+  async function setStatus(id: string, status: string, reasonOrOpts?: string | { reason?: string; workerCount?: number; secondProviderId?: string }) { const b = await bookingsApi.setStatus(id, status, reasonOrOpts); await load(); return b; }
   async function cancel(id: string, reason?: string) { const b = await bookingsApi.cancel(id, reason); await load(); return b; }
   async function refund(id: string, amountKobo?: number) { const result = await bookingsApi.refund(id, amountKobo); await load(); return result; }
   async function reschedule(id: string, startAt: string, providerId?: string) { const b = await bookingsApi.reschedule(id, startAt, providerId); await load(); return b; }

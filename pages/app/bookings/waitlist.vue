@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, BellRing, CalendarClock, Check, Trash2, Users } from 'lucide-vue-next';
+import { ArrowLeft, BellRing, CalendarClock, Check, MessageCircle, Trash2, Users } from 'lucide-vue-next';
 import { formatDate } from '~/utils/date';
 import { prettyPhone, whatsappLink } from '~/utils/phone';
 import { formatNaira } from '~/utils/money';
@@ -72,12 +72,12 @@ onMounted(load);
             <p v-if="entry.paymentStatus === 'paid'" class="mt-1 text-[10px] font-semibold text-success">Paid {{ formatNaira(entry.amountKobo || 0) }} · wallet refund available</p>
             <p v-else-if="entry.paymentStatus === 'unpaid'" class="mt-1 text-[10px] font-semibold text-warning">Payment pending</p>
           </div>
-          <div class="flex flex-wrap gap-1.5">
+          <div class="flex flex-wrap items-center gap-1.5 sm:self-center">
             <BaseButton v-if="entry.paymentStatus === 'paid' && entry.status !== 'cancelled'" size="sm" variant="outline" :loading="busy === entry.id" @click="refundEntry(entry)">Refund to wallet</BaseButton>
             <BaseButton v-if="entry.status === 'waiting' || entry.status === 'notified'" size="sm" :loading="busy === entry.id" @click="act(entry, 'notify')"><BellRing class="h-3.5 w-3.5" /> Notify</BaseButton>
             <BaseButton v-if="entry.status === 'waiting' || entry.status === 'notified'" size="sm" variant="outline" :loading="busy === entry.id" @click="act(entry, 'booked')"><Check class="h-3.5 w-3.5" /> Booked</BaseButton>
-            <a :href="whatsappLink(entry.customerPhone, `Hi ${entry.customerName.split(' ')[0]}! A spot may have opened for ${entry.serviceName}.`)" target="_blank" rel="noopener" class="inline-flex min-h-[36px] items-center rounded-xl border border-line px-3 text-xs font-bold">WhatsApp</a>
-            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-xl text-danger hover:bg-danger/5" aria-label="Remove waitlist entry" @click="removeEntry(entry)"><Trash2 class="h-3.5 w-3.5" /></button>
+            <a :href="whatsappLink(entry.customerPhone, `Hi ${entry.customerName.split(' ')[0]}! A spot may have opened for ${entry.serviceName}.`)" target="_blank" rel="noopener" class="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-line bg-surface px-3 text-xs font-bold transition hover:border-[#25D366] hover:bg-raised"><MessageCircle class="h-3.5 w-3.5 text-[#25D366]" /> WhatsApp</a>
+            <button type="button" class="flex h-9 w-9 items-center justify-center rounded-xl text-muted hover:bg-danger/10 hover:text-danger transition" aria-label="Remove waitlist entry" @click="removeEntry(entry)"><Trash2 class="h-3.5 w-3.5" /></button>
           </div>
         </div>
       </article>

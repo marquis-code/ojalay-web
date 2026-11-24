@@ -109,11 +109,26 @@ watch(showReschedule, (open) => { if (open) void loadSlots(); });
           </div>
           <div v-if="booking.packageName" class="rounded-2xl bg-brand-50 p-3 text-xs font-semibold text-brand-700">Covered by {{ booking.packageName }} · code {{ booking.packageCode }}</div>
           <div v-if="booking.status === 'completed' && booking.reviewToken && !booking.reviewedAt" class="rounded-2xl bg-brand-50 p-4"><p class="text-xs font-bold text-brand-700">How did it go?</p><p class="mt-1 text-xs text-brand-700/80">Leave a quick review for {{ business?.name }}.</p><BaseButton :to="`/review/${booking.reviewToken}`" size="sm" class="mt-3">Leave a review</BaseButton></div>
-          <div class="flex flex-wrap gap-2 border-t border-line pt-4">
-            <BaseButton v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" size="sm" variant="outline" @click="showReschedule = true"><CalendarDays class="h-4 w-4" /> Reschedule</BaseButton>
-            <a :href="calendarUrl()" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><CalendarPlus class="h-4 w-4" /> Add to calendar</a>
-            <a v-if="business?.whatsappNumber || business?.publicPhone" :href="`https://wa.me/${String(business?.whatsappNumber || business?.publicPhone).replace(/\\D/g, '')}`" target="_blank" rel="noopener" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-bold"><MessageCircle class="h-4 w-4" /> Message business</a>
-            <button v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" type="button" class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-danger hover:bg-danger/5" @click="showCancel = true"><X class="h-4 w-4" /> Cancel</button>
+          <div class="space-y-3 border-t border-line pt-4">
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <a v-if="business?.whatsappNumber || business?.publicPhone" :href="`https://wa.me/${String(business?.whatsappNumber || business?.publicPhone).replace(/\\D/g, '')}`" target="_blank" rel="noopener" class="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-bold transition hover:border-[#25D366] hover:bg-raised active:scale-[0.98]">
+                <MessageCircle class="h-4 w-4 text-[#25D366]" />
+                <span>Message business</span>
+              </a>
+              <a :href="calendarUrl()" class="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-bold transition hover:bg-raised active:scale-[0.98]">
+                <CalendarPlus class="h-4 w-4 text-brand-600" />
+                <span>Add to calendar</span>
+              </a>
+              <BaseButton v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" size="md" variant="outline" class="col-span-1 min-h-[42px] sm:col-span-2" @click="showReschedule = true">
+                <CalendarDays class="h-4 w-4 text-brand-600" />
+                <span>Reschedule appointment</span>
+              </BaseButton>
+            </div>
+            <div v-if="booking.status !== 'cancelled' && booking.status !== 'completed'" class="flex justify-end pt-1">
+              <button type="button" class="inline-flex items-center gap-1.5 text-xs font-semibold text-danger hover:underline" @click="showCancel = true">
+                <X class="h-3.5 w-3.5" /> Cancel appointment
+              </button>
+            </div>
           </div>
         </div>
       </div>

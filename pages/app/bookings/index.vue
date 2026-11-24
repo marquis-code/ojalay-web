@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, CalendarDays, CalendarRange, Check, Clock3, Copy, ExternalLink, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, CalendarDays, CalendarRange, Check, Clock3, Copy, ExternalLink, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, UserX, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { whatsappLink } from '~/utils/phone';
 import type { Booking } from '~/types';
@@ -15,6 +15,8 @@ const detailOpen = ref(false);
 const moreOpen = ref(false);
 const busy = ref(false);
 const refundOpen = ref(false);
+const cancelConfirmOpen = ref(false);
+const noShowConfirmOpen = ref(false);
 const rosterOpen = ref(false);
 const rosterData = ref<import('~/types').BookingRoster | null>(null);
 const rosterLoading = ref(false);
@@ -271,19 +273,42 @@ onMounted(async () => {
             </BaseButton>
           </div>
 
-          <!-- 3. Secondary Exceptions & Destructive Bar -->
-          <div v-if="!['cancelled', 'completed'].includes(selected.status) || (selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed')" class="flex items-center justify-between border-t border-line/60 pt-2.5">
-            <div class="flex items-center gap-1">
-              <BaseButton v-if="selected.status === 'confirmed'" size="sm" variant="ghost" class="text-xs font-semibold text-muted hover:text-ink" :loading="busy" @click="update(selected.id, 'no_show')">
-                Mark No-show
-              </BaseButton>
-              <BaseButton v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'" size="sm" variant="ghost" class="text-xs font-semibold text-warning hover:bg-warning/10" :loading="busy" @click="refundOpen = true">
-                Refund payment
-              </BaseButton>
+          <!-- 3. Exceptions & Destructive Action Bar: Mark No-show & Cancel Booking -->
+          <div
+            v-if="!['cancelled', 'completed'].includes(selected.status) || (selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed')"
+            class="flex flex-wrap items-center justify-between gap-2 border-t border-line/60 pt-3"
+          >
+            <div class="flex items-center gap-1.5">
+              <button
+                v-if="selected.status === 'confirmed'"
+                type="button"
+                class="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-line bg-surface px-3 text-xs font-semibold text-muted hover:border-ink hover:text-ink transition active:scale-[0.98]"
+                :disabled="busy"
+                @click="noShowConfirmOpen = true"
+              >
+                <UserX class="h-3.5 w-3.5 text-muted" />
+                <span>Mark as no-show</span>
+              </button>
+              <button
+                v-if="selected.amountPaidKobo > (selected.refundedKobo || 0) && selected.status !== 'completed'"
+                type="button"
+                class="inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-warning/30 bg-warning/5 px-3 text-xs font-semibold text-warning hover:bg-warning/10 transition active:scale-[0.98]"
+                :disabled="busy"
+                @click="refundOpen = true"
+              >
+                <span>Refund payment</span>
+              </button>
             </div>
-            <BaseButton v-if="!['cancelled', 'completed'].includes(selected.status)" size="sm" variant="ghost" class="text-xs font-semibold text-danger hover:bg-danger/10" :loading="busy" @click="cancelBooking(selected.id)">
-              <X class="h-3.5 w-3.5" /> Cancel appointment
-            </BaseButton>
+            <button
+              v-if="!['cancelled', 'completed'].includes(selected.status)"
+              type="button"
+              class="ml-auto inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-danger/25 bg-danger/5 px-3 text-xs font-semibold text-danger hover:border-danger hover:bg-danger hover:text-white transition active:scale-[0.98]"
+              :disabled="busy"
+              @click="cancelConfirmOpen = true"
+            >
+              <X class="h-3.5 w-3.5" />
+              <span>Cancel booking</span>
+            </button>
           </div>
         </div>
 
@@ -314,6 +339,8 @@ onMounted(async () => {
     </BaseModal>
 
     <ConfirmDialog v-model:open="refundOpen" danger title="Refund this payment?" message="This sends the refundable balance back through Paystack. It cannot be undone." confirm-label="Refund via Paystack" :loading="busy" @confirm="confirmRefund" />
+    <ConfirmDialog v-model:open="cancelConfirmOpen" danger title="Cancel this appointment?" message="This appointment will be marked as cancelled. Any booked slot will be released back to your calendar." confirm-label="Yes, cancel booking" :loading="busy" @confirm="selected && cancelBooking(selected.id)" />
+    <ConfirmDialog v-model:open="noShowConfirmOpen" title="Mark client as no-show?" message="This client will be recorded as a no-show for this appointment and the slot will be freed." confirm-label="Mark as no-show" :loading="busy" @confirm="selected && (noShowConfirmOpen = false, update(selected.id, 'no_show'))" />
 
     <BaseModal v-model:open="rescheduleOpen" title="Move appointment" description="This checks live availability before saving." size="md">
       <div class="space-y-4">

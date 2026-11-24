@@ -10,11 +10,9 @@ const items = ref<Booking[]>([]);
 const total = ref(0);
 const pages = ref(1);
 const loading = ref(false);
-const range = ref<'all' | 'upcoming' | 'past'>('all');
 const filters = reactive({ search: '', status: 'all', from: '', to: '', page: 1, limit: 50 });
 const statusOptions = [{ value: 'all', label: 'All statuses' }, { value: 'pending', label: 'Pending' }, { value: 'confirmed', label: 'Confirmed' }, { value: 'completed', label: 'Completed' }, { value: 'cancelled', label: 'Cancelled' }, { value: 'no_show', label: 'No-show' }];
-const fromDate = computed(() => range.value === 'upcoming' ? new Date().toISOString().slice(0, 10) : filters.from);
-const toDate = computed(() => range.value === 'past' ? new Date(Date.now() - 86400000).toISOString().slice(0, 10) : filters.to);
+const rangeLabel = computed(() => filters.from || filters.to ? 'Custom range' : 'All dates');
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
 const statusStyle: Record<string, string> = { pending: 'bg-warning/10 text-warning', confirmed: 'bg-success/10 text-success', completed: 'bg-brand-50 text-brand-700', cancelled: 'bg-danger/10 text-danger', no_show: 'bg-raised text-muted' };
 function when(value: string) { return new Date(value).toLocaleString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }); }
@@ -25,8 +23,8 @@ async function load() {
     const result = await bookingsApi.listBookings({
       search: filters.search.trim() || undefined,
       status: filters.status === 'all' ? undefined : filters.status,
-      from: fromDate.value || undefined,
-      to: toDate.value || undefined,
+      from: filters.from || undefined,
+      to: filters.to || undefined,
       page: filters.page,
       limit: filters.limit,
       sort: 'desc',
@@ -37,10 +35,10 @@ async function load() {
   } catch (error) { toast.error((error as Error).message); }
   finally { loading.value = false; }
 }
-function setRange(next: 'all' | 'upcoming' | 'past') { range.value = next; filters.from = ''; filters.to = ''; filters.page = 1; void load(); }
-function clearFilters() { range.value = 'all'; filters.search = ''; filters.status = 'all'; filters.from = ''; filters.to = ''; filters.page = 1; void load(); }
+function applyRange(payload: { from: string; to: string }) { filters.from = payload.from; filters.to = payload.to; filters.page = 1; void load(); }
+function clearFilters() { filters.search = ''; filters.status = 'all'; filters.from = ''; filters.to = ''; filters.page = 1; void load(); }
 function go(delta: number) { if (filters.page + delta < 1 || filters.page + delta > pages.value) return; filters.page += delta; void load(); }
-watch(() => [filters.status, filters.from, filters.to], () => { filters.page = 1; void load(); });
+watch(() => filters.status, () => { filters.page = 1; void load(); });
 watch(() => filters.search, () => { if (searchTimer) clearTimeout(searchTimer); searchTimer = setTimeout(() => { filters.page = 1; void load(); }, 350); });
 onMounted(load);
 </script>
@@ -52,7 +50,7 @@ onMounted(load);
     </PageHeader>
 
     <div class="grid gap-3 sm:grid-cols-3">
-      <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Matching bookings</p><p class="mt-1 font-display text-2xl font-bold">{{ total }}</p><p class="text-[10px] text-muted">{{ range === 'all' ? 'All dates' : range === 'upcoming' ? 'Today and later' : 'Before today' }}</p></div>
+      <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Matching bookings</p><p class="mt-1 font-display text-2xl font-bold">{{ total }}</p><p class="text-[10px] text-muted">{{ rangeLabel }}</p></div>
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Current filter</p><p class="mt-1 font-display text-2xl font-bold capitalize">{{ filters.status === 'all' ? 'All' : filters.status.replace('_', ' ') }}</p><p class="text-[10px] text-muted">{{ filters.search ? `Search: ${filters.search}` : 'No search applied' }}</p></div>
       <div class="card p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Page</p><p class="mt-1 font-display text-2xl font-bold">{{ filters.page }} / {{ pages }}</p><p class="text-[10px] text-muted">{{ filters.limit }} per page</p></div>
     </div>
@@ -60,11 +58,10 @@ onMounted(load);
     <div class="card p-3">
       <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
         <div class="relative min-w-0 flex-1"><Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" /><input v-model="filters.search" type="search" placeholder="Search customer, phone, service or booking number…" class="input-base h-10 min-h-0 pl-9 text-xs" aria-label="Search all bookings"></div>
-        <div class="flex flex-wrap gap-1"><button v-for="r in [{ key: 'all', label: 'All' }, { key: 'upcoming', label: 'Upcoming' }, { key: 'past', label: 'Past' }]" :key="r.key" type="button" class="rounded-lg px-3 py-2 text-[10px] font-bold" :class="range === r.key ? 'bg-ink text-canvas' : 'bg-raised text-muted'" @click="setRange(r.key as 'all' | 'upcoming' | 'past')">{{ r.label }}</button></div>
-        <BaseSelect v-model="filters.status" :options="statusOptions" aria-label="Filter booking status" class="min-w-[150px]" />
-        <button type="button" class="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-line px-3 text-[10px] font-bold text-muted" @click="clearFilters"><SlidersHorizontal class="h-3.5 w-3.5" /> Clear</button>
+        <div class="w-full shrink-0 lg:w-44"><BaseSelect v-model="filters.status" :options="statusOptions" aria-label="Filter booking status" /></div>
+        <div class="w-full shrink-0 lg:w-56"><DateRangePicker :from="filters.from" :to="filters.to" @apply="applyRange" @clear="filters.from = ''; filters.to = ''; filters.page = 1; load()" /></div>
+        <button type="button" class="flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-line px-3 text-[10px] font-bold text-muted" @click="clearFilters"><SlidersHorizontal class="h-3.5 w-3.5" /> Clear</button>
       </div>
-      <div class="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-muted"><span>Custom range:</span><input v-model="filters.from" type="date" class="rounded-lg border border-line bg-surface px-2 py-1.5 text-[10px]" aria-label="From date"><span>to</span><input v-model="filters.to" type="date" class="rounded-lg border border-line bg-surface px-2 py-1.5 text-[10px]" aria-label="To date"></div>
     </div>
 
     <div class="overflow-hidden rounded-2xl border border-line bg-surface">

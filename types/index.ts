@@ -127,7 +127,7 @@ export interface StorefrontBusiness {
   email?: string | null; address: string; about: string; seoTitle: string; seoDescription: string; currency: string;
   businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null; orderPolicy?: string;
   campusCode?: string | null; campusName?: string | null; campusVerified?: boolean;
-  serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number;
+  serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number; serviceChargeWaitlistEnabled?: boolean;
 }
 export interface StorefrontProductVariant { id: string; name: string; attributes: Record<string, string>; priceKobo: number; imageUrl?: string | null; inStock: boolean; lowStock: boolean; }
 export interface StorefrontProduct {
@@ -431,6 +431,8 @@ export interface WaitlistEntry {
   notes: string;
   status: 'waiting' | 'notified' | 'booked' | 'cancelled';
   paymentStatus?: 'not_required' | 'unpaid' | 'paid' | 'refunded';
+  subtotalKobo?: number;
+  serviceChargeKobo?: number;
   amountKobo?: number;
   paymentReference?: string | null;
   paidAt?: string | null;

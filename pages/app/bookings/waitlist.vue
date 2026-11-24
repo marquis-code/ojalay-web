@@ -75,7 +75,11 @@ onMounted(load);
             <p class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted"><CalendarClock class="h-3.5 w-3.5" /> Wants {{ formatDate(entry.preferredFrom) }} – {{ formatDate(entry.preferredTo) }}</p>
             <p v-if="entry.preferredStartAt" class="mt-1 text-[10px] font-semibold text-brand-600">Requested session: {{ new Date(entry.preferredStartAt).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) }}</p>
             <p v-if="entry.notes" class="mt-1 text-[11px] text-muted">{{ entry.notes }}</p>
-            <p v-if="entry.paymentStatus === 'paid'" class="mt-1 text-[10px] font-semibold text-success">Paid {{ formatNaira(entry.amountKobo || 0) }} · wallet refund available</p>
+            <p v-if="entry.paymentStatus === 'paid'" class="mt-1 text-[10px] font-semibold text-success">
+              Paid {{ formatNaira(entry.amountKobo || 0) }}
+              <span v-if="entry.serviceChargeKobo" class="font-normal text-muted">(includes {{ formatNaira(entry.serviceChargeKobo) }} service charge)</span>
+              · wallet refund available
+            </p>
             <p v-else-if="entry.paymentStatus === 'unpaid'" class="mt-1 text-[10px] font-semibold text-warning">Payment pending</p>
           </div>
           <div class="flex flex-wrap items-center gap-1.5 sm:self-center">

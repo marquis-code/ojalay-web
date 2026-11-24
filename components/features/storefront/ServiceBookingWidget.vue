@@ -40,6 +40,17 @@ const serviceCharge = computed(() => {
   if (props.business.serviceChargeType === 'fixed') return Math.max(0, props.business.serviceChargeFixedKobo || 0);
   return Math.round((subtotal.value * Math.max(0, props.business.serviceChargePercent || 0)) / 100);
 });
+const waitlistBaseKobo = computed(() => {
+  const qty = quantity.value;
+  return props.service.requiresDeposit ? props.service.depositKobo * qty : props.service.priceKobo * qty;
+});
+const waitlistServiceChargeKobo = computed(() => {
+  const b = props.business;
+  if (!b?.serviceChargeEnabled || b?.serviceChargeWaitlistEnabled === false) return 0;
+  if (b.serviceChargeType === 'fixed') return Math.max(0, b.serviceChargeFixedKobo || 0);
+  return Math.round((waitlistBaseKobo.value * Math.max(0, b.serviceChargePercent || 0)) / 100);
+});
+const waitlistTotalKobo = computed(() => waitlistBaseKobo.value + waitlistServiceChargeKobo.value);
 const total = computed(() => subtotal.value + serviceCharge.value);
 const collectFull = computed(() => props.business.bookingSettings?.paymentCollection === 'full');
 const deposit = computed(() => {
@@ -164,7 +175,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
             <div class="flex items-center justify-between"><p class="label-base">Available times</p><span v-if="loading" class="inline-flex items-center gap-1 text-[10px] text-muted"><Loader2 class="h-3 w-3 animate-spin" /> Checking…</span></div>
             <div v-if="availability?.slots.length" class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4"><button v-for="slot in availability.slots" :key="slot.startAt" type="button" class="rounded-xl border py-2.5 text-xs font-bold" :class="startAt === slot.startAt ? 'border-current' : ''" :style="{ borderColor: startAt === slot.startAt ? template.colors.primary : `color-mix(in srgb, ${template.colors.ink} 15%, transparent)`, color: startAt === slot.startAt ? template.colors.primary : template.colors.ink }" @click="pick(slot.startAt, slot.providers)">{{ slot.time }}</button></div>
             <div v-else-if="!loading" class="mt-2 rounded-xl border border-dashed p-4" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 20%, transparent)` }">
-              <p v-if="business.bookingSettings?.waitlistPaymentEnabled" class="mb-2 text-[10px] font-semibold" :style="{ color: template.colors.primary }">Payment required to join: {{ formatNaira(service.requiresDeposit ? service.depositKobo * quantity : service.priceKobo * quantity) }}. If no suitable slot opens, the business can refund it to your Ojaly wallet.</p><p class="text-xs" :style="{ color: template.colors.muted }">{{ availability?.closed ? (canJoinWaitlist ? 'This business is closed on that day, but you can join the waitlist for a future opening.' : 'This business is closed on that day. Try another day.') : 'Fully booked on this day. Join the waitlist and we’ll message you if a spot opens.' }}</p>
+              <p v-if="business.bookingSettings?.waitlistPaymentEnabled" class="mb-2 text-[10px] font-semibold" :style="{ color: template.colors.primary }">Payment required to join: {{ formatNaira(waitlistTotalKobo) }}<span v-if="waitlistServiceChargeKobo > 0" class="font-normal opacity-90"> (includes {{ formatNaira(waitlistServiceChargeKobo) }} service charge)</span>. If no suitable slot opens, the business can refund it to your Ojaly wallet.</p><p class="text-xs" :style="{ color: template.colors.muted }">{{ availability?.closed ? (canJoinWaitlist ? 'This business is closed on that day, but you can join the waitlist for a future opening.' : 'This business is closed on that day. Try another day.') : 'Fully booked on this day. Join the waitlist and we’ll message you if a spot opens.' }}</p>
               <div v-if="canJoinWaitlist && waitlistJoined" class="mt-3 rounded-lg bg-success/10 p-3 text-xs font-semibold text-success">You’re on the waitlist. We’ll message you if a slot opens.</div>
               <div v-else-if="canJoinWaitlist" class="mt-3 space-y-2">
                 <div class="grid gap-2 sm:grid-cols-2"><BaseInput v-model="waitlistName" label="Your name" placeholder="First and last name" /><BaseInput v-model="waitlistPhone" label="WhatsApp number" type="tel" placeholder="0803 123 4567" /></div>

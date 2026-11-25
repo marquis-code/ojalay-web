@@ -24,6 +24,9 @@ class BookingsApi extends BaseApi {
   cancel(id: string, reason?: string): Promise<Booking> { return this.request('post', `/${id}/cancel`, { reason }); }
   refund(id: string, amountKobo?: number): Promise<{ refunded: boolean; amountKobo: number; bookingId: string; paymentReference: string }> { return this.request('post', `/${id}/refund`, { amountKobo }); }
   reschedule(id: string, startAt: string, providerId?: string): Promise<Booking> { return this.request('post', `/${id}/reschedule`, { startAt, providerId }); }
+  verifyTransfer(id: string, payload: { action: 'approve' | 'reject'; reason?: string }): Promise<Booking> {
+    return this.request('patch', `/${id}/verify-transfer`, payload);
+  }
 }
 
 export const bookingsApi = new BookingsApi();

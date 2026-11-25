@@ -128,6 +128,13 @@ export interface StorefrontBusiness {
   businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null; orderPolicy?: string;
   campusCode?: string | null; campusName?: string | null; campusVerified?: boolean;
   serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number; serviceChargeWaitlistEnabled?: boolean;
+  directTransfer?: {
+    enabled: boolean;
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+    instructions?: string;
+  } | null;
 }
 export interface StorefrontProductVariant { id: string; name: string; attributes: Record<string, string>; priceKobo: number; imageUrl?: string | null; inStock: boolean; lowStock: boolean; }
 export interface StorefrontProduct {
@@ -325,7 +332,7 @@ export interface PublicProvider {
   id: string; name: string; title: string; bio: string; avatarUrl?: string | null; color: string;
 }
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
-export type BookingPaymentStatus = 'unpaid' | 'deposit_paid' | 'paid' | 'refunded';
+export type BookingPaymentStatus = 'unpaid' | 'deposit_paid' | 'paid' | 'refunded' | 'pending_verification';
 export interface BookingAddon { name: string; priceKobo: number; durationMinutes: number; }
 export interface Booking {
   id: string;
@@ -361,6 +368,10 @@ export interface Booking {
   notes: string;
   location?: string;
   roomNumber?: string;
+  paymentMethod?: string | null;
+  transferSenderName?: string | null;
+  transferVerifiedAt?: string | null;
+  transferRejectionReason?: string | null;
   workerPayoutKobo?: number;
   workerCount?: number;
   workerIds?: string[];

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, Banknote, CalendarDays, CalendarRange, Check, Clock3, Copy, ExternalLink, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, UserX, X } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, Banknote, CalendarDays, CalendarRange, Check, Clock3, Copy, ExternalLink, Landmark, MessageCircle, MoreHorizontal, Plus, Repeat2, Settings2, UserRound, Users, UserX, X } from 'lucide-vue-next';
 import { formatNaira } from '~/utils/money';
 import { whatsappLink } from '~/utils/phone';
 import type { Booking } from '~/types';
@@ -8,7 +8,7 @@ useSeoMeta({ title: 'Appointments' });
 
 const toast = useToast();
 const route = useRoute();
-const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, refund, roster, reschedule } = useBookings();
+const { items, loading, summary, filters, slots, slotsLoading, load, loadSlots, setStatus, cancel, refund, roster, reschedule, verifyTransfer } = useBookings();
 const { items: providers, load: loadProviders } = useProviders();
 const selected = ref<Booking | null>(null);
 const detailOpen = ref(false);
@@ -94,6 +94,26 @@ async function update(id: string, status: string, opts?: { reason?: string; work
   try { await setStatus(id, status, opts); toast.success(`Booking ${status.replace('_', ' ')}.`); selected.value = items.value.find((b) => b.id === id) || null; }
   catch (error) { toast.error((error as Error).message); }
   finally { busy.value = false; }
+}
+
+async function handleVerifyTransfer(action: 'approve' | 'reject') {
+  if (!selected.value) return;
+  let reason: string | undefined;
+  if (action === 'reject') {
+    const input = window.prompt('Enter reason for rejecting transfer (optional):', 'Payment not received in account');
+    if (input === null) return;
+    reason = input.trim() || undefined;
+  }
+  busy.value = true;
+  try {
+    const updated = await verifyTransfer(selected.value.id, action, reason);
+    selected.value = updated;
+    toast.success(action === 'approve' ? 'Transfer approved! Customer confirmed via WhatsApp.' : 'Transfer rejected.');
+  } catch (error) {
+    toast.error((error as Error).message);
+  } finally {
+    busy.value = false;
+  }
 }
 async function openRoster(booking: Booking) {
   rosterOpen.value = true; rosterLoading.value = true; rosterData.value = null;
@@ -251,9 +271,53 @@ onMounted(async () => {
                 <span class="text-xs text-muted">of {{ formatNaira(selected.priceKobo) }}</span>
               </div>
             </div>
-            <span class="rounded-full px-2.5 py-1 text-[10px] font-bold capitalize sm:px-3 sm:text-[11px]" :class="selected.paymentStatus === 'paid' ? 'bg-success/10 text-success' : selected.paymentStatus === 'deposit_paid' ? 'bg-warning/10 text-warning' : 'bg-muted/15 text-muted'">
-              {{ selected.paymentStatus.replace('_', ' ') }}
+            <span class="rounded-full px-2.5 py-1 text-[10px] font-bold capitalize sm:px-3 sm:text-[11px]" :class="selected.paymentStatus === 'paid' ? 'bg-success/10 text-success' : selected.paymentStatus === 'deposit_paid' ? 'bg-warning/10 text-warning' : selected.paymentStatus === 'pending_verification' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300' : 'bg-muted/15 text-muted'">
+              {{ selected.paymentStatus === 'pending_verification' ? 'Pending verification' : selected.paymentStatus.replace('_', ' ') }}
             </span>
+          </div>
+        </div>
+
+        <!-- Direct Transfer Verification Action Banner -->
+        <div v-if="selected.paymentStatus === 'pending_verification'" class="rounded-2xl border-2 border-amber-400 bg-amber-50/90 p-4 text-xs dark:border-amber-600 dark:bg-amber-950/40">
+          <div class="flex items-start gap-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300">
+              <Landmark class="h-4 w-4" />
+            </div>
+            <div class="flex-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-amber-900 dark:text-amber-200">Direct Bank Transfer · Verification Needed</span>
+                <span class="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-900">Requires review</span>
+              </div>
+              <p class="text-amber-800 dark:text-amber-300">
+                Customer reported transferring <strong class="text-ink">{{ formatNaira(selected.depositKobo || selected.priceKobo) }}</strong> to your account.
+              </p>
+              <div class="rounded-xl border border-amber-200 bg-surface/90 p-2.5 dark:border-amber-900/50">
+                <p><span class="text-muted">Sender Account Name:</span> <strong class="text-ink">{{ selected.transferSenderName || 'Not stated' }}</strong></p>
+                <p v-if="selected.customerPhone" class="mt-1"><span class="text-muted">Customer Phone:</span> <strong class="text-ink">{{ selected.customerPhone }}</strong></p>
+              </div>
+              <p class="text-[10px] text-amber-700/80 dark:text-amber-400">
+                Check your PalmPay / bank statement first. Approving marks the booking as paid and sends an automated WhatsApp confirmation to the customer.
+              </p>
+              <div class="flex flex-wrap gap-2 pt-1">
+                <BaseButton
+                  size="sm"
+                  class="!bg-emerald-600 !text-white hover:!bg-emerald-700 shadow-sm"
+                  :loading="busy"
+                  @click="handleVerifyTransfer('approve')"
+                >
+                  <Check class="h-3.5 w-3.5" /> Approve transfer
+                </BaseButton>
+                <BaseButton
+                  size="sm"
+                  variant="outline"
+                  class="!border-danger/40 !text-danger hover:!bg-danger/10"
+                  :loading="busy"
+                  @click="handleVerifyTransfer('reject')"
+                >
+                  <X class="h-3.5 w-3.5" /> Reject transfer
+                </BaseButton>
+              </div>
+            </div>
           </div>
         </div>
 

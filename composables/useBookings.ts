@@ -43,5 +43,10 @@ export function useBookings() {
   async function cancel(id: string, reason?: string) { const b = await bookingsApi.cancel(id, reason); await load(); return b; }
   async function refund(id: string, amountKobo?: number) { const result = await bookingsApi.refund(id, amountKobo); await load(); return result; }
   async function reschedule(id: string, startAt: string, providerId?: string) { const b = await bookingsApi.reschedule(id, startAt, providerId); await load(); return b; }
-  return { items, loading, error, summary, metrics, metricsLoading, filters, slots, slotsLoading, load, loadMetrics, loadSlots, create, createRecurring, calendarFeed, roster, setStatus, cancel, refund, reschedule };
+  async function verifyTransfer(id: string, action: 'approve' | 'reject', reason?: string) {
+    const b = await bookingsApi.verifyTransfer(id, { action, reason });
+    await load();
+    return b;
+  }
+  return { items, loading, error, summary, metrics, metricsLoading, filters, slots, slotsLoading, load, loadMetrics, loadSlots, create, createRecurring, calendarFeed, roster, setStatus, cancel, refund, reschedule, verifyTransfer };
 }

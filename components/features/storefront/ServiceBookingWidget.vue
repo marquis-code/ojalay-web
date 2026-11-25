@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, CalendarDays, Check, ChevronLeft, Clock3, Loader2, MessageCircle, ShieldCheck } from 'lucide-vue-next';
+import { ArrowRight, CalendarDays, Check, ChevronLeft, Clock3, Copy, Landmark, Loader2, MessageCircle, ShieldCheck } from 'lucide-vue-next';
 import type { PublicProvider, Service, StorefrontBusiness, StorefrontTemplate } from '~/types';
 import { formatNaira } from '~/utils/money';
 import { rememberPayment } from '~/utils/pending-payment';
@@ -26,6 +26,16 @@ const waitlistPhone = ref('');
 const waitlistEmail = ref('');
 const waitlistLocation = ref('');
 const waitlistRoomNumber = ref('');
+const paymentMethod = ref<'paystack' | 'direct_transfer'>(props.business.directTransfer?.enabled ? 'direct_transfer' : 'paystack');
+const transferSenderName = ref('');
+const accountCopied = ref(false);
+
+function copyAccountNumber() {
+  if (!props.business.directTransfer?.accountNumber) return;
+  navigator.clipboard?.writeText(props.business.directTransfer.accountNumber);
+  accountCopied.value = true;
+  setTimeout(() => { accountCopied.value = false; }, 2000);
+}
 const packageCode = ref('');
 const providerOptions = computed(() => [{ value: '', label: 'Any available team member' }, ...props.providers.map((p) => ({ value: p.id, label: p.name }))]);
 const addOns = computed(() => props.service.addOns.filter((a) => addOnNames.value.includes(a.name)));
@@ -96,7 +106,13 @@ async function submit() {
   if (!startAt.value) return;
   if (customerName.value.trim().length < 2) return;
   if (customerPhone.value.trim().length < 7) return;
-  if (!packageCode.value.trim() && total.value > 0 && (!customerEmail.value.trim() || !customerEmail.value.includes('@'))) {
+  const isDirect = Boolean(props.business.directTransfer?.enabled && paymentMethod.value === 'direct_transfer');
+  if (isDirect) {
+    if (transferSenderName.value.trim().length < 2) {
+      error.value = 'Enter your bank account sender name so the business can confirm your payment.';
+      return;
+    }
+  } else if (!packageCode.value.trim() && total.value > 0 && (!customerEmail.value.trim() || !customerEmail.value.includes('@'))) {
     error.value = 'Add your email to pay online and secure your booking.';
     return;
   }
@@ -106,16 +122,18 @@ async function submit() {
     const result = await book({
       serviceId: props.service.id, providerId: providerId.value || undefined, startAt: startAt.value,
       customerName: customerName.value.trim(), customerPhone: customerPhone.value.trim(),
-      customerEmail: customerEmail.value.trim(), notes: notes.value || undefined,
+      customerEmail: customerEmail.value.trim() || undefined, notes: notes.value || undefined,
       location: location.value || undefined, roomNumber: roomNumber.value.trim() || undefined,
       packageCode: packageCode.value.trim() || undefined, marketplaceCampus: props.marketplaceCampus || undefined,
       addOnNames: addOnNames.value, quantity: quantity.value,
+      paymentMethod: isDirect ? 'direct_transfer' : 'paystack',
+      transferSenderName: isDirect ? transferSenderName.value.trim() : undefined,
     });
     if (result.payment?.authorizationUrl) {
       rememberPayment(result.payment.reference, window.location.pathname);
       window.location.href = result.payment.authorizationUrl;
     }
-    else if (packageCode.value.trim() || total.value === 0) {
+    else if (isDirect || packageCode.value.trim() || total.value === 0) {
       step.value = 4;
     }
   } catch { /* error shown */ }
@@ -152,6 +170,10 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
       <p class="mt-2 text-sm" :style="{ color: template.colors.muted }">{{ confirmed.booking.bookingNumber }} · {{ confirmed.booking.serviceName }}</p>
       <p class="mt-1 text-sm font-semibold" :style="{ color: template.colors.ink }">{{ new Date(confirmed.booking.startAt).toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long' }) }} at {{ time(confirmed.booking.startAt) }}</p>
       <p v-if="confirmed.booking.location" class="mt-1 text-xs" :style="{ color: template.colors.muted }">{{ confirmed.booking.location }}</p>
+      <div v-if="confirmed.booking.paymentStatus === 'pending_verification'" class="mt-3 rounded-2xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        <p class="font-bold flex items-center justify-center gap-1.5"><Landmark class="h-4 w-4" /> Transfer Pending Verification</p>
+        <p class="mt-1 text-[11px] leading-relaxed">Your booking has been received! Once {{ business.name }} verifies your bank transfer, you will receive an automatic WhatsApp confirmation.</p>
+      </div>
       <div class="mt-5 flex flex-col gap-2">
         <NuxtLink :to="`/booking/${confirmed.booking.publicToken}`" class="inline-flex min-h-[48px] items-center justify-center rounded-full px-5 text-sm font-bold" :style="{ background: template.colors.primary, color: template.colors.onPrimary }">View booking</NuxtLink>
         <a v-if="confirmed.whatsappUrl" :href="confirmed.whatsappUrl" target="_blank" rel="noopener" class="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border text-sm font-bold" :style="{ borderColor: template.colors.ink, color: template.colors.ink }"><MessageCircle class="h-4 w-4" /> Message the business</a>
@@ -223,8 +245,87 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <BaseInput v-model="packageCode" label="Package code (optional)" placeholder="Enter your prepaid code" />
           <div class="space-y-1.5 border-t pt-3 text-xs" :style="{ borderColor: `color-mix(in srgb, ${template.colors.ink} 10%, transparent)` }"><div class="flex items-center justify-between" :style="{ color: template.colors.muted }"><span>Subtotal</span><span>{{ formatNaira(subtotal) }}</span></div><div v-if="serviceCharge" class="flex items-center justify-between" :style="{ color: template.colors.muted }"><span>Service charge</span><span>{{ formatNaira(serviceCharge) }}</span></div><div class="flex items-center justify-between pt-1 text-sm font-semibold" :style="{ color: template.colors.ink }"><span>Total</span><span class="font-display text-xl font-bold">{{ formatNaira(total) }}</span></div></div>
           <div v-if="deposit" class="flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs text-warning"><span class="inline-flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> {{ deposit >= total ? 'Payment required to secure booking' : 'Commitment fee to secure' }}</span><span class="font-bold">{{ formatNaira(deposit) }}</span></div>
+
+          <!-- Direct Transfer / Payment Method Selector -->
+          <div v-if="business.directTransfer?.enabled && (deposit || total > 0) && !packageCode" class="space-y-3 pt-2">
+            <p class="label-base">Payment Method</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                class="flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition"
+                :class="paymentMethod === 'direct_transfer' ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold dark:bg-brand-950/40 dark:text-brand-300' : 'border-line bg-surface text-muted hover:bg-raised'"
+                @click="paymentMethod = 'direct_transfer'"
+              >
+                <span class="flex items-center gap-1.5"><Landmark class="h-3.5 w-3.5 text-brand-600" /> Direct Transfer</span>
+                <span class="text-[10px] opacity-80">Pay to vendor bank</span>
+              </button>
+              <button
+                type="button"
+                class="flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition"
+                :class="paymentMethod === 'paystack' ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold dark:bg-brand-950/40 dark:text-brand-300' : 'border-line bg-surface text-muted hover:bg-raised'"
+                @click="paymentMethod = 'paystack'"
+              >
+                <span class="flex items-center gap-1.5"><ShieldCheck class="h-3.5 w-3.5 text-brand-600" /> Pay Online</span>
+                <span class="text-[10px] opacity-80">Cards & Instant</span>
+              </button>
+            </div>
+
+            <!-- Bank Account Card -->
+            <div v-if="paymentMethod === 'direct_transfer'" class="rounded-2xl border-2 border-brand-500/30 bg-raised/40 p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-ink">Vendor Bank Account</span>
+                <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">Direct transfer</span>
+              </div>
+              <div class="space-y-2 rounded-xl border border-line bg-surface p-3 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Bank Name</span>
+                  <span class="font-bold text-ink">{{ business.directTransfer.bankName }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Account Number</span>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-sm font-bold tracking-wider text-ink">{{ business.directTransfer.accountNumber }}</span>
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 rounded-md bg-raised px-2 py-0.5 text-[10px] font-semibold text-brand-600 hover:bg-brand-50 active:scale-95 transition"
+                      @click="copyAccountNumber"
+                    >
+                      <Check v-if="accountCopied" class="h-3 w-3 text-emerald-600" />
+                      <Copy v-else class="h-3 w-3" />
+                      <span>{{ accountCopied ? 'Copied' : 'Copy' }}</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Account Name</span>
+                  <span class="font-bold text-ink">{{ business.directTransfer.accountName }}</span>
+                </div>
+                <div class="flex items-center justify-between border-t border-line pt-2">
+                  <span class="font-semibold text-muted">Amount to send</span>
+                  <span class="font-display text-base font-bold text-brand-600">{{ formatNaira(deposit || total) }}</span>
+                </div>
+              </div>
+              <p v-if="business.directTransfer.instructions" class="text-[11px] text-muted">
+                {{ business.directTransfer.instructions }}
+              </p>
+              <BaseInput
+                v-model="transferSenderName"
+                label="Sender Account Name (Name on your transfer)"
+                placeholder="e.g. John Doe"
+                required
+              />
+            </div>
+          </div>
+
           <p v-if="error" class="rounded-xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ error }}</p>
-          <BaseButton type="submit" block size="lg" :loading="submitting">{{ deposit ? `Pay ${formatNaira(deposit)} ${deposit >= total ? 'now' : 'deposit'}` : 'Confirm booking' }} <ArrowRight class="h-4 w-4" /></BaseButton>
+          <BaseButton type="submit" block size="lg" :loading="submitting">
+            <template v-if="paymentMethod === 'direct_transfer' && business.directTransfer?.enabled">
+              I have sent {{ formatNaira(deposit || total) }} <ArrowRight class="h-4 w-4" />
+            </template>
+            <template v-else>
+              {{ deposit ? `Pay ${formatNaira(deposit)} ${deposit >= total ? 'now' : 'deposit'}` : 'Confirm booking' }} <ArrowRight class="h-4 w-4" />
+            </template>
+          </BaseButton>
           <p class="text-center text-[10px]" :style="{ color: template.colors.muted }">You’ll get a confirmation and can change the appointment from your booking page.</p>
         </form>
       </div>

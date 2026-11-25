@@ -26,7 +26,23 @@ const waitlistPhone = ref('');
 const waitlistEmail = ref('');
 const waitlistLocation = ref('');
 const waitlistRoomNumber = ref('');
-const paymentMethod = ref<'paystack' | 'direct_transfer'>(props.business.directTransfer?.enabled ? 'direct_transfer' : 'paystack');
+const cardPaymentAvailable = computed(() => props.business.cardPaymentEnabled !== false);
+const directTransferAvailable = computed(() => Boolean(props.business.directTransfer?.enabled));
+const paymentMethod = ref<'paystack' | 'direct_transfer'>(
+  directTransferAvailable.value && !cardPaymentAvailable.value ? 'direct_transfer' : directTransferAvailable.value ? 'direct_transfer' : 'paystack'
+);
+const showPaymentMethodTabs = computed(() => {
+  return cardPaymentAvailable.value && directTransferAvailable.value && (deposit.value > 0 || total.value > 0) && !packageCode.value;
+});
+
+watch([cardPaymentAvailable, directTransferAvailable], ([cardOk, directOk]) => {
+  if (!cardOk && directOk) {
+    paymentMethod.value = 'direct_transfer';
+  } else if (cardOk && !directOk) {
+    paymentMethod.value = 'paystack';
+  }
+}, { immediate: true });
+
 const transferSenderName = ref('');
 const accountCopied = ref(false);
 
@@ -106,7 +122,7 @@ async function submit() {
   if (!startAt.value) return;
   if (customerName.value.trim().length < 2) return;
   if (customerPhone.value.trim().length < 7) return;
-  const isDirect = Boolean(props.business.directTransfer?.enabled && paymentMethod.value === 'direct_transfer');
+  const isDirect = Boolean(directTransferAvailable.value && (paymentMethod.value === 'direct_transfer' || !cardPaymentAvailable.value));
   if (isDirect) {
     if (transferSenderName.value.trim().length < 2) {
       error.value = 'Enter your bank account sender name so the business can confirm your payment.';
@@ -247,31 +263,37 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
           <div v-if="deposit" class="flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs text-warning"><span class="inline-flex items-center gap-1"><ShieldCheck class="h-4 w-4" /> {{ deposit >= total ? 'Payment required to secure booking' : 'Commitment fee to secure' }}</span><span class="font-bold">{{ formatNaira(deposit) }}</span></div>
 
           <!-- Direct Transfer / Payment Method Selector -->
-          <div v-if="business.directTransfer?.enabled && (deposit || total > 0) && !packageCode" class="space-y-3 pt-2">
-            <p class="label-base">Payment Method</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                class="flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition"
-                :class="paymentMethod === 'direct_transfer' ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold dark:bg-brand-950/40 dark:text-brand-300' : 'border-line bg-surface text-muted hover:bg-raised'"
-                @click="paymentMethod = 'direct_transfer'"
-              >
-                <span class="flex items-center gap-1.5"><Landmark class="h-3.5 w-3.5 text-brand-600" /> Direct Transfer</span>
-                <span class="text-[10px] opacity-80">Pay to vendor bank</span>
-              </button>
-              <button
-                type="button"
-                class="flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition"
-                :class="paymentMethod === 'paystack' ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold dark:bg-brand-950/40 dark:text-brand-300' : 'border-line bg-surface text-muted hover:bg-raised'"
-                @click="paymentMethod = 'paystack'"
-              >
-                <span class="flex items-center gap-1.5"><ShieldCheck class="h-3.5 w-3.5 text-brand-600" /> Pay Online</span>
-                <span class="text-[10px] opacity-80">Cards & Instant</span>
-              </button>
+          <div v-if="(directTransferAvailable || cardPaymentAvailable) && (deposit || total > 0) && !packageCode" class="space-y-3 pt-2">
+            <!-- Tabs only appear if BOTH card and direct transfer are active -->
+            <div v-if="showPaymentMethodTabs" class="space-y-1.5">
+              <p class="label-base">Payment Method</p>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  class="flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition"
+                  :class="paymentMethod === 'direct_transfer' ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold dark:bg-brand-950/40 dark:text-brand-300' : 'border-line bg-surface text-muted hover:bg-raised'"
+                  @click="paymentMethod = 'direct_transfer'"
+                >
+                  <span class="flex items-center gap-1.5"><Landmark class="h-3.5 w-3.5 text-brand-600" /> Direct Transfer</span>
+                  <span class="text-[10px] opacity-80">Pay to vendor bank</span>
+                </button>
+                <button
+                  type="button"
+                  class="flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition"
+                  :class="paymentMethod === 'paystack' ? 'border-brand-600 bg-brand-50 text-brand-900 font-bold dark:bg-brand-950/40 dark:text-brand-300' : 'border-line bg-surface text-muted hover:bg-raised'"
+                  @click="paymentMethod = 'paystack'"
+                >
+                  <span class="flex items-center gap-1.5"><ShieldCheck class="h-3.5 w-3.5 text-brand-600" /> Pay Online</span>
+                  <span class="text-[10px] opacity-80">Cards & Instant</span>
+                </button>
+              </div>
             </div>
 
-            <!-- Bank Account Card -->
-            <div v-if="paymentMethod === 'direct_transfer'" class="rounded-2xl border-2 border-brand-500/30 bg-raised/40 p-4 space-y-3">
+            <!-- Bank Account Card: shows whenever Direct Transfer is the chosen method OR when card payment is disabled -->
+            <div
+              v-if="directTransferAvailable && (paymentMethod === 'direct_transfer' || !cardPaymentAvailable)"
+              class="rounded-2xl border-2 border-brand-500/30 bg-raised/40 p-4 space-y-3"
+            >
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-ink">Vendor Bank Account</span>
                 <span class="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">Direct transfer</span>
@@ -279,12 +301,12 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
               <div class="space-y-2 rounded-xl border border-line bg-surface p-3 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="text-muted">Bank Name</span>
-                  <span class="font-bold text-ink">{{ business.directTransfer.bankName }}</span>
+                  <span class="font-bold text-ink">{{ business.directTransfer?.bankName }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-muted">Account Number</span>
                   <div class="flex items-center gap-2">
-                    <span class="font-mono text-sm font-bold tracking-wider text-ink">{{ business.directTransfer.accountNumber }}</span>
+                    <span class="font-mono text-sm font-bold tracking-wider text-ink">{{ business.directTransfer?.accountNumber }}</span>
                     <button
                       type="button"
                       class="inline-flex items-center gap-1 rounded-md bg-raised px-2 py-0.5 text-[10px] font-semibold text-brand-600 hover:bg-brand-50 active:scale-95 transition"
@@ -298,15 +320,15 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-muted">Account Name</span>
-                  <span class="font-bold text-ink">{{ business.directTransfer.accountName }}</span>
+                  <span class="font-bold text-ink">{{ business.directTransfer?.accountName }}</span>
                 </div>
                 <div class="flex items-center justify-between border-t border-line pt-2">
                   <span class="font-semibold text-muted">Amount to send</span>
                   <span class="font-display text-base font-bold text-brand-600">{{ formatNaira(deposit || total) }}</span>
                 </div>
               </div>
-              <p v-if="business.directTransfer.instructions" class="text-[11px] text-muted">
-                {{ business.directTransfer.instructions }}
+              <p v-if="business.directTransfer?.instructions" class="text-[11px] text-muted">
+                {{ business.directTransfer?.instructions }}
               </p>
               <BaseInput
                 v-model="transferSenderName"
@@ -319,7 +341,7 @@ onMounted(() => { const d = new Date(); date.value = d.toISOString().slice(0, 10
 
           <p v-if="error" class="rounded-xl bg-danger/10 p-3 text-xs font-semibold text-danger">{{ error }}</p>
           <BaseButton type="submit" block size="lg" :loading="submitting">
-            <template v-if="paymentMethod === 'direct_transfer' && business.directTransfer?.enabled">
+            <template v-if="directTransferAvailable && (paymentMethod === 'direct_transfer' || !cardPaymentAvailable)">
               I have sent {{ formatNaira(deposit || total) }} <ArrowRight class="h-4 w-4" />
             </template>
             <template v-else>

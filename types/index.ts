@@ -128,6 +128,7 @@ export interface StorefrontBusiness {
   businessMode?: 'products' | 'services' | 'hybrid'; bookingSettings?: BookingSettings | null; orderPolicy?: string;
   campusCode?: string | null; campusName?: string | null; campusVerified?: boolean;
   serviceChargeEnabled?: boolean; serviceChargeType?: 'percent' | 'fixed'; serviceChargePercent?: number; serviceChargeFixedKobo?: number; serviceChargeWaitlistEnabled?: boolean;
+  cardPaymentEnabled?: boolean;
   directTransfer?: {
     enabled: boolean;
     bankName: string;

@@ -100,7 +100,7 @@ onMounted(loadAll);
           <NuxtLink to="/app/bookings" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-forest-900">Open calendar <ArrowUpRight class="h-3 w-3" /></NuxtLink>
         </StatCard>
         <StatCard label="Service revenue" :value="appointments.metrics.value?.summary.revenueKobo || 0" :hint="`${appointments.metrics.value?.summary.completed || 0} completed bookings`" />
-        <StatCard label="Collected online" :value="appointments.metrics.value?.summary.collectedKobo || 0" tone="dark" :hint="`${appointments.metrics.value?.summary.marketplaceBookings || 0} marketplace booking${appointments.metrics.value?.summary.marketplaceBookings === 1 ? '' : 's'}`">
+        <StatCard label="Collected online" :value="appointments.metrics.value?.summary.collectedKobo || 0" tone="dark" :hint="`${appointments.metrics.value?.summary.marketplaceBookings || 0} marketplace · ${appointments.metrics.value?.summary.waitlistCount || 0} paid waitlist`">
           <NuxtLink to="/app/bookings" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-accent">Payments <ArrowUpRight class="h-3 w-3" /></NuxtLink>
         </StatCard>
         <StatCard label="Appointments today" :value="appointments.summary.today" format="number" :hint="`${appointments.summary.upcoming} upcoming · ${appointments.summary.pending} to confirm`">

@@ -27,8 +27,9 @@ onMounted(load);
     <PageHeader title="Earnings & withdrawals" subtitle="Withdraw the money you have earned from completed, paid bookings." eyebrow="Money & people">
       <template #actions><BaseButton to="/app/bookings/all" variant="outline">View bookings</BaseButton></template>
     </PageHeader>
-    <div class="grid gap-3 sm:grid-cols-3">
+    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <div class="card p-4"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted"><Banknote class="h-4 w-4" /> Available to withdraw</div><p class="mt-2 font-display text-2xl font-bold">{{ formatNaira(summary?.availableKobo || 0) }}</p><p class="mt-1 text-[10px] text-muted">From {{ summary?.completedBookings || 0 }} completed booking{{ summary?.completedBookings === 1 ? '' : 's' }}</p></div>
+            <div class="card p-4"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted"><Clock3 class="h-4 w-4" /> Paid waitlist value</div><p class="mt-2 font-display text-2xl font-bold">{{ formatNaira(summary?.waitlistKobo || 0) }}</p><p class="mt-1 text-[10px] text-muted">{{ summary?.waitlistCount || 0 }} paid waitlist request{{ summary?.waitlistCount === 1 ? '' : 's' }} · held until converted</p></div>
       <div class="card p-4"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted"><Clock3 class="h-4 w-4" /> Being processed</div><p class="mt-2 font-display text-2xl font-bold">{{ formatNaira(summary?.pendingKobo || 0) }}</p><p class="mt-1 text-[10px] text-muted">Pending or approved requests</p></div>
       <div class="card p-4"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted"><CheckCircle2 class="h-4 w-4" /> Paid out</div><p class="mt-2 font-display text-2xl font-bold">{{ formatNaira(summary?.paidKobo || 0) }}</p><p class="mt-1 text-[10px] text-muted">Total withdrawn to your bank</p></div>
     </div>

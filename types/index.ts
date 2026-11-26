@@ -560,7 +560,7 @@ export interface BookingMetrics {
   range: { preset: string; from: string; to: string; label: string; human: string };
   summary: {
     bookings: number; completed: number; pending: number; cancelled: number; noShows: number;
-    revenueKobo: number; collectedKobo: number; marketplaceBookings: number; marketplaceRevenueKobo: number;
+    revenueKobo: number; collectedKobo: number; waitlistKobo: number; waitlistCount: number; marketplaceBookings: number; marketplaceRevenueKobo: number;
     repeatCustomers: number; noShowRate: number;
   };
   topServices: { name: string; bookings: number; revenueKobo: number }[];

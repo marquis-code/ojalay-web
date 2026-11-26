@@ -16,7 +16,7 @@ const editing = ref<Service | null>(null);
 const removing = ref<Service | null>(null);
 const form = reactive({
   name: '', description: '', category: 'Beauty', imageUrl: '', color: '#FF5A1F',
-  durationMinutes: 60, showDuration: true, quantityEnabled: false, quantityLabel: 'Quantity', minQuantity: 1, maxQuantity: 20, bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
+  durationMinutes: 60, showDuration: true, quantityEnabled: false, quantityLabel: 'Quantity', minQuantity: 1, maxQuantity: 20, workerPay: '', bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
   price: '', deposit: '', requiresDeposit: false, maxBookingsPerSlot: 1,
   providerIds: [] as string[], isActive: true,
   addOns: [] as { name: string; price: string; durationMinutes: number }[],
@@ -27,7 +27,7 @@ const avgPrice = computed(() => activeCount.value ? Math.round(items.value.filte
 function reset() {
   Object.assign(form, {
     name: '', description: '', category: categories.value[0] || 'Beauty', imageUrl: '', color: '#FF5A1F',
-    durationMinutes: 60, showDuration: true, quantityEnabled: false, quantityLabel: 'Quantity', minQuantity: 1, maxQuantity: 20, bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
+    durationMinutes: 60, showDuration: true, quantityEnabled: false, quantityLabel: 'Quantity', minQuantity: 1, maxQuantity: 20, workerPay: '', bufferBeforeMinutes: 0, bufferAfterMinutes: 15,
     price: '', deposit: '', requiresDeposit: false, maxBookingsPerSlot: 1,
     providerIds: providers.value.slice(0, 1).map((p) => p.id), isActive: true, addOns: [],
   });
@@ -38,7 +38,7 @@ function openEdit(service: Service) {
   editing.value = service;
   Object.assign(form, {
     name: service.name, description: service.description, category: service.category,
-    imageUrl: service.imageUrl || '', color: service.color, durationMinutes: service.durationMinutes, showDuration: service.showDuration !== false, quantityEnabled: Boolean(service.quantityEnabled), quantityLabel: service.quantityLabel || 'Quantity', minQuantity: service.minQuantity || 1, maxQuantity: service.maxQuantity || 20,
+    imageUrl: service.imageUrl || '', color: service.color, durationMinutes: service.durationMinutes, showDuration: service.showDuration !== false, quantityEnabled: Boolean(service.quantityEnabled), quantityLabel: service.quantityLabel || 'Quantity', minQuantity: service.minQuantity || 1, maxQuantity: service.maxQuantity || 20, workerPay: nairaInput(service.workerPayKobo || 0),
     bufferBeforeMinutes: service.bufferBeforeMinutes, bufferAfterMinutes: service.bufferAfterMinutes,
     price: nairaInput(service.priceKobo), deposit: nairaInput(service.depositKobo),
     requiresDeposit: service.requiresDeposit, maxBookingsPerSlot: service.maxBookingsPerSlot,
@@ -58,7 +58,7 @@ async function save() {
     const payload = {
       name: form.name.trim(), description: form.description.trim(), category: form.category,
       imageUrl: form.imageUrl || null, color: form.color,
-      durationMinutes: Math.max(0, Number(form.durationMinutes) || 0), showDuration: form.showDuration, quantityEnabled: form.quantityEnabled, quantityLabel: form.quantityLabel || 'Quantity', minQuantity: Math.max(1, Number(form.minQuantity) || 1), maxQuantity: Math.max(1, Number(form.maxQuantity) || 20),
+      durationMinutes: Math.max(0, Number(form.durationMinutes) || 0), showDuration: form.showDuration, quantityEnabled: form.quantityEnabled, quantityLabel: form.quantityLabel || 'Quantity', minQuantity: Math.max(1, Number(form.minQuantity) || 1), maxQuantity: Math.max(1, Number(form.maxQuantity) || 20), workerPayKobo: nairaToKobo(form.workerPay),
       bufferBeforeMinutes: Number(form.bufferBeforeMinutes) || 0,
       bufferAfterMinutes: Number(form.bufferAfterMinutes) || 0,
       priceKobo: nairaToKobo(form.price), depositKobo: nairaToKobo(form.deposit),
@@ -138,7 +138,7 @@ onMounted(async () => {
           <div v-if="form.quantityEnabled" class="mt-3 grid gap-3 sm:grid-cols-3"><BaseInput v-model="form.quantityLabel" label="Unit label" placeholder="Number of bunks" /><BaseInput v-model="form.minQuantity" label="Minimum" type="number" min="1" /><BaseInput v-model="form.maxQuantity" label="Maximum" type="number" min="1" /></div>
           <p class="mt-2 text-[10px] leading-relaxed text-muted">Customers choose how many units they want. Price and duration multiply by the number of units.</p>
         </div>
-        <BaseInput v-model="form.bufferBeforeMinutes" label="Buffer before (min)" type="number" min="0" />
+        <BaseInput v-model="form.workerPay" label="Worker pay" prefix="₦" inputmode="decimal" :hint="form.quantityEnabled ? 'Per unit. Multiplied by the quantity selected.' : 'Paid to the worker when this job is completed.'" /><BaseInput v-model="form.bufferBeforeMinutes" label="Buffer before (min)" type="number" min="0" />
           <BaseInput v-model="form.bufferAfterMinutes" label="Buffer after (min)" type="number" min="0" />
         </div>
         <BaseTextarea v-model="form.description" label="Description" placeholder="What is included? Who is it for?" />

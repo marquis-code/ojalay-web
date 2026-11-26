@@ -42,6 +42,7 @@ const groups: Array<{ label: string; links: NavLink[] }> = [
       { to: '/app/expenses', label: 'Expenses', icon: ReceiptText },
       { to: '/app/payouts', label: 'Payouts & withdrawals', icon: Banknote, ownerOnly: true },
       { to: '/app/reports', label: 'Reports', icon: BarChart3 },
+      { to: '/app/earnings', label: 'Earnings & withdrawals', icon: Banknote },
       { to: '/app/report-card', label: 'Weekly report card', icon: Sparkles },
       { to: '/app/reviews', label: 'Reviews', icon: Star, modes: ['services', 'hybrid'] },
     ],

@@ -274,6 +274,7 @@ export interface Service {
   quantityLabel: string;
   minQuantity: number;
   maxQuantity: number;
+  workerPayKobo: number;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
   priceKobo: number;
@@ -327,6 +328,8 @@ export interface Provider {
   bankCode?: string | null;
   accountName?: string | null;
   bankAccountLast4?: string | null;
+  earningsKobo?: number;
+  paidEarningsKobo?: number;
   hasBankDetails?: boolean;
 }
 export interface PublicProvider {

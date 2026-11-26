@@ -21,14 +21,15 @@ const secondWorkerOptions = computed(() => [
   ...providers.value.filter((p) => p.id !== selected.value?.providerId).map((p) => ({ value: p.id, label: p.name })),
 ]);
 
-function calculateWorkerPay(serviceName?: string, count: 1 | 2 = 1): number {
+function calculateWorkerPay(serviceName?: string, count: 1 | 2 = 1, quantity = 1): number {
   const norm = (serviceName || '').toLowerCase();
+  const units = Math.max(1, Number(quantity) || 1);
   if (norm.includes('4-man') || norm.includes('4 man')) return count === 2 ? 500000 : 1000000;
   if (norm.includes('6-man') || norm.includes('6 man')) return count === 2 ? 600000 : 1200000;
-  if (norm.includes('premium') && norm.includes('double bunk')) return 300000;
-  if (norm.includes('double bunk')) return 200000;
-  if (norm.includes('premium') && norm.includes('single bunk')) return 150000;
-  if (norm.includes('single bunk')) return 100000;
+  if (norm.includes('premium') && norm.includes('double bunk')) return 300000 * units;
+  if (norm.includes('double bunk')) return 200000 * units;
+  if (norm.includes('premium') && norm.includes('single bunk')) return 150000 * units;
+  if (norm.includes('single bunk')) return 100000 * units;
   return 0;
 }
 
@@ -334,7 +335,7 @@ onMounted(async () => {
         <div v-if="selected.status === 'confirmed' && isRoomService(selected.serviceName)" class="rounded-2xl border border-line bg-surface p-3.5 text-xs space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-ink flex items-center gap-1.5"><Users class="h-4 w-4 text-brand-600" /> Steaming Team (Payment Plan)</span>
-            <span class="font-bold text-brand-600">{{ workerCount === 2 ? `${formatNaira(calculateWorkerPay(selected.serviceName, 2))} each` : formatNaira(calculateWorkerPay(selected.serviceName, 1)) }}</span>
+            <span class="font-bold text-brand-600">{{ workerCount === 2 ? `${formatNaira(calculateWorkerPay(selected.serviceName, 2, selected.quantity || 1))} each` : formatNaira(calculateWorkerPay(selected.serviceName, 1, selected.quantity || 1)) }}</span>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <button
@@ -344,7 +345,7 @@ onMounted(async () => {
               @click="workerCount = 1"
             >
               <span>1 Worker</span>
-              <span class="text-[10px]">{{ formatNaira(calculateWorkerPay(selected.serviceName, 1)) }} full pay</span>
+              <span class="text-[10px]">{{ formatNaira(calculateWorkerPay(selected.serviceName, 1, selected.quantity || 1)) }} full pay</span>
             </button>
             <button
               type="button"
@@ -353,7 +354,7 @@ onMounted(async () => {
               @click="workerCount = 2"
             >
               <span>2 Workers (Split)</span>
-              <span class="text-[10px]">{{ formatNaira(calculateWorkerPay(selected.serviceName, 2)) }} each</span>
+              <span class="text-[10px]">{{ formatNaira(calculateWorkerPay(selected.serviceName, 2, selected.quantity || 1)) }} each</span>
             </button>
           </div>
           <div v-if="workerCount === 2">
@@ -361,9 +362,9 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div v-else-if="selected.status === 'confirmed' && calculateWorkerPay(selected.serviceName, 1) > 0" class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 text-xs">
+        <div v-else-if="selected.status === 'confirmed' && calculateWorkerPay(selected.serviceName, 1, selected.quantity || 1) > 0" class="flex items-center justify-between rounded-2xl border border-line bg-surface p-3 text-xs">
           <span class="text-muted flex items-center gap-1.5"><Banknote class="h-3.5 w-3.5 text-brand-600" /> Worker Pay (Earned on completion)</span>
-          <span class="font-bold text-ink">{{ formatNaira(calculateWorkerPay(selected.serviceName, 1)) }}</span>
+          <span class="font-bold text-ink">{{ formatNaira(calculateWorkerPay(selected.serviceName, 1, selected.quantity || 1)) }}</span>
         </div>
 
         <div v-else-if="selected.workerBreakdown?.length" class="rounded-2xl border border-line bg-surface p-3 text-xs space-y-1.5">
